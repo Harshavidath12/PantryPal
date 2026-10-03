@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp"
+    android:height="60dp"
+    android:viewportWidth="60"
+    android:viewportHeight="60">
+    <!-- Container background -->
+    <path
+        android:fillColor="#FFEBEE"
+        android:pathData="M8,8h44v44h-44z"/>
+    <!-- Strawberry body -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M18,22 C18,18 42,18 42,22 C42,35 30,46 30,46 C30,46 18,35 18,22 Z"/>
+    <!-- Strawberry leaves -->
+    <path
+        android:fillColor="#43A047"
+        android:pathData="M22,18 C26,21 30,17 30,17 C30,17 34,21 38,18 C35,16 25,16 22,18 Z"/>
+    <!-- Orange badge -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M38,38 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0"/>
+</vector>

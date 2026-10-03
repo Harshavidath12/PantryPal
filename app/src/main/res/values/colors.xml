@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Theme Colors -->
+    <color name="pantry_primary">#0B664B</color>
+    <color name="pantry_primary_dark">#054B36</color>
+    <color name="pantry_primary_light">#E2F0EA</color>
+    <color name="pantry_primary_container">#D8ECE4</color>
+
+    <!-- Backgrounds -->
+    <color name="pantry_bg">#FAF8F5</color>
+    <color name="pantry_card_bg">#FFFFFF</color>
+
+    <!-- Urgency / Tag Colors -->
+    <color name="pantry_tag_red_bg">#FFEBEE</color>
+    <color name="pantry_tag_red_text">#D32F2F</color>
+    <color name="pantry_tag_orange_text">#D97706</color>
+    <color name="pantry_tag_gray_bg">#EFEFEA</color>
+
+    <!-- Button & Chip Colors -->
+    <color name="chip_selected_bg">#0B664B</color>
+    <color name="chip_selected_text">#FFFFFF</color>
+    <color name="chip_unselected_bg">#EFEFEA</color>
+    <color name="chip_unselected_text">#374151</color>
+    <color name="btn_recipe_bg">#F4EFE6</color>
+    <color name="btn_recipe_text">#5D4037</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_muted">#9CA3AF</color>
+
+    <!-- Avatars -->
+    <color name="avatar_tm_bg">#F8D7DA</color>
+    <color name="avatar_tm_text">#842029</color>
+    <color name="avatar_ak_bg">#D1E7DD</color>
+    <color name="avatar_ak_text">#0F5132</color>
+
+    <!-- Standard Colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

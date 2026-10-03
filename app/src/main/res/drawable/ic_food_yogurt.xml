@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp"
+    android:height="60dp"
+    android:viewportWidth="60"
+    android:viewportHeight="60">
+    <!-- Container background -->
+    <path
+        android:fillColor="#E8EAF6"
+        android:pathData="M8,8h44v44h-44z"/>
+    <!-- Yogurt bowl -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M15,22 C15,38 45,38 45,22 Z"/>
+    <!-- Top rim -->
+    <path
+        android:fillColor="#C5CAE9"
+        android:pathData="M12,20 h36 v4 h-36 z"/>
+    <!-- Green badge -->
+    <path
+        android:fillColor="#0B664B"
+        android:pathData="M38,38 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,34 h4 v8 h-4 z M41,36 h8 v4 h-8 z"/>
+</vector>

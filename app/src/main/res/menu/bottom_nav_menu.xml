@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_pantry"
+        android:icon="@drawable/ic_pantry"
+        android:title="@string/nav_pantry" />
+
+    <item
+        android:id="@+id/nav_shopping"
+        android:icon="@drawable/ic_shopping"
+        android:title="@string/nav_shopping" />
+
+    <!-- Invisible placeholder that leaves the middle empty for the FAB cradle -->
+    <item
+        android:id="@+id/nav_placeholder"
+        android:enabled="false"
+        android:title="" />
+
+    <item
+        android:id="@+id/nav_surplus"
+        android:icon="@drawable/ic_leaf"
+        android:title="@string/nav_surplus" />
+
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_person"
+        android:title="@string/nav_profile" />
+
+</menu>

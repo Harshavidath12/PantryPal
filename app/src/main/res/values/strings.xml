@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Pantry Pal</string>
+    <string name="title_pantry">Pantry</string>
+    <string name="title_alerts_reminders">Alerts &amp; Reminders</string>
+    <string name="subtitle_pantry_synced">• Main Pantry Synced</string>
+    <string name="filter_all">All</string>
+    <string name="filter_expiry">Expiry</string>
+    <string name="filter_sync_shared">Sync &amp; Shared</string>
+    <string name="section_expiring_today">EXPIRING TODAY</string>
+    <string name="section_expiring_soon">EXPIRING IN 2–3 DAYS</string>
+    <string name="section_shared_updates">SHARED UPDATES</string>
+    <string name="tag_action_needed">• Action Needed</string>
+    <string name="tag_household_feed">Household Feed</string>
+    <string name="btn_recipe_ideas">Recipe Ideas</string>
+    <string name="btn_mark_consumed">Mark Consumed</string>
+    <string name="btn_add_to_restock">Add to Restock</string>
+    <string name="nav_pantry">Pantry</string>
+    <string name="nav_shopping">Shopping</string>
+    <string name="nav_surplus">Surplus</string>
+    <string name="nav_profile">Profile</string>
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_profile">Profile</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_sync">Sync</string>
+    <string name="cd_add_new_alert">Add New Alert</string>
+</resources>

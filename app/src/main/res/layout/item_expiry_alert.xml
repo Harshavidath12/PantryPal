@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardContainer"
+    style="@style/PantryCardStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="8dp"
+    app:cardElevation="1dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Top Content Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Thumbnail Image -->
+            <ImageView
+                android:id="@+id/ivFoodImage"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:contentDescription="Food item thumbnail"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_food_yogurt" />
+
+            <!-- Details Column -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvItemTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Greek Yogurt (500g)"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCategoryLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Dairy &amp; Refrigerated • Shelf 2"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvExpiryDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="• Expires: Today at 11:59 PM"
+                    android:textColor="@color/pantry_tag_red_text"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- 3-Dots Menu -->
+            <ImageButton
+                android:id="@+id/btnMoreOptions"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="top"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="More options"
+                android:src="@drawable/ic_more_vert" />
+
+        </LinearLayout>
+
+        <!-- Action Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <!-- Primary Button (Recipe Ideas / Add to Restock) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrimaryAction"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="42dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/btn_recipe_bg"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="Recipe Ideas"
+                android:textColor="@color/btn_recipe_text"
+                android:textSize="11.5sp"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_sparkles"
+                app:iconGravity="textStart"
+                app:iconPadding="2dp"
+                app:iconSize="16dp"
+                app:iconTint="@color/btn_recipe_text" />
+
+            <!-- Mark Consumed Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMarkConsumed"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="42dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/pantry_primary_light"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:text="Mark Consumed"
+                android:textColor="@color/pantry_primary"
+                android:textSize="11.5sp"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_check"
+                app:iconGravity="textStart"
+                app:iconPadding="2dp"
+                app:iconSize="16dp"
+                app:iconTint="@color/pantry_primary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

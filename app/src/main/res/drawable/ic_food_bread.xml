@@ -1,0 +1,25 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="60dp"
+    android:height="60dp"
+    android:viewportWidth="60"
+    android:viewportHeight="60">
+    <!-- Container background -->
+    <path
+        android:fillColor="#FFF8E1"
+        android:pathData="M8,8h44v44h-44z"/>
+    <!-- Bread loaf -->
+    <path
+        android:fillColor="#D7CCC8"
+        android:pathData="M15,25 C15,18 45,18 45,25 L43,42 C43,45 17,45 17,42 Z"/>
+    <!-- Crust top -->
+    <path
+        android:fillColor="#8D6E63"
+        android:pathData="M15,25 C15,18 45,18 45,25 C45,28 15,28 15,25 Z"/>
+    <!-- Orange badge -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M38,38 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,34 h4 v8 h-4 z"/>
+</vector>
