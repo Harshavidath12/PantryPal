@@ -19,8 +19,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pantrypal.data.model.AlertUrgency
 import com.example.pantrypal.data.model.FilterType
 import com.example.pantrypal.data.model.NotificationItem
+import com.example.pantrypal.data.model.PantryItemDto
 import com.example.pantrypal.data.model.PrimaryButtonType
-import com.example.pantrypal.data.repository.NotificationRepositoryImpl
+import com.example.pantrypal.data.repository.NotificationRepository
 import com.example.pantrypal.databinding.ActivityMainBinding
 import com.example.pantrypal.databinding.DialogAddAlertBinding
 import com.example.pantrypal.databinding.DialogRecipeIdeasBinding
@@ -29,6 +30,7 @@ import com.example.pantrypal.ui.notifications.NotificationViewModel
 import com.example.pantrypal.ui.notifications.NotificationViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import kotlinx.serialization.InternalSerializationApi
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,31 +53,47 @@ class MainActivity : AppCompatActivity() {
 
         setupArchitecture()
         setupRecyclerView()
-        setupFilterChips()
         setupClickListeners()
         observeUiState()
     }
 
     private fun setupArchitecture() {
-        val repository = NotificationRepositoryImpl()
+        val repository = NotificationRepository()
         val factory = NotificationViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[NotificationViewModel::class.java]
     }
 
+    @OptIn(InternalSerializationApi::class)
     private fun setupRecyclerView() {
         adapter = NotificationAdapter(
             onPrimaryActionClicked = { alert ->
                 if (alert.primaryButtonType == PrimaryButtonType.RECIPE_IDEAS) {
                     showRecipeIdeasDialog(alert)
                 } else {
-                    viewModel.toggleRestock(alert.id, alert.title)
+                    viewModel.onAddToRestockClicked(
+                        PantryItemDto(
+                            id = alert.id,
+                            title = alert.title,
+                            categoryZone = alert.categoryAndLocation,
+                            expiryText = alert.expiryText,
+                            urgency = alert.urgency.name
+                        )
+                    )
                 }
             },
             onMarkConsumedClicked = { alert ->
-                viewModel.markConsumed(alert.id, alert.title)
+                viewModel.onMarkConsumedClicked(
+                    PantryItemDto(
+                        id = alert.id,
+                        title = alert.title,
+                        categoryZone = alert.categoryAndLocation,
+                        expiryText = alert.expiryText,
+                        urgency = alert.urgency.name
+                    )
+                )
             },
             onDeleteAlertClicked = { alert ->
-                viewModel.deleteNotification(alert.id, alert.title)
+                // Not supported yet
             },
             onSharedUpdateClicked = { update ->
                 Toast.makeText(this, "Opening details for ${update.userName}'s update", Toast.LENGTH_SHORT).show()
@@ -86,23 +104,11 @@ class MainActivity : AppCompatActivity() {
         binding.rvNotifications.adapter = adapter
     }
 
-    private fun setupFilterChips() {
-        binding.chipAll.setOnClickListener {
-            viewModel.setFilter(FilterType.ALL)
-        }
-
-        binding.chipExpiry.setOnClickListener {
-            viewModel.setFilter(FilterType.EXPIRY)
-        }
-
-        binding.chipSyncShared.setOnClickListener {
-            viewModel.setFilter(FilterType.SYNC_SHARED)
-        }
-    }
-
     private fun setupClickListeners() {
+        viewModel.fetchAlerts()
+        
         binding.btnSync.setOnClickListener {
-            viewModel.refreshData()
+            viewModel.fetchAlerts()
         }
 
         binding.btnBack.setOnClickListener {
@@ -138,59 +144,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(InternalSerializationApi::class)
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    // Submit items to adapter
-                    adapter.submitList(state.items)
+                launch {
+                    viewModel.alerts.collect { alertsDto ->
+                        val items = mutableListOf<NotificationItem>()
+                        
+                        items.add(NotificationItem.SectionHeader(id = "sec_today", title = "ALERTS", itemCountText = "${alertsDto.size} items"))
 
-                    // Update Chip Counts
-                    binding.tvChipAllCount.text = state.totalCount.toString()
-                    binding.tvChipExpiryCount.text = state.expiryCount.toString()
+                        alertsDto.forEach { dto ->
+                            items.add(
+                                NotificationItem.ExpiryAlert(
+                                    id = dto.id ?: "",
+                                    title = dto.title,
+                                    categoryAndLocation = dto.categoryZone,
+                                    expiryText = dto.expiryText,
+                                    urgency = if (dto.urgency == "EXPIRING_TODAY") AlertUrgency.EXPIRING_TODAY else AlertUrgency.EXPIRING_SOON,
+                                    imageResId = R.drawable.ic_food_yogurt,
+                                    primaryButtonType = if (dto.urgency == "EXPIRING_TODAY") PrimaryButtonType.RECIPE_IDEAS else PrimaryButtonType.ADD_TO_RESTOCK
+                                )
+                            )
+                        }
 
-                    // Update Chip Selected Visual States
-                    updateChipVisuals(state.activeFilter)
+                        // Submit items to adapter
+                        adapter.submitList(items)
 
-                    // Show snackbar message if present
-                    state.userMessage?.let { msg ->
-                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG)
-                            .setAction("Dismiss") { viewModel.clearUserMessage() }
-                            .show()
-                        viewModel.clearUserMessage()
+                        // Update Chip Counts
+                        binding.tvChipAllCount.text = alertsDto.size.toString()
+                        binding.tvChipExpiryCount.text = alertsDto.size.toString()
                     }
                 }
-            }
-        }
-    }
-
-    private fun updateChipVisuals(filter: FilterType) {
-        // Reset all
-        binding.chipAll.setBackgroundResource(R.drawable.bg_chip_unselected)
-        binding.tvChipAllText.setTextColor(ContextCompat.getColor(this, R.color.chip_unselected_text))
-        binding.tvChipAllCount.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-
-        binding.chipExpiry.setBackgroundResource(R.drawable.bg_chip_unselected)
-        binding.tvChipExpiryText.setTextColor(ContextCompat.getColor(this, R.color.chip_unselected_text))
-        binding.tvChipExpiryCount.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
-
-        binding.chipSyncShared.setBackgroundResource(R.drawable.bg_chip_unselected)
-        binding.tvChipSyncText.setTextColor(ContextCompat.getColor(this, R.color.chip_unselected_text))
-
-        when (filter) {
-            FilterType.ALL -> {
-                binding.chipAll.setBackgroundResource(R.drawable.bg_chip_selected)
-                binding.tvChipAllText.setTextColor(ContextCompat.getColor(this, R.color.chip_selected_text))
-                binding.tvChipAllCount.setTextColor(ContextCompat.getColor(this, R.color.pantry_primary))
-            }
-            FilterType.EXPIRY -> {
-                binding.chipExpiry.setBackgroundResource(R.drawable.bg_chip_selected)
-                binding.tvChipExpiryText.setTextColor(ContextCompat.getColor(this, R.color.chip_selected_text))
-                binding.tvChipExpiryCount.setTextColor(ContextCompat.getColor(this, R.color.pantry_primary))
-            }
-            FilterType.SYNC_SHARED -> {
-                binding.chipSyncShared.setBackgroundResource(R.drawable.bg_chip_selected)
-                binding.tvChipSyncText.setTextColor(ContextCompat.getColor(this, R.color.chip_selected_text))
+                
+                launch {
+                    viewModel.message.collect { msg ->
+                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
@@ -225,7 +216,7 @@ class MainActivity : AppCompatActivity() {
             val finalCategory = if (category.isEmpty()) "Pantry • Storage" else category
             val finalExpiry = if (expiry.isEmpty()) "Soon" else expiry
 
-            viewModel.addNewAlert(title, finalCategory, finalExpiry, urgency)
+            Toast.makeText(this, "Alert added locally. (Mocked)", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
         }
 
