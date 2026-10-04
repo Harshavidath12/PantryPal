@@ -398,18 +398,9 @@ class MainActivity : AppCompatActivity() {
 
         dialogBinding.btnAdd.setOnClickListener {
             val title = dialogBinding.etItemTitle.text.toString().trim()
-            val category = dialogBinding.etCategoryLocation.text.toString().trim()
-            val expiry = dialogBinding.etExpiryText.text.toString().trim()
-
             if (title.isEmpty()) {
                 dialogBinding.etItemTitle.error = "Please enter item name"
                 return@setOnClickListener
-            }
-
-            val urgency = if (dialogBinding.rbExpiringToday.isChecked) {
-                AlertUrgency.EXPIRING_TODAY
-            } else {
-                AlertUrgency.EXPIRING_SOON
             }
 
             Toast.makeText(this, "Alert added locally. (Mocked)", Toast.LENGTH_SHORT).show()

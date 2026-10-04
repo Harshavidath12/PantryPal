@@ -46,4 +46,14 @@
     <string name="shopping_empty_input_warning">Please enter an item name.</string>
     <string name="shopping_restock_success">Restocked %1$d item(s) to Pantry!</string>
     <string name="shopping_moved_to_pantry">Moved %1$s to Pantry!</string>
+
+    <!-- Filter Dialog Strings -->
+    <string name="filter_dialog_title">Filter Shopping Items</string>
+    <string name="filter_all_items">All Items</string>
+    <string name="filter_auto_queued">Auto-queued</string>
+    <string name="filter_manual_entry">Manual Entry</string>
+    <string name="filter_low_stock">Low Stock</string>
+    <string name="filter_expired_pantry">Expired in Pantry</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_apply">Apply</string>
 </resources>
