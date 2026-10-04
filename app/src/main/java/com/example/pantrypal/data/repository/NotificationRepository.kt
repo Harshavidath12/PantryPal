@@ -8,18 +8,14 @@ import com.example.pantrypal.data.remote.SupabaseProvider
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.InternalSerializationApi
 
 class NotificationRepository {
 
-    @OptIn(InternalSerializationApi::class)
     private val pantryPostgrest = SupabaseProvider.client.from("pantry_items")
     
-    @OptIn(InternalSerializationApi::class)
     private val notificationPostgrest = SupabaseProvider.client.from("notifications")
 
     // 1. READ: Fetch all active alerts from Supabase (from 'notifications' table instead of 'pantry_items')
-    @OptIn(InternalSerializationApi::class)
     suspend fun getActiveAlerts(userId: Long): List<NotificationDto> = withContext(Dispatchers.IO) {
         notificationPostgrest.select {
             filter {
@@ -30,7 +26,6 @@ class NotificationRepository {
     }
 
     // 2. UPDATE: Button "[Mark Consumed]" updates status to 'CONSUMED'
-    @OptIn(InternalSerializationApi::class)
     suspend fun markItemAsConsumed(itemId: String, itemTitle: String) = withContext(Dispatchers.IO) {
         // Update pantry item
         pantryPostgrest.update({
@@ -50,7 +45,6 @@ class NotificationRepository {
     }
 
     // 4. DELETE: Dismiss an alert from the 'notifications' table
-    @OptIn(InternalSerializationApi::class)
     suspend fun dismissAlert(notificationId: Long) = withContext(Dispatchers.IO) {
         notificationPostgrest.delete {
             filter {
@@ -60,7 +54,6 @@ class NotificationRepository {
     }
 
     // 5. UPDATE: Mark a notification as read
-    @OptIn(InternalSerializationApi::class)
     suspend fun markNotificationAsRead(notificationId: Long) = withContext(Dispatchers.IO) {
         notificationPostgrest.update({
             set("is_read", true)
@@ -72,7 +65,6 @@ class NotificationRepository {
     }
 
     // 3. CREATE: Button "[Add to Restock]" adds row to shopping_items table
-    @OptIn(InternalSerializationApi::class)
     suspend fun addToRestockList(itemName: String, category: String) = withContext(Dispatchers.IO) {
         SupabaseProvider.client.from("shopping_items").insert(
             ShoppingItemDto(

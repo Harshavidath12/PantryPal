@@ -41,7 +41,6 @@ import com.example.pantrypal.ui.shopping.ShoppingViewModel
 import com.example.pantrypal.ui.shopping.ShoppingViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
-import kotlinx.serialization.InternalSerializationApi
 
 class MainActivity : AppCompatActivity() {
 
@@ -87,7 +86,6 @@ class MainActivity : AppCompatActivity() {
         shoppingViewModel = ViewModelProvider(this, shoppingFactory)[ShoppingViewModel::class.java]
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun setupRecyclerView() {
         adapter = NotificationAdapter(
             onPrimaryActionClicked = { alert ->
@@ -291,7 +289,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
