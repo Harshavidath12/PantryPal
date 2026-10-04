@@ -283,3 +283,33 @@ fun ItemDetailsDialog(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun ItemDetailsDialogPreview() {
+    // Mock sample item matching the design
+    val sampleItem = PantryItem(
+        id = "1",
+        title = "Fresh Whole Milk (2L)",
+        category = "Dairy & Refrigerated",
+        ownerName = "Tharushi (Shared)",
+        expiryText = "Expires in 2 Days",
+        progress = 0.65f,
+        imageUrl = null
+    )
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFFE8F5E9) // Subtle green backdrop to simulate the blurred dashboard
+    ) {
+        ItemDetailsDialog(
+            item = sampleItem,
+            onDismiss = {},
+            onMarkConsumed = {},
+            onAddToRestock = {},
+            onDonate = {},
+            onEdit = {},
+            onDelete = {}
+        )
+    }
+}
