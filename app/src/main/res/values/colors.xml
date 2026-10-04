@@ -35,6 +35,22 @@
     <color name="avatar_ak_bg">#D1E7DD</color>
     <color name="avatar_ak_text">#0F5132</color>
 
+    <!-- Shopping Screen Specific Colors -->
+    <color name="shopping_badge_qty_bg">#EFEFEA</color>
+    <color name="shopping_status_expired_bg">#FFEBE9</color>
+    <color name="shopping_status_expired_text">#B91C1C</color>
+    <color name="shopping_status_low_stock_bg">#FEF3C7</color>
+    <color name="shopping_status_low_stock_text">#B45309</color>
+    <color name="shopping_status_manual_bg">#E2F0EA</color>
+    <color name="shopping_status_manual_text">#0B664B</color>
+    <color name="shopping_status_empty_bg">#FEE2E2</color>
+    <color name="shopping_status_empty_text">#991B1B</color>
+    <color name="shopping_sync_card_bg">#F4F9F6</color>
+    <color name="shopping_restock_btn_disabled">#F3E8D0</color>
+    <color name="shopping_restock_btn_enabled">#F7C993</color>
+    <color name="shopping_restock_btn_text">#111827</color>
+    <color name="shopping_restock_btn_disabled_text">#9CA3AF</color>
+
     <!-- Standard Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
