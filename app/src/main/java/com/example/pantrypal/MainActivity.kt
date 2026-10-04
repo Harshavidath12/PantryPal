@@ -120,8 +120,8 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
-        binding.pantryScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).layoutManager = LinearLayoutManager(this)
-        binding.pantryScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).adapter = adapter
+        binding.notificationsScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).layoutManager = LinearLayoutManager(this)
+        binding.notificationsScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).adapter = adapter
     }
 
     private fun setupShoppingUI() {
@@ -196,19 +196,19 @@ class MainActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         viewModel.fetchAlerts()
 
-        val btnSync = binding.pantryScreenContainer.findViewById<View>(R.id.btnSync)
+        val btnSync = binding.notificationsScreenContainer.findViewById<View>(R.id.btnSync)
         btnSync?.setOnClickListener {
             viewModel.fetchAlerts()
         }
 
-        val btnBack = binding.pantryScreenContainer.findViewById<View>(R.id.btnBack)
+        val btnBack = binding.notificationsScreenContainer.findViewById<View>(R.id.btnBack)
         btnBack?.setOnClickListener {
-            Toast.makeText(this, "Back pressed", Toast.LENGTH_SHORT).show()
+            binding.notificationsScreenContainer.visibility = View.GONE
         }
 
         val btnBell = binding.pantryScreenContainer.findViewById<View>(R.id.btnBell)
         btnBell?.setOnClickListener {
-            Toast.makeText(this, "Notifications menu", Toast.LENGTH_SHORT).show()
+            binding.notificationsScreenContainer.visibility = View.VISIBLE
         }
 
         val btnProfileAvatar = binding.pantryScreenContainer.findViewById<View>(R.id.btnProfileAvatar)
@@ -263,6 +263,7 @@ class MainActivity : AppCompatActivity() {
             NavTab.PANTRY -> {
                 binding.pantryScreenContainer.visibility = View.VISIBLE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
                 binding.tvNavPantry.setTextColor(primaryColor)
                 binding.tvNavPantry.typeface = Typeface.DEFAULT_BOLD
@@ -270,18 +271,21 @@ class MainActivity : AppCompatActivity() {
             NavTab.SHOPPING -> {
                 binding.pantryScreenContainer.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.VISIBLE
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
                 binding.tvNavShopping.setTextColor(primaryColor)
                 binding.tvNavShopping.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.SURPLUS -> {
                 Toast.makeText(this, "Surplus tab selected", Toast.LENGTH_SHORT).show()
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavSurplus.setColorFilter(primaryColor)
                 binding.tvNavSurplus.setTextColor(primaryColor)
                 binding.tvNavSurplus.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.PROFILE -> {
                 Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavProfile.setColorFilter(primaryColor)
                 binding.tvNavProfile.setTextColor(primaryColor)
                 binding.tvNavProfile.typeface = Typeface.DEFAULT_BOLD
@@ -316,8 +320,8 @@ class MainActivity : AppCompatActivity() {
                         adapter.submitList(items)
 
                         // Update Chip Counts
-                        val tvChipAllCount = binding.pantryScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipAllCount)
-                        val tvChipExpiryCount = binding.pantryScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipExpiryCount)
+                        val tvChipAllCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipAllCount)
+                        val tvChipExpiryCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipExpiryCount)
                         tvChipAllCount?.text = alertsDto.size.toString()
                         tvChipExpiryCount?.text = alertsDto.size.toString()
                     }
