@@ -1,9 +1,11 @@
 package com.example.pantrypal.ui.notifications
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
+import android.widget.PopupWindow
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -147,19 +149,30 @@ class NotificationAdapter(
         }
 
         private fun showPopupMenu(view: View, item: NotificationItem.ExpiryAlert) {
-            val popup = PopupMenu(view.context, view)
-            popup.menu.add("Recipe Ideas")
-            popup.menu.add("Mark Consumed")
-            popup.menu.add("Dismiss Alert")
-            popup.setOnMenuItemClickListener { menuItem ->
-                when (menuItem.title) {
-                    "Recipe Ideas" -> onPrimaryActionClicked(item)
-                    "Mark Consumed" -> onMarkConsumedClicked(item)
-                    "Dismiss Alert" -> onDeleteAlertClicked(item)
-                }
+            val context = view.context
+            val inflater = LayoutInflater.from(context)
+            val popupView = inflater.inflate(R.layout.popup_dismiss_alert, null)
+
+            val popupWindow = PopupWindow(
+                popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 true
+            )
+
+            // Make it dismissible by clicking outside
+            popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            popupWindow.elevation = 16f
+
+            // Handle the click on the custom pill layout
+            popupView.setOnClickListener {
+                onDeleteAlertClicked(item)
+                popupWindow.dismiss()
             }
-            popup.show()
+
+            // Offset the popup so it aligns nicely with the 3 dots
+            // Negative X offset shifts it to the left to align right-edges roughly
+            popupWindow.showAsDropDown(view, -320, -40)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.pantrypal.data.repository
 
+import com.example.pantrypal.data.model.NotificationDto
 import com.example.pantrypal.data.model.PantryItemDto
 import com.example.pantrypal.data.model.SharedUpdateDto
 import com.example.pantrypal.data.model.ShoppingItemDto
@@ -12,23 +13,27 @@ import kotlinx.serialization.InternalSerializationApi
 class NotificationRepository {
 
     @OptIn(InternalSerializationApi::class)
-    private val postgrest = SupabaseProvider.client.from("pantry_items")
-
-    // 1. READ: Fetch all active alerts from Supabase
+    private val pantryPostgrest = SupabaseProvider.client.from("pantry_items")
+    
     @OptIn(InternalSerializationApi::class)
-    suspend fun getActiveAlerts(): List<PantryItemDto> = withContext(Dispatchers.IO) {
-        postgrest.select {
+    private val notificationPostgrest = SupabaseProvider.client.from("notifications")
+
+    // 1. READ: Fetch all active alerts from Supabase (from 'notifications' table instead of 'pantry_items')
+    @OptIn(InternalSerializationApi::class)
+    suspend fun getActiveAlerts(userId: Long): List<NotificationDto> = withContext(Dispatchers.IO) {
+        notificationPostgrest.select {
             filter {
-                eq("status", "ACTIVE")
+                eq("user_id", userId)
+                eq("is_read", false)
             }
-        }.decodeList<PantryItemDto>()
+        }.decodeList<NotificationDto>()
     }
 
     // 2. UPDATE: Button "[Mark Consumed]" updates status to 'CONSUMED'
     @OptIn(InternalSerializationApi::class)
     suspend fun markItemAsConsumed(itemId: String, itemTitle: String) = withContext(Dispatchers.IO) {
         // Update pantry item
-        postgrest.update({
+        pantryPostgrest.update({
             set("status", "CONSUMED")
         }) {
             filter { eq("id", itemId) }
@@ -42,6 +47,28 @@ class NotificationRepository {
                 detailsText = "Updated from Notifications"
             )
         )
+    }
+
+    // 4. DELETE: Dismiss an alert from the 'notifications' table
+    @OptIn(InternalSerializationApi::class)
+    suspend fun dismissAlert(notificationId: Long) = withContext(Dispatchers.IO) {
+        notificationPostgrest.delete {
+            filter {
+                eq("id", notificationId)
+            }
+        }
+    }
+
+    // 5. UPDATE: Mark a notification as read
+    @OptIn(InternalSerializationApi::class)
+    suspend fun markNotificationAsRead(notificationId: Long) = withContext(Dispatchers.IO) {
+        notificationPostgrest.update({
+            set("is_read", true)
+        }) {
+            filter {
+                eq("id", notificationId)
+            }
+        }
     }
 
     // 3. CREATE: Button "[Add to Restock]" adds row to shopping_items table

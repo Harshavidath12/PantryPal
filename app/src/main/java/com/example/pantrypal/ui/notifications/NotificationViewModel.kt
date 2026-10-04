@@ -2,6 +2,7 @@ package com.example.pantrypal.ui.notifications
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pantrypal.data.model.NotificationDto
 import com.example.pantrypal.data.model.PantryItemDto
 import com.example.pantrypal.data.repository.NotificationRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,7 +17,7 @@ class NotificationViewModel(
 ) : ViewModel() {
 
     @OptIn(InternalSerializationApi::class)
-    private val _alerts = MutableStateFlow<List<PantryItemDto>>(emptyList())
+    private val _alerts = MutableStateFlow<List<NotificationDto>>(emptyList())
     
     @OptIn(InternalSerializationApi::class)
     val alerts = _alerts.asStateFlow()
@@ -24,11 +25,15 @@ class NotificationViewModel(
     private val _message = MutableSharedFlow<String>()
     val message = _message.asSharedFlow()
 
+    // Assuming user ID 1 for now
+    private val currentUserId = 1L
+
     @OptIn(InternalSerializationApi::class)
     fun fetchAlerts() {
         viewModelScope.launch {
             try {
-                _alerts.value = repository.getActiveAlerts()
+                // Now fetching from the notifications table
+                _alerts.value = repository.getActiveAlerts(currentUserId).sortedByDescending { it.createdAt }
             } catch (e: Exception) {
                 _message.emit("Error fetching: ${e.message}")
             }
@@ -36,25 +41,57 @@ class NotificationViewModel(
     }
 
     @OptIn(InternalSerializationApi::class)
-    fun onMarkConsumedClicked(item: PantryItemDto) {
-        val id = item.id ?: return
+    fun onDismissAlertClicked(notificationId: Long?) {
+        if (notificationId == null) return
         viewModelScope.launch {
             try {
-                repository.markItemAsConsumed(id, item.title)
-                _message.emit("${item.title} marked as consumed")
-                fetchAlerts() // Refresh list
+                repository.dismissAlert(notificationId)
+                // Remove from local state immediately for fast UI feedback
+                _alerts.value = _alerts.value.filter { it.id != notificationId }
             } catch (e: Exception) {
-                _message.emit("Failed to update: ${e.message}")
+                _message.emit("Failed to dismiss: ${e.message}")
             }
         }
     }
 
     @OptIn(InternalSerializationApi::class)
-    fun onAddToRestockClicked(item: PantryItemDto) {
+    fun onMarkConsumedClicked(item: NotificationDto) {
+        val notificationId = item.id ?: return
+        
         viewModelScope.launch {
             try {
-                repository.addToRestockList(item.title, item.categoryZone)
-                _message.emit("${item.title} added to Restock List")
+                // Update the notification in Supabase to be read
+                repository.markNotificationAsRead(notificationId)
+                
+                // If we have a reference ID, update the actual pantry item too
+                item.referenceId?.let { refId ->
+                    repository.markItemAsConsumed(refId, item.message)
+                }
+                
+                // Update UI state immediately by removing the read notification
+                _alerts.value = _alerts.value.filter { it.id != notificationId }
+                
+                _message.emit("Item marked as consumed")
+            } catch (e: Exception) {
+                _message.emit("Failed to mark consumed: ${e.message}")
+                e.printStackTrace() // Log error to logcat
+            }
+        }
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    fun onAddToRestockClicked(item: NotificationDto) {
+        viewModelScope.launch {
+            try {
+                // Just use the message as the item name for now, and a default category
+                repository.addToRestockList(item.message, "Pantry")
+                _message.emit("Added to Restock List")
+                
+                // Also dismiss the notification
+                item.id?.let { 
+                    repository.dismissAlert(it) 
+                    _alerts.value = _alerts.value.filter { n -> n.id != it }
+                }
             } catch (e: Exception) {
                 _message.emit("Failed to add: ${e.message}")
             }

@@ -18,6 +18,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pantrypal.data.model.AlertUrgency
 import com.example.pantrypal.data.model.FilterType
+import com.example.pantrypal.data.model.NotificationDto
 import com.example.pantrypal.data.model.NotificationItem
 import com.example.pantrypal.data.model.PantryItemDto
 import com.example.pantrypal.data.model.PrimaryButtonType
@@ -71,29 +72,27 @@ class MainActivity : AppCompatActivity() {
                     showRecipeIdeasDialog(alert)
                 } else {
                     viewModel.onAddToRestockClicked(
-                        PantryItemDto(
-                            id = alert.id,
-                            title = alert.title,
-                            categoryZone = alert.categoryAndLocation,
-                            expiryText = alert.expiryText,
-                            urgency = alert.urgency.name
+                        NotificationDto(
+                            id = alert.id.toLongOrNull() ?: 0L,
+                            userId = 1L,
+                            message = alert.title,
+                            type = alert.urgency.name
                         )
                     )
                 }
             },
             onMarkConsumedClicked = { alert ->
                 viewModel.onMarkConsumedClicked(
-                    PantryItemDto(
-                        id = alert.id,
-                        title = alert.title,
-                        categoryZone = alert.categoryAndLocation,
-                        expiryText = alert.expiryText,
-                        urgency = alert.urgency.name
+                    NotificationDto(
+                        id = alert.id.toLongOrNull() ?: 0L,
+                        userId = 1L,
+                        message = alert.title,
+                        type = alert.urgency.name
                     )
                 )
             },
             onDeleteAlertClicked = { alert ->
-                // Not supported yet
+                viewModel.onDismissAlertClicked(alert.id.toLongOrNull())
             },
             onSharedUpdateClicked = { update ->
                 Toast.makeText(this, "Opening details for ${update.userName}'s update", Toast.LENGTH_SHORT).show()
@@ -157,13 +156,13 @@ class MainActivity : AppCompatActivity() {
                         alertsDto.forEach { dto ->
                             items.add(
                                 NotificationItem.ExpiryAlert(
-                                    id = dto.id ?: "",
-                                    title = dto.title,
-                                    categoryAndLocation = dto.categoryZone,
-                                    expiryText = dto.expiryText,
-                                    urgency = if (dto.urgency == "EXPIRING_TODAY") AlertUrgency.EXPIRING_TODAY else AlertUrgency.EXPIRING_SOON,
+                                    id = dto.id?.toString() ?: "",
+                                    title = dto.message,
+                                    categoryAndLocation = "Pantry", // Map category appropriately later
+                                    expiryText = "Expiring soon", // Map expiry format appropriately later
+                                    urgency = if (dto.type == "EXPIRING_TODAY") AlertUrgency.EXPIRING_TODAY else AlertUrgency.EXPIRING_SOON,
                                     imageResId = R.drawable.ic_food_yogurt,
-                                    primaryButtonType = if (dto.urgency == "EXPIRING_TODAY") PrimaryButtonType.RECIPE_IDEAS else PrimaryButtonType.ADD_TO_RESTOCK
+                                    primaryButtonType = if (dto.type == "EXPIRING_TODAY") PrimaryButtonType.RECIPE_IDEAS else PrimaryButtonType.ADD_TO_RESTOCK
                                 )
                             )
                         }
