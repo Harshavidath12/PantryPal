@@ -1,10 +1,15 @@
 package com.example.pantrypal
 
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
 import android.view.Window
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -17,26 +22,39 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pantrypal.data.model.AlertUrgency
-import com.example.pantrypal.data.model.FilterType
 import com.example.pantrypal.data.model.NotificationDto
 import com.example.pantrypal.data.model.NotificationItem
-import com.example.pantrypal.data.model.PantryItemDto
 import com.example.pantrypal.data.model.PrimaryButtonType
+import com.example.pantrypal.data.model.ShoppingFilter
 import com.example.pantrypal.data.repository.NotificationRepository
+import com.example.pantrypal.data.repository.ShoppingRepository
 import com.example.pantrypal.databinding.ActivityMainBinding
 import com.example.pantrypal.databinding.DialogAddAlertBinding
 import com.example.pantrypal.databinding.DialogRecipeIdeasBinding
+import com.example.pantrypal.databinding.DialogShoppingFilterBinding
 import com.example.pantrypal.ui.notifications.NotificationAdapter
 import com.example.pantrypal.ui.notifications.NotificationViewModel
 import com.example.pantrypal.ui.notifications.NotificationViewModelFactory
+import com.example.pantrypal.ui.shopping.RecentlyPurchasedAdapter
+import com.example.pantrypal.ui.shopping.ShoppingAdapter
+import com.example.pantrypal.ui.shopping.ShoppingViewModel
+import com.example.pantrypal.ui.shopping.ShoppingViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private enum class NavTab {
+        PANTRY, SHOPPING, SURPLUS, PROFILE
+    }
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: NotificationViewModel
+    private lateinit var shoppingViewModel: ShoppingViewModel
+
     private lateinit var adapter: NotificationAdapter
+    private lateinit var shoppingAdapter: ShoppingAdapter
+    private lateinit var recentlyPurchasedAdapter: RecentlyPurchasedAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +71,7 @@ class MainActivity : AppCompatActivity() {
 
         setupArchitecture()
         setupRecyclerView()
+        setupShoppingUI()
         setupClickListeners()
         observeUiState()
     }
@@ -61,6 +80,10 @@ class MainActivity : AppCompatActivity() {
         val repository = NotificationRepository()
         val factory = NotificationViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[NotificationViewModel::class.java]
+
+        val shoppingRepository = ShoppingRepository()
+        val shoppingFactory = ShoppingViewModelFactory(shoppingRepository)
+        shoppingViewModel = ViewModelProvider(this, shoppingFactory)[ShoppingViewModel::class.java]
     }
 
     private fun setupRecyclerView() {
@@ -97,26 +120,99 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
-        binding.rvNotifications.layoutManager = LinearLayoutManager(this)
-        binding.rvNotifications.adapter = adapter
+        binding.pantryScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).layoutManager = LinearLayoutManager(this)
+        binding.pantryScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).adapter = adapter
+    }
+
+    private fun setupShoppingUI() {
+        shoppingAdapter = ShoppingAdapter { item ->
+            shoppingViewModel.toggleItemSelection(item.id)
+        }
+        binding.shoppingScreenContainer.rvShoppingToBuy.layoutManager = LinearLayoutManager(this)
+        binding.shoppingScreenContainer.rvShoppingToBuy.adapter = shoppingAdapter
+
+        recentlyPurchasedAdapter = RecentlyPurchasedAdapter { item ->
+            shoppingViewModel.moveToPantry(item)
+        }
+        binding.shoppingScreenContainer.rvRecentlyPurchased.layoutManager = LinearLayoutManager(this)
+        binding.shoppingScreenContainer.rvRecentlyPurchased.adapter = recentlyPurchasedAdapter
+
+        // Add item button click
+        binding.shoppingScreenContainer.btnAddItem.setOnClickListener {
+            val input = binding.shoppingScreenContainer.etAddItem.text.toString()
+            if (shoppingViewModel.addItem(input)) {
+                binding.shoppingScreenContainer.etAddItem.text?.clear()
+                val imm = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(binding.shoppingScreenContainer.etAddItem.windowToken, 0)
+            }
+        }
+
+        // IME action done on edit text
+        binding.shoppingScreenContainer.etAddItem.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val input = binding.shoppingScreenContainer.etAddItem.text.toString()
+                if (shoppingViewModel.addItem(input)) {
+                    binding.shoppingScreenContainer.etAddItem.text?.clear()
+                    val imm = getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager
+                    imm?.hideSoftInputFromWindow(binding.shoppingScreenContainer.etAddItem.windowToken, 0)
+                }
+                true
+            } else {
+                false
+            }
+        }
+
+        // Restock Selected button
+        binding.shoppingScreenContainer.btnRestockSelected.setOnClickListener {
+            shoppingViewModel.restockSelected()
+        }
+
+        // Share button
+        binding.shoppingScreenContainer.btnShare.setOnClickListener {
+            val items = shoppingViewModel.filteredToBuyItems.value
+            if (items.isEmpty()) {
+                Toast.makeText(this, "Shopping list is empty", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val sb = StringBuilder()
+            sb.append("Household Shopping List (Maple Apt 4B):\n")
+            items.forEach {
+                sb.append("• ").append(it.name).append(" (").append(it.quantity).append(")\n")
+            }
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_SUBJECT, "Household Shopping List")
+                putExtra(Intent.EXTRA_TEXT, sb.toString())
+            }
+            startActivity(Intent.createChooser(shareIntent, "Share Shopping List"))
+        }
+
+        // Filter button
+        binding.shoppingScreenContainer.btnFilter.setOnClickListener {
+            showShoppingFilterDialog()
+        }
     }
 
     private fun setupClickListeners() {
         viewModel.fetchAlerts()
-        
-        binding.btnSync.setOnClickListener {
+
+        val btnSync = binding.pantryScreenContainer.findViewById<View>(R.id.btnSync)
+        btnSync?.setOnClickListener {
             viewModel.fetchAlerts()
         }
 
-        binding.btnBack.setOnClickListener {
+        val btnBack = binding.pantryScreenContainer.findViewById<View>(R.id.btnBack)
+        btnBack?.setOnClickListener {
             Toast.makeText(this, "Back pressed", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnBell.setOnClickListener {
+        val btnBell = binding.pantryScreenContainer.findViewById<View>(R.id.btnBell)
+        btnBell?.setOnClickListener {
             Toast.makeText(this, "Notifications menu", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnProfileAvatar.setOnClickListener {
+        val btnProfileAvatar = binding.pantryScreenContainer.findViewById<View>(R.id.btnProfileAvatar)
+        btnProfileAvatar?.setOnClickListener {
             Toast.makeText(this, "Opening Profile", Toast.LENGTH_SHORT).show()
         }
 
@@ -124,20 +220,72 @@ class MainActivity : AppCompatActivity() {
             showAddAlertDialog()
         }
 
+        // Navigation Tabs
         binding.navPantry.setOnClickListener {
-            Toast.makeText(this, "Pantry tab active", Toast.LENGTH_SHORT).show()
+            selectTab(NavTab.PANTRY)
         }
 
         binding.navShopping.setOnClickListener {
-            Toast.makeText(this, "Shopping tab selected", Toast.LENGTH_SHORT).show()
+            selectTab(NavTab.SHOPPING)
         }
 
         binding.navSurplus.setOnClickListener {
-            Toast.makeText(this, "Surplus tab selected", Toast.LENGTH_SHORT).show()
+            selectTab(NavTab.SURPLUS)
         }
 
         binding.navProfile.setOnClickListener {
-            Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
+            selectTab(NavTab.PROFILE)
+        }
+    }
+
+    private fun selectTab(tab: NavTab) {
+        val primaryColor = ContextCompat.getColor(this, R.color.pantry_primary)
+        val secondaryColor = ContextCompat.getColor(this, R.color.text_secondary)
+
+        // Reset all tabs to inactive styling
+        binding.ivNavPantry.setColorFilter(secondaryColor)
+        binding.tvNavPantry.setTextColor(secondaryColor)
+        binding.tvNavPantry.typeface = Typeface.DEFAULT
+
+        binding.ivNavShopping.setColorFilter(secondaryColor)
+        binding.tvNavShopping.setTextColor(secondaryColor)
+        binding.tvNavShopping.typeface = Typeface.DEFAULT
+
+        binding.ivNavSurplus.setColorFilter(secondaryColor)
+        binding.tvNavSurplus.setTextColor(secondaryColor)
+        binding.tvNavSurplus.typeface = Typeface.DEFAULT
+
+        binding.ivNavProfile.setColorFilter(secondaryColor)
+        binding.tvNavProfile.setTextColor(secondaryColor)
+        binding.tvNavProfile.typeface = Typeface.DEFAULT
+
+        when (tab) {
+            NavTab.PANTRY -> {
+                binding.pantryScreenContainer.visibility = View.VISIBLE
+                binding.shoppingScreenContainer.root.visibility = View.GONE
+                binding.ivNavPantry.setColorFilter(primaryColor)
+                binding.tvNavPantry.setTextColor(primaryColor)
+                binding.tvNavPantry.typeface = Typeface.DEFAULT_BOLD
+            }
+            NavTab.SHOPPING -> {
+                binding.pantryScreenContainer.visibility = View.GONE
+                binding.shoppingScreenContainer.root.visibility = View.VISIBLE
+                binding.ivNavShopping.setColorFilter(primaryColor)
+                binding.tvNavShopping.setTextColor(primaryColor)
+                binding.tvNavShopping.typeface = Typeface.DEFAULT_BOLD
+            }
+            NavTab.SURPLUS -> {
+                Toast.makeText(this, "Surplus tab selected", Toast.LENGTH_SHORT).show()
+                binding.ivNavSurplus.setColorFilter(primaryColor)
+                binding.tvNavSurplus.setTextColor(primaryColor)
+                binding.tvNavSurplus.typeface = Typeface.DEFAULT_BOLD
+            }
+            NavTab.PROFILE -> {
+                Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
+                binding.ivNavProfile.setColorFilter(primaryColor)
+                binding.tvNavProfile.setTextColor(primaryColor)
+                binding.tvNavProfile.typeface = Typeface.DEFAULT_BOLD
+            }
         }
     }
 
@@ -147,7 +295,7 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     viewModel.alerts.collect { alertsDto ->
                         val items = mutableListOf<NotificationItem>()
-                        
+
                         items.add(NotificationItem.SectionHeader(id = "sec_today", title = "ALERTS", itemCountText = "${alertsDto.size} items"))
 
                         alertsDto.forEach { dto ->
@@ -155,8 +303,8 @@ class MainActivity : AppCompatActivity() {
                                 NotificationItem.ExpiryAlert(
                                     id = dto.id?.toString() ?: "",
                                     title = dto.message,
-                                    categoryAndLocation = "Pantry", // Map category appropriately later
-                                    expiryText = "Expiring soon", // Map expiry format appropriately later
+                                    categoryAndLocation = "Pantry",
+                                    expiryText = "Expiring soon",
                                     urgency = if (dto.type == "EXPIRING_TODAY") AlertUrgency.EXPIRING_TODAY else AlertUrgency.EXPIRING_SOON,
                                     imageResId = R.drawable.ic_food_yogurt,
                                     primaryButtonType = if (dto.type == "EXPIRING_TODAY") PrimaryButtonType.RECIPE_IDEAS else PrimaryButtonType.ADD_TO_RESTOCK
@@ -168,13 +316,64 @@ class MainActivity : AppCompatActivity() {
                         adapter.submitList(items)
 
                         // Update Chip Counts
-                        binding.tvChipAllCount.text = alertsDto.size.toString()
-                        binding.tvChipExpiryCount.text = alertsDto.size.toString()
+                        val tvChipAllCount = binding.pantryScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipAllCount)
+                        val tvChipExpiryCount = binding.pantryScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipExpiryCount)
+                        tvChipAllCount?.text = alertsDto.size.toString()
+                        tvChipExpiryCount?.text = alertsDto.size.toString()
                     }
                 }
-                
+
                 launch {
                     viewModel.message.collect { msg ->
+                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+
+                // Shopping Screen Observations
+                launch {
+                    shoppingViewModel.filteredToBuyItems.collect { items ->
+                        shoppingAdapter.submitList(items)
+
+                        binding.shoppingScreenContainer.tvToBuyTitle.text =
+                            getString(R.string.shopping_to_buy_header, items.size)
+
+                        val selectedCount = items.count { it.isSelected }
+                        binding.shoppingScreenContainer.tvSelectedCount.text =
+                            getString(R.string.shopping_items_selected, selectedCount)
+
+                        if (selectedCount > 0) {
+                            binding.shoppingScreenContainer.btnRestockSelected.isEnabled = true
+                            binding.shoppingScreenContainer.btnRestockSelected.backgroundTintList =
+                                ContextCompat.getColorStateList(this@MainActivity, R.color.shopping_restock_btn_enabled)
+                            binding.shoppingScreenContainer.btnRestockSelected.setTextColor(
+                                ContextCompat.getColor(this@MainActivity, R.color.shopping_restock_btn_text)
+                            )
+                        } else {
+                            binding.shoppingScreenContainer.btnRestockSelected.isEnabled = false
+                            binding.shoppingScreenContainer.btnRestockSelected.backgroundTintList =
+                                ContextCompat.getColorStateList(this@MainActivity, R.color.shopping_restock_btn_disabled)
+                            binding.shoppingScreenContainer.btnRestockSelected.setTextColor(
+                                ContextCompat.getColor(this@MainActivity, R.color.shopping_restock_btn_disabled_text)
+                            )
+                        }
+                    }
+                }
+
+                launch {
+                    shoppingViewModel.recentlyPurchasedItems.collect { items ->
+                        recentlyPurchasedAdapter.submitList(items)
+                        if (items.isEmpty()) {
+                            binding.shoppingScreenContainer.llRecentlyPurchasedHeader.visibility = View.GONE
+                            binding.shoppingScreenContainer.rvRecentlyPurchased.visibility = View.GONE
+                        } else {
+                            binding.shoppingScreenContainer.llRecentlyPurchasedHeader.visibility = View.VISIBLE
+                            binding.shoppingScreenContainer.rvRecentlyPurchased.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+                launch {
+                    shoppingViewModel.uiMessage.collect { msg ->
                         Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
                     }
                 }
@@ -209,9 +408,6 @@ class MainActivity : AppCompatActivity() {
                 AlertUrgency.EXPIRING_SOON
             }
 
-            val finalCategory = if (category.isEmpty()) "Pantry • Storage" else category
-            val finalExpiry = if (expiry.isEmpty()) "Soon" else expiry
-
             Toast.makeText(this, "Alert added locally. (Mocked)", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
         }
@@ -229,6 +425,40 @@ class MainActivity : AppCompatActivity() {
         dialogBinding.tvRecipeTitle.text = "Recipe Ideas for ${alert.title}"
 
         dialogBinding.btnCloseRecipe.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showShoppingFilterDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = DialogShoppingFilterBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        when (shoppingViewModel.selectedFilter.value) {
+            ShoppingFilter.ALL -> dialogBinding.rbFilterAll.isChecked = true
+            ShoppingFilter.AUTO_QUEUED -> dialogBinding.rbFilterAutoQueued.isChecked = true
+            ShoppingFilter.MANUAL_ENTRY -> dialogBinding.rbFilterManual.isChecked = true
+            ShoppingFilter.LOW_STOCK -> dialogBinding.rbFilterLowStock.isChecked = true
+            ShoppingFilter.EXPIRED -> dialogBinding.rbFilterExpired.isChecked = true
+        }
+
+        dialogBinding.btnCancelFilter.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnApplyFilter.setOnClickListener {
+            val selectedFilter = when (dialogBinding.rgFilterOptions.checkedRadioButtonId) {
+                R.id.rbFilterAutoQueued -> ShoppingFilter.AUTO_QUEUED
+                R.id.rbFilterManual -> ShoppingFilter.MANUAL_ENTRY
+                R.id.rbFilterLowStock -> ShoppingFilter.LOW_STOCK
+                R.id.rbFilterExpired -> ShoppingFilter.EXPIRED
+                else -> ShoppingFilter.ALL
+            }
+            shoppingViewModel.setFilter(selectedFilter)
             dialog.dismiss()
         }
 

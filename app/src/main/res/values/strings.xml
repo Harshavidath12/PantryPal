@@ -23,4 +23,27 @@
     <string name="cd_back">Back</string>
     <string name="cd_sync">Sync</string>
     <string name="cd_add_new_alert">Add New Alert</string>
+
+    <!-- Shopping Screen Strings -->
+    <string name="title_household_shopping_list">Household Shopping List</string>
+    <string name="shopping_location">Maple Apt</string>
+    <string name="shopping_unit">4B</string>
+    <string name="shopping_shoppers">3 Shoppers</string>
+    <string name="shopping_auto_sync">Auto-Sync</string>
+    <string name="shopping_active">Active</string>
+    <string name="shopping_search_placeholder">Add grocery or household item&#8230;</string>
+    <string name="shopping_add_btn">+ Add</string>
+    <string name="shopping_smart_sync_desc">Smart Pantry Sync: Items marked “Consumed” or falling below low-stock threshold are automatically queued here.</string>
+    <string name="shopping_to_buy_header">TO BUY (%1$d ITEMS)</string>
+    <string name="shopping_tap_to_select">Tap bar to select</string>
+    <string name="shopping_recently_purchased_header">RECENTLY PURCHASED</string>
+    <string name="shopping_restock_buffer">Restock buffer</string>
+    <string name="shopping_move_to_pantry">Move to Pantry</string>
+    <string name="shopping_restock_action_label">RESTOCK ACTION</string>
+    <string name="shopping_items_selected">%1$d items selected</string>
+    <string name="shopping_restock_selected">Restock Selected to Pantry →</string>
+    <string name="shopping_share_title">Share Shopping List</string>
+    <string name="shopping_empty_input_warning">Please enter an item name.</string>
+    <string name="shopping_restock_success">Restocked %1$d item(s) to Pantry!</string>
+    <string name="shopping_moved_to_pantry">Moved %1$s to Pantry!</string>
 </resources>
