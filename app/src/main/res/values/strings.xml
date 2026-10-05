@@ -56,4 +56,24 @@
     <string name="filter_expired_pantry">Expired in Pantry</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_apply">Apply</string>
+
+    <!-- Home Dashboard / Pantry Screen Strings -->
+    <string name="title_pantry_pal">PantryPal</string>
+    <string name="pantry_location_members">• Maple Apt 4B · 3 members</string>
+    <string name="pantry_search_placeholder">Search items, categories, zones&#8230;</string>
+    <string name="stat_total_items">Total Items</string>
+    <string name="stat_expiring_soon">• Expiring Soon</string>
+    <string name="stat_to_restock">To Restock</string>
+    <string name="quick_add_item">+ Add Item</string>
+    <string name="quick_shopping_list">Shopping List</string>
+    <string name="quick_surplus_hub">Surplus Hub</string>
+    <string name="section_expiring_soon_title">Expiring Soon (Next 3 Days)</string>
+    <string name="view_all_chevron">View All ></string>
+    <string name="section_categories_title">Categories</string>
+    <string name="categories_count_format">%1$d Categories</string>
+    <string name="section_all_pantry_title">All Pantry Items</string>
+    <string name="stock_levels">Stock Levels</string>
+    <string name="btn_view_all_pantry_format">View All %1$d Items in Pantry →</string>
+    <string name="no_items_found">No items found</string>
+    <string name="no_expiring_items">No items expiring soon</string>
 </resources>

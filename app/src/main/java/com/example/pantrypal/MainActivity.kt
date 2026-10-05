@@ -6,6 +6,8 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.Window
 import android.view.inputmethod.EditorInfo
@@ -13,6 +15,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,21 +23,30 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pantrypal.data.model.AlertUrgency
 import com.example.pantrypal.data.model.NotificationDto
 import com.example.pantrypal.data.model.NotificationItem
+import com.example.pantrypal.data.model.PantryItem
 import com.example.pantrypal.data.model.PrimaryButtonType
 import com.example.pantrypal.data.model.ShoppingFilter
 import com.example.pantrypal.data.repository.NotificationRepository
+import com.example.pantrypal.data.repository.PantryRepository
 import com.example.pantrypal.data.repository.ShoppingRepository
 import com.example.pantrypal.databinding.ActivityMainBinding
 import com.example.pantrypal.databinding.DialogAddAlertBinding
 import com.example.pantrypal.databinding.DialogRecipeIdeasBinding
 import com.example.pantrypal.databinding.DialogShoppingFilterBinding
+import com.example.pantrypal.ui.components.ItemDetailsDialog
 import com.example.pantrypal.ui.notifications.NotificationAdapter
 import com.example.pantrypal.ui.notifications.NotificationViewModel
 import com.example.pantrypal.ui.notifications.NotificationViewModelFactory
+import com.example.pantrypal.ui.pantry.CategoryAdapter
+import com.example.pantrypal.ui.pantry.ExpiringSoonAdapter
+import com.example.pantrypal.ui.pantry.PantryOverviewAdapter
+import com.example.pantrypal.ui.pantry.PantryViewModel
+import com.example.pantrypal.ui.pantry.PantryViewModelFactory
 import com.example.pantrypal.ui.shopping.RecentlyPurchasedAdapter
 import com.example.pantrypal.ui.shopping.ShoppingAdapter
 import com.example.pantrypal.ui.shopping.ShoppingViewModel
@@ -51,10 +63,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: NotificationViewModel
     private lateinit var shoppingViewModel: ShoppingViewModel
+    private lateinit var pantryViewModel: PantryViewModel
 
     private lateinit var adapter: NotificationAdapter
     private lateinit var shoppingAdapter: ShoppingAdapter
     private lateinit var recentlyPurchasedAdapter: RecentlyPurchasedAdapter
+
+    private lateinit var expiringSoonAdapter: ExpiringSoonAdapter
+    private lateinit var categoryAdapter: CategoryAdapter
+    private lateinit var pantryOverviewAdapter: PantryOverviewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupArchitecture()
+        setupPantryHomeUI()
         setupRecyclerView()
         setupShoppingUI()
         setupClickListeners()
@@ -77,13 +95,81 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupArchitecture() {
-        val repository = NotificationRepository()
-        val factory = NotificationViewModelFactory(repository)
-        viewModel = ViewModelProvider(this, factory)[NotificationViewModel::class.java]
+        val notificationRepository = NotificationRepository()
+        val notificationFactory = NotificationViewModelFactory(notificationRepository)
+        viewModel = ViewModelProvider(this, notificationFactory)[NotificationViewModel::class.java]
 
         val shoppingRepository = ShoppingRepository()
         val shoppingFactory = ShoppingViewModelFactory(shoppingRepository)
         shoppingViewModel = ViewModelProvider(this, shoppingFactory)[ShoppingViewModel::class.java]
+
+        val pantryRepository = PantryRepository()
+        val pantryFactory = PantryViewModelFactory(pantryRepository)
+        pantryViewModel = ViewModelProvider(this, pantryFactory)[PantryViewModel::class.java]
+    }
+
+    private fun setupPantryHomeUI() {
+        // Expiring Soon Adapter
+        expiringSoonAdapter = ExpiringSoonAdapter { item ->
+            showItemDetailsDialog(item)
+        }
+        binding.pantryHomeScreenContainer.rvExpiringSoon.layoutManager = LinearLayoutManager(this)
+        binding.pantryHomeScreenContainer.rvExpiringSoon.adapter = expiringSoonAdapter
+
+        // Category Adapter
+        categoryAdapter = CategoryAdapter { category ->
+            pantryViewModel.selectCategory(category.name)
+        }
+        binding.pantryHomeScreenContainer.rvCategories.layoutManager = GridLayoutManager(this, 2)
+        binding.pantryHomeScreenContainer.rvCategories.adapter = categoryAdapter
+
+        // Pantry Overview Adapter
+        pantryOverviewAdapter = PantryOverviewAdapter { item ->
+            showItemDetailsDialog(item)
+        }
+        binding.pantryHomeScreenContainer.rvAllPantryItems.layoutManager = LinearLayoutManager(this)
+        binding.pantryHomeScreenContainer.rvAllPantryItems.adapter = pantryOverviewAdapter
+
+        // Search bar text watcher
+        binding.pantryHomeScreenContainer.etSearchPantry.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                pantryViewModel.setSearchQuery(s?.toString() ?: "")
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Quick Action Buttons
+        binding.pantryHomeScreenContainer.btnAddItemQuick.setOnClickListener {
+            showAddAlertDialog()
+        }
+
+        binding.pantryHomeScreenContainer.btnShoppingListQuick.setOnClickListener {
+            selectTab(NavTab.SHOPPING)
+        }
+
+        binding.pantryHomeScreenContainer.btnSurplusHubQuick.setOnClickListener {
+            selectTab(NavTab.SURPLUS)
+        }
+
+        // View All Expiring
+        binding.pantryHomeScreenContainer.tvViewAllExpiring.setOnClickListener {
+            pantryViewModel.selectCategory(null)
+            pantryViewModel.setSearchQuery("")
+            Toast.makeText(this, "Showing all expiring items", Toast.LENGTH_SHORT).show()
+        }
+
+        // View All Pantry Button
+        binding.pantryHomeScreenContainer.btnViewAllPantry.setOnClickListener {
+            pantryViewModel.selectCategory(null)
+            pantryViewModel.setSearchQuery("")
+            Toast.makeText(this, "Showing all items in pantry", Toast.LENGTH_SHORT).show()
+        }
+
+        // Bell Icon on Home Dashboard Header
+        binding.pantryHomeScreenContainer.btnHomeBell.setOnClickListener {
+            binding.notificationsScreenContainer.visibility = View.VISIBLE
+        }
     }
 
     private fun setupRecyclerView() {
@@ -206,16 +292,6 @@ class MainActivity : AppCompatActivity() {
             binding.notificationsScreenContainer.visibility = View.GONE
         }
 
-        val btnBell = binding.pantryScreenContainer.findViewById<View>(R.id.btnBell)
-        btnBell?.setOnClickListener {
-            binding.notificationsScreenContainer.visibility = View.VISIBLE
-        }
-
-        val btnProfileAvatar = binding.pantryScreenContainer.findViewById<View>(R.id.btnProfileAvatar)
-        btnProfileAvatar?.setOnClickListener {
-            Toast.makeText(this, "Opening Profile", Toast.LENGTH_SHORT).show()
-        }
-
         binding.fabAddAlert.setOnClickListener {
             showAddAlertDialog()
         }
@@ -261,7 +337,7 @@ class MainActivity : AppCompatActivity() {
 
         when (tab) {
             NavTab.PANTRY -> {
-                binding.pantryScreenContainer.visibility = View.VISIBLE
+                binding.pantryHomeScreenContainer.root.visibility = View.VISIBLE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
@@ -269,7 +345,7 @@ class MainActivity : AppCompatActivity() {
                 binding.tvNavPantry.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.SHOPPING -> {
-                binding.pantryScreenContainer.visibility = View.GONE
+                binding.pantryHomeScreenContainer.root.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.VISIBLE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
@@ -296,6 +372,66 @@ class MainActivity : AppCompatActivity() {
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Pantry Home Dashboard Observations
+                launch {
+                    pantryViewModel.allItems.collect { items ->
+                        binding.pantryHomeScreenContainer.tvTotalItemsCount.text = items.size.toString()
+                        binding.pantryHomeScreenContainer.btnViewAllPantry.text =
+                            getString(R.string.btn_view_all_pantry_format, items.size)
+
+                        val restockCount = items.count { it.stockPercent <= 25 }
+                        binding.pantryHomeScreenContainer.tvToRestockCount.text = restockCount.toString()
+                    }
+                }
+
+                launch {
+                    pantryViewModel.expiringSoonItems.collect { items ->
+                        binding.pantryHomeScreenContainer.tvExpiringSoonCount.text = items.size.toString()
+                        expiringSoonAdapter.submitList(items)
+                        if (items.isEmpty()) {
+                            binding.pantryHomeScreenContainer.tvNoExpiringItems.visibility = View.VISIBLE
+                            binding.pantryHomeScreenContainer.rvExpiringSoon.visibility = View.GONE
+                        } else {
+                            binding.pantryHomeScreenContainer.tvNoExpiringItems.visibility = View.GONE
+                            binding.pantryHomeScreenContainer.rvExpiringSoon.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+                launch {
+                    pantryViewModel.categories.collect { cats ->
+                        categoryAdapter.submitList(cats)
+                        binding.pantryHomeScreenContainer.tvCategoriesCount.text =
+                            getString(R.string.categories_count_format, cats.size)
+                    }
+                }
+
+                launch {
+                    pantryViewModel.selectedCategory.collect { selCat ->
+                        categoryAdapter.setSelectedCategory(selCat)
+                    }
+                }
+
+                launch {
+                    pantryViewModel.filteredPantryItems.collect { items ->
+                        pantryOverviewAdapter.submitList(items)
+                        if (items.isEmpty()) {
+                            binding.pantryHomeScreenContainer.tvNoItemsFound.visibility = View.VISIBLE
+                            binding.pantryHomeScreenContainer.rvAllPantryItems.visibility = View.GONE
+                        } else {
+                            binding.pantryHomeScreenContainer.tvNoItemsFound.visibility = View.GONE
+                            binding.pantryHomeScreenContainer.rvAllPantryItems.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+                launch {
+                    pantryViewModel.uiMessage.collect { msg ->
+                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+
+                // Notifications Observations
                 launch {
                     viewModel.alerts.collect { alertsDto ->
                         val items = mutableListOf<NotificationItem>()
@@ -319,7 +455,8 @@ class MainActivity : AppCompatActivity() {
                         // Submit items to adapter
                         adapter.submitList(items)
 
-                        // Update Chip Counts
+                        // Update Chip Counts & Bell Badge
+                        binding.pantryHomeScreenContainer.tvBellBadgeCount.text = alertsDto.size.toString()
                         val tvChipAllCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipAllCount)
                         val tvChipExpiryCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipExpiryCount)
                         tvChipAllCount?.text = alertsDto.size.toString()
@@ -383,6 +520,45 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showItemDetailsDialog(item: PantryItem) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val composeView = ComposeView(this).apply {
+            setContent {
+                ItemDetailsDialog(
+                    item = item,
+                    onDismiss = { dialog.dismiss() },
+                    onMarkConsumed = { id ->
+                        pantryViewModel.deleteItem(id)
+                        Toast.makeText(this@MainActivity, "Marked as consumed", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onAddToRestock = { _ ->
+                        shoppingViewModel.addItem(item.title)
+                        Toast.makeText(this@MainActivity, "Added to Restock List", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onDonate = { _ ->
+                        Toast.makeText(this@MainActivity, "Item marked for donation", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onEdit = { _ ->
+                        Toast.makeText(this@MainActivity, "Editing item details", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onDelete = { id ->
+                        pantryViewModel.deleteItem(id)
+                        Toast.makeText(this@MainActivity, "Item deleted", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    }
+                )
+            }
+        }
+        dialog.setContentView(composeView)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
     }
 
     private fun showAddAlertDialog() {
