@@ -23,7 +23,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pantrypal.data.model.AlertUrgency
 import com.example.pantrypal.data.model.NotificationDto
@@ -42,8 +41,9 @@ import com.example.pantrypal.ui.components.ItemDetailsDialog
 import com.example.pantrypal.ui.notifications.NotificationAdapter
 import com.example.pantrypal.ui.notifications.NotificationViewModel
 import com.example.pantrypal.ui.notifications.NotificationViewModelFactory
-import com.example.pantrypal.ui.pantry.CategoryAdapter
+import com.example.pantrypal.ui.pantry.CategoryChipHorizontalAdapter
 import com.example.pantrypal.ui.pantry.ExpiringSoonAdapter
+import com.example.pantrypal.ui.pantry.ExpiringSoonFullAdapter
 import com.example.pantrypal.ui.pantry.PantryOverviewAdapter
 import com.example.pantrypal.ui.pantry.PantryViewModel
 import com.example.pantrypal.ui.pantry.PantryViewModelFactory
@@ -72,6 +72,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var expiringSoonAdapter: ExpiringSoonAdapter
     private lateinit var pantryOverviewAdapter: PantryOverviewAdapter
 
+    private lateinit var fullExpiringSoonAdapter: ExpiringSoonFullAdapter
+    private lateinit var categoryChipHorizontalAdapter: CategoryChipHorizontalAdapter
+    private lateinit var fullPantryOverviewAdapter: PantryOverviewAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -87,6 +91,7 @@ class MainActivity : AppCompatActivity() {
 
         setupArchitecture()
         setupPantryHomeUI()
+        setupFullPantryItemsUI()
         setupRecyclerView()
         setupShoppingUI()
         setupClickListeners()
@@ -114,8 +119,6 @@ class MainActivity : AppCompatActivity() {
         }
         binding.pantryHomeScreenContainer.rvExpiringSoon.layoutManager = LinearLayoutManager(this)
         binding.pantryHomeScreenContainer.rvExpiringSoon.adapter = expiringSoonAdapter
-
-
 
         // Pantry Overview Adapter
         pantryOverviewAdapter = PantryOverviewAdapter { item ->
@@ -146,16 +149,116 @@ class MainActivity : AppCompatActivity() {
             selectTab(NavTab.SURPLUS)
         }
 
-        // View All Expiring
+        // View All Expiring -> navigate to Full Pantry Items Screen
         binding.pantryHomeScreenContainer.tvViewAllExpiring.setOnClickListener {
-            pantryViewModel.selectCategory(null)
-            pantryViewModel.setSearchQuery("")
-            Toast.makeText(this, "Showing all expiring items", Toast.LENGTH_SHORT).show()
+            showFullPantryItemsScreen()
+        }
+
+        // View All Pantry Button -> navigate to Full Pantry Items Screen
+        binding.pantryHomeScreenContainer.btnViewAllPantry.setOnClickListener {
+            showFullPantryItemsScreen()
         }
 
         // Bell Icon on Home Dashboard Header
         binding.pantryHomeScreenContainer.btnHomeBell.setOnClickListener {
             binding.notificationsScreenContainer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupFullPantryItemsUI() {
+        // Expiring Soon Full Adapter
+        fullExpiringSoonAdapter = ExpiringSoonFullAdapter(
+            onItemClick = { item -> showItemDetailsDialog(item) },
+            onUsedClick = { item ->
+                pantryViewModel.deleteItem(item.id)
+                Toast.makeText(this, "Marked ${item.title} as used", Toast.LENGTH_SHORT).show()
+            }
+        )
+        binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.layoutManager = LinearLayoutManager(this)
+        binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.adapter = fullExpiringSoonAdapter
+
+        // Horizontal Category Chips Adapter
+        categoryChipHorizontalAdapter = CategoryChipHorizontalAdapter { category ->
+            pantryViewModel.selectCategory(category.name)
+        }
+        binding.fullPantryItemsScreenContainer.rvCategoriesChipsHorizontal.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.fullPantryItemsScreenContainer.rvCategoriesChipsHorizontal.adapter = categoryChipHorizontalAdapter
+
+        // Full Pantry Overview Adapter
+        fullPantryOverviewAdapter = PantryOverviewAdapter { item ->
+            showItemDetailsDialog(item)
+        }
+        binding.fullPantryItemsScreenContainer.rvFullPantryItems.layoutManager = LinearLayoutManager(this)
+        binding.fullPantryItemsScreenContainer.rvFullPantryItems.adapter = fullPantryOverviewAdapter
+
+        // Full Search Bar Text Watcher
+        binding.fullPantryItemsScreenContainer.etSearchFullPantry.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                pantryViewModel.setSearchQuery(s?.toString() ?: "")
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Barcode Scan Button
+        binding.fullPantryItemsScreenContainer.btnScanBarcode.setOnClickListener {
+            Toast.makeText(this, "Barcode Scanner (Ready for Integration)", Toast.LENGTH_SHORT).show()
+        }
+
+        // Quick Action Buttons
+        binding.fullPantryItemsScreenContainer.btnAddItemFull.setOnClickListener {
+            showAddAlertDialog()
+        }
+
+        binding.fullPantryItemsScreenContainer.btnShoppingListFull.setOnClickListener {
+            selectTab(NavTab.SHOPPING)
+        }
+
+        binding.fullPantryItemsScreenContainer.btnSurplusHubFull.setOnClickListener {
+            selectTab(NavTab.SURPLUS)
+        }
+
+        // View All Expiring
+        binding.fullPantryItemsScreenContainer.tvViewAllExpiringFull.setOnClickListener {
+            pantryViewModel.selectCategory(null)
+            pantryViewModel.setSearchQuery("")
+            Toast.makeText(this, "Showing expiring items", Toast.LENGTH_SHORT).show()
+        }
+
+        // Filter / Sort Button
+        binding.fullPantryItemsScreenContainer.btnFilterSortPantry.setOnClickListener {
+            showPantryFilterSortDialog()
+        }
+
+        // Bell Icon on Full Pantry Header
+        binding.fullPantryItemsScreenContainer.btnFullBell.setOnClickListener {
+            binding.notificationsScreenContainer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showFullPantryItemsScreen() {
+        binding.pantryHomeScreenContainer.root.visibility = View.GONE
+        binding.shoppingScreenContainer.root.visibility = View.GONE
+        binding.notificationsScreenContainer.visibility = View.GONE
+        binding.fullPantryItemsScreenContainer.root.visibility = View.VISIBLE
+        selectTab(NavTab.PANTRY)
+    }
+
+    private fun hideFullPantryItemsScreen() {
+        binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
+        binding.pantryHomeScreenContainer.root.visibility = View.VISIBLE
+        selectTab(NavTab.PANTRY)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (binding.notificationsScreenContainer.visibility == View.VISIBLE) {
+            binding.notificationsScreenContainer.visibility = View.GONE
+        } else if (binding.fullPantryItemsScreenContainer.root.visibility == View.VISIBLE) {
+            hideFullPantryItemsScreen()
+        } else {
+            super.onBackPressed()
         }
     }
 
@@ -324,7 +427,9 @@ class MainActivity : AppCompatActivity() {
 
         when (tab) {
             NavTab.PANTRY -> {
-                binding.pantryHomeScreenContainer.root.visibility = View.VISIBLE
+                if (binding.fullPantryItemsScreenContainer.root.visibility != View.VISIBLE) {
+                    binding.pantryHomeScreenContainer.root.visibility = View.VISIBLE
+                }
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
@@ -333,6 +438,7 @@ class MainActivity : AppCompatActivity() {
             }
             NavTab.SHOPPING -> {
                 binding.pantryHomeScreenContainer.root.visibility = View.GONE
+                binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.VISIBLE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
@@ -341,6 +447,7 @@ class MainActivity : AppCompatActivity() {
             }
             NavTab.SURPLUS -> {
                 Toast.makeText(this, "Surplus tab selected", Toast.LENGTH_SHORT).show()
+                binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavSurplus.setColorFilter(primaryColor)
                 binding.tvNavSurplus.setTextColor(primaryColor)
@@ -348,6 +455,7 @@ class MainActivity : AppCompatActivity() {
             }
             NavTab.PROFILE -> {
                 Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
+                binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavProfile.setColorFilter(primaryColor)
                 binding.tvNavProfile.setTextColor(primaryColor)
@@ -359,37 +467,69 @@ class MainActivity : AppCompatActivity() {
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Pantry Home Dashboard Observations
+                // Home Dashboard Observations
                 launch {
-                    pantryViewModel.allItems.collect { _ ->
+                    pantryViewModel.allItems.collect { items ->
                         binding.pantryHomeScreenContainer.btnViewAllPantry.text = getString(R.string.btn_view_all_items)
+                        binding.fullPantryItemsScreenContainer.tvFullTotalItemsCount.text = items.size.toString()
+                        binding.fullPantryItemsScreenContainer.btnViewAllFullPantry.text =
+                            getString(R.string.btn_view_all_pantry_format, items.size)
+
+                        val restockCount = items.count { it.stockPercent <= 25 }
+                        binding.fullPantryItemsScreenContainer.tvFullToRestockCount.text = restockCount.toString()
                     }
                 }
 
                 launch {
                     pantryViewModel.expiringSoonItems.collect { items ->
                         expiringSoonAdapter.submitList(items)
+                        fullExpiringSoonAdapter.submitList(items)
+
+                        binding.fullPantryItemsScreenContainer.tvFullExpiringSoonCount.text = items.size.toString()
+
                         if (items.isEmpty()) {
                             binding.pantryHomeScreenContainer.tvNoExpiringItems.visibility = View.VISIBLE
                             binding.pantryHomeScreenContainer.rvExpiringSoon.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.tvNoFullExpiringItems.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.visibility = View.GONE
                         } else {
                             binding.pantryHomeScreenContainer.tvNoExpiringItems.visibility = View.GONE
                             binding.pantryHomeScreenContainer.rvExpiringSoon.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.tvNoFullExpiringItems.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.visibility = View.VISIBLE
                         }
                     }
                 }
 
+                launch {
+                    pantryViewModel.categories.collect { cats ->
+                        categoryChipHorizontalAdapter.submitList(cats)
+                        binding.fullPantryItemsScreenContainer.tvFullCategoriesCount.text =
+                            getString(R.string.categories_count_format, cats.size)
+                    }
+                }
 
+                launch {
+                    pantryViewModel.selectedCategory.collect { selCat ->
+                        categoryChipHorizontalAdapter.setSelectedCategory(selCat)
+                    }
+                }
 
                 launch {
                     pantryViewModel.filteredPantryItems.collect { items ->
                         pantryOverviewAdapter.submitList(items.take(4))
+                        fullPantryOverviewAdapter.submitList(items)
+
                         if (items.isEmpty()) {
                             binding.pantryHomeScreenContainer.tvNoItemsFound.visibility = View.VISIBLE
                             binding.pantryHomeScreenContainer.rvAllPantryItems.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.tvNoFullPantryItems.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.rvFullPantryItems.visibility = View.GONE
                         } else {
                             binding.pantryHomeScreenContainer.tvNoItemsFound.visibility = View.GONE
                             binding.pantryHomeScreenContainer.rvAllPantryItems.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.tvNoFullPantryItems.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.rvFullPantryItems.visibility = View.VISIBLE
                         }
                     }
                 }
@@ -426,6 +566,8 @@ class MainActivity : AppCompatActivity() {
 
                         // Update Chip Counts & Bell Badge
                         binding.pantryHomeScreenContainer.tvBellBadgeCount.text = alertsDto.size.toString()
+                        binding.fullPantryItemsScreenContainer.tvFullBellBadgeCount.text = alertsDto.size.toString()
+
                         val tvChipAllCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipAllCount)
                         val tvChipExpiryCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipExpiryCount)
                         tvChipAllCount?.text = alertsDto.size.toString()
@@ -527,6 +669,54 @@ class MainActivity : AppCompatActivity() {
         }
         dialog.setContentView(composeView)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
+    }
+
+    private fun showPantryFilterSortDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = DialogShoppingFilterBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialogBinding.rbFilterAll.text = "All Items"
+        dialogBinding.rbFilterAutoQueued.text = "Low Stock (<= 25%)"
+        dialogBinding.rbFilterManual.text = "Expiring Soon (<= 3 days)"
+        dialogBinding.rbFilterLowStock.text = "Full Stock (100%)"
+        dialogBinding.rbFilterExpired.visibility = View.GONE
+
+        dialogBinding.btnCancelFilter.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnApplyFilter.setOnClickListener {
+            when (dialogBinding.rgFilterOptions.checkedRadioButtonId) {
+                R.id.rbFilterAutoQueued -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    val lowStockItems = pantryViewModel.allItems.value.filter { it.stockPercent <= 25 }
+                    fullPantryOverviewAdapter.submitList(lowStockItems)
+                }
+                R.id.rbFilterManual -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    fullPantryOverviewAdapter.submitList(pantryViewModel.expiringSoonItems.value)
+                }
+                R.id.rbFilterLowStock -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    val fullStockItems = pantryViewModel.allItems.value.filter { it.stockPercent == 100 }
+                    fullPantryOverviewAdapter.submitList(fullStockItems)
+                }
+                else -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    fullPantryOverviewAdapter.submitList(pantryViewModel.allItems.value)
+                }
+            }
+            dialog.dismiss()
+        }
+
         dialog.show()
     }
 
