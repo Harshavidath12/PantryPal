@@ -8,82 +8,36 @@
     android:background="@color/pantry_bg"
     tools:context=".MainActivity">
 
-    <!-- PANTRY SCREEN CONTAINER -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/pantryScreenContainer"
+    <!-- PANTRY HOME DASHBOARD CONTAINER -->
+    <include
+        android:id="@+id/pantryHomeScreenContainer"
+        layout="@layout/layout_pantry_home_screen"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- SHOPPING SCREEN CONTAINER -->
+    <include
+        android:id="@+id/shoppingScreenContainer"
+        layout="@layout/layout_shopping_screen"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- NOTIFICATIONS SCREEN CONTAINER (OVERLAY) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/notificationsScreenContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/pantry_bg"
+        android:elevation="4dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
         app:layout_constraintTop_toTopOf="parent">
-
-        <!-- Top App Bar -->
-        <LinearLayout
-            android:id="@+id/topBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="20dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="8dp"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/title_pantry"
-                android:textColor="@color/text_primary"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <!-- Bell Icon Button -->
-            <FrameLayout
-                android:id="@+id/btnBell"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/cd_notifications"
-                    android:src="@drawable/ic_bell" />
-
-                <!-- Red Dot Badge -->
-                <View
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_gravity="top|end"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_tag_red" />
-            </FrameLayout>
-
-            <!-- User Profile Avatar Button -->
-            <FrameLayout
-                android:id="@+id/btnProfileAvatar"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:background="@drawable/bg_avatar_green"
-                android:clickable="true"
-                android:focusable="true">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/cd_profile"
-                    android:src="@drawable/ic_person" />
-            </FrameLayout>
-
-        </LinearLayout>
 
         <!-- Header Section (Back Arrow, Title, Subtitle, Sync) -->
         <LinearLayout
@@ -93,10 +47,10 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="20dp"
-            android:paddingTop="8dp"
+            android:paddingTop="12dp"
             android:paddingEnd="20dp"
             android:paddingBottom="8dp"
-            app:layout_constraintTop_toBottomOf="@id/topBar">
+            app:layout_constraintTop_toTopOf="parent">
 
             <!-- Back Arrow Button -->
             <FrameLayout
@@ -303,16 +257,6 @@
             tools:listitem="@layout/item_expiry_alert" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- SHOPPING SCREEN CONTAINER -->
-    <include
-        android:id="@+id/shoppingScreenContainer"
-        layout="@layout/layout_shopping_screen"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Bottom Navigation Bar Card -->
     <com.google.android.material.card.MaterialCardView
