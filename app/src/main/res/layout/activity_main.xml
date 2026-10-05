@@ -314,6 +314,58 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- SURPLUS HUB -->
+    <FrameLayout
+        android:id="@+id/surplusScreenContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Surplus hub" android:textColor="@color/text_primary" android:textSize="26sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Share good food. Strengthen your community." android:textColor="@color/text_secondary" android:textSize="14sp" />
+
+                <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" app:cardBackgroundColor="@color/pantry_primary">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GIVE FOOD A SECOND LIFE" android:textColor="#CCFFFFFF" android:textSize="11sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Have extra food?" android:textColor="@color/white" android:textSize="23sp" android:textStyle="bold" />
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Connect with a nearby community hub and help reduce food waste." android:textColor="@color/white" android:textSize="14sp" />
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnFlagSurplus" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="16dp" android:text="Flag surplus food" android:textAllCaps="false" android:textColor="@color/pantry_primary" app:backgroundTint="@color/white" app:cornerRadius="16dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Your community impact" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
+                    <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="6dp" android:layout_weight="1">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🥬  FOOD SAVED" android:textColor="@color/text_secondary" android:textSize="10sp" android:textStyle="bold"/><TextView android:id="@+id/tvFoodSaved" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="12.5 kg" android:textColor="@color/pantry_primary" android:textSize="22sp" android:textStyle="bold"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="this month" android:textColor="@color/text_secondary" android:textSize="12sp"/></LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:layout_weight="1">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🤝  DONATIONS" android:textColor="@color/text_secondary" android:textSize="10sp" android:textStyle="bold"/><TextView android:id="@+id/tvDonations" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="8" android:textColor="@color/pantry_primary" android:textSize="22sp" android:textStyle="bold"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="completed" android:textColor="@color/text_secondary" android:textSize="12sp"/></LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:gravity="center_vertical"><TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Nearby community hubs" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold"/><TextView android:id="@+id/btnFindHub" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true" android:padding="8dp" android:text="See all  →" android:textColor="@color/pantry_primary" android:textSize="13sp" android:textStyle="bold"/></LinearLayout>
+                <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="16dp"><TextView android:layout_width="46dp" android:layout_height="46dp" android:gravity="center" android:text="📍" android:textSize="22sp" android:background="@color/pantry_primary_light"/><LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Green Path Community Pantry" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Open until 6:00 PM · 1.2 km" android:textColor="@color/text_secondary" android:textSize="12sp"/></LinearLayout><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="›" android:textColor="@color/pantry_primary" android:textSize="28sp"/></LinearLayout></com.google.android.material.card.MaterialCardView>
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:text="Recent donations" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+                <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🍞  Wholegrain bread · 2 loaves" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Green Path Pantry  ·  Yesterday   ✓ Received" android:textColor="@color/text_secondary" android:textSize="12sp"/></LinearLayout></com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="18dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🥕  Fresh vegetables · 1.5 kg" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Hope Food Bank  ·  12 Oct   ✓ Received" android:textColor="@color/text_secondary" android:textSize="12sp"/></LinearLayout></com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
     <!-- Bottom Navigation Bar Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"

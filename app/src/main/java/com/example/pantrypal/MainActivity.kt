@@ -235,6 +235,13 @@ class MainActivity : AppCompatActivity() {
             selectTab(NavTab.SURPLUS)
         }
 
+        binding.surplusScreenContainer.findViewById<View>(R.id.btnFlagSurplus).setOnClickListener {
+            showSurplusDialog()
+        }
+        binding.surplusScreenContainer.findViewById<View>(R.id.btnFindHub).setOnClickListener {
+            showHubDialog()
+        }
+
         binding.navProfile.setOnClickListener {
             selectTab(NavTab.PROFILE)
         }
@@ -265,6 +272,7 @@ class MainActivity : AppCompatActivity() {
             NavTab.PANTRY -> {
                 binding.pantryScreenContainer.visibility = View.VISIBLE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
+                binding.surplusScreenContainer.visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
                 binding.tvNavPantry.setTextColor(primaryColor)
                 binding.tvNavPantry.typeface = Typeface.DEFAULT_BOLD
@@ -272,23 +280,69 @@ class MainActivity : AppCompatActivity() {
             NavTab.SHOPPING -> {
                 binding.pantryScreenContainer.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.VISIBLE
+                binding.surplusScreenContainer.visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
                 binding.tvNavShopping.setTextColor(primaryColor)
                 binding.tvNavShopping.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.SURPLUS -> {
-                Toast.makeText(this, "Surplus tab selected", Toast.LENGTH_SHORT).show()
+                binding.pantryScreenContainer.visibility = View.GONE
+                binding.shoppingScreenContainer.root.visibility = View.GONE
+                binding.surplusScreenContainer.visibility = View.VISIBLE
                 binding.ivNavSurplus.setColorFilter(primaryColor)
                 binding.tvNavSurplus.setTextColor(primaryColor)
                 binding.tvNavSurplus.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.PROFILE -> {
+                binding.pantryScreenContainer.visibility = View.GONE
+                binding.shoppingScreenContainer.root.visibility = View.GONE
+                binding.surplusScreenContainer.visibility = View.GONE
                 Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
                 binding.ivNavProfile.setColorFilter(primaryColor)
                 binding.tvNavProfile.setTextColor(primaryColor)
                 binding.tvNavProfile.typeface = Typeface.DEFAULT_BOLD
             }
         }
+    }
+
+    private fun showSurplusDialog() {
+        val content = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(24, 12, 24, 4)
+        }
+        val name = android.widget.EditText(this).apply { hint = "Food item (e.g. fresh vegetables)" }
+        val quantity = android.widget.EditText(this).apply {
+            hint = "Quantity (e.g. 2 kg)"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT
+        }
+        val expiry = android.widget.EditText(this).apply { hint = "Best before (e.g. today, 6 PM)" }
+        content.addView(name)
+        content.addView(quantity)
+        content.addView(expiry)
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Flag surplus food")
+            .setMessage("Tell a nearby hub what you can share.")
+            .setView(content)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Find a hub") { _, _ ->
+                if (name.text.isNullOrBlank() || quantity.text.isNullOrBlank()) {
+                    Toast.makeText(this, "Add the food and quantity to continue", Toast.LENGTH_SHORT).show()
+                } else {
+                    showHubDialog("${name.text} · ${quantity.text}")
+                }
+            }
+            .show()
+    }
+
+    private fun showHubDialog(food: String? = null) {
+        val hubs = arrayOf("Green Path Community Pantry · 1.2 km · Open until 6 PM", "Hope Food Bank · 2.4 km · Open until 5 PM", "Harvest Neighbourhood Hub · 3.1 km · Open until 7 PM")
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(if (food == null) "Find a community hub" else "Choose a hub for $food")
+            .setItems(hubs) { _, which ->
+                Toast.makeText(this, "${hubs[which].substringBefore(" · ")} selected", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Close", null)
+            .show()
     }
 
     @OptIn(InternalSerializationApi::class)
