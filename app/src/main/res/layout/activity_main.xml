@@ -28,6 +28,16 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- FULL PANTRY ITEMS SCREEN CONTAINER -->
+    <include
+        android:id="@+id/fullPantryItemsScreenContainer"
+        layout="@layout/layout_full_pantry_items_screen"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- NOTIFICATIONS SCREEN CONTAINER (OVERLAY) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/notificationsScreenContainer"

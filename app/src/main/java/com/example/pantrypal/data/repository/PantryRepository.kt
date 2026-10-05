@@ -129,6 +129,7 @@ class PantryRepository {
     fun getCategories(): List<PantryCategory> {
         val items = getAllPantryItems()
         return listOf(
+            PantryCategory("c0", "All", items.size, R.drawable.ic_pantry),
             PantryCategory("c1", "Dairy", items.count { it.category.equals("Dairy", ignoreCase = true) }, R.drawable.ic_dairy),
             PantryCategory("c2", "Vegetables", items.count { it.category.equals("Vegetables", ignoreCase = true) }, R.drawable.ic_vegetable),
             PantryCategory("c3", "Fruits", items.count { it.category.equals("Fruits", ignoreCase = true) }, R.drawable.ic_fruit),

@@ -74,7 +74,9 @@ class PantryViewModel(
     }
 
     fun selectCategory(categoryName: String?) {
-        if (_selectedCategory.value == categoryName) {
+        if (categoryName.isNullOrBlank() || categoryName.equals("All", ignoreCase = true)) {
+            _selectedCategory.value = null
+        } else if (_selectedCategory.value.equals(categoryName, ignoreCase = true)) {
             _selectedCategory.value = null
         } else {
             _selectedCategory.value = categoryName
