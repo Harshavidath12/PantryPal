@@ -156,143 +156,7 @@
 
             </LinearLayout>
 
-            <!-- 3. SUMMARY STATISTICS CARDS -->
-            <LinearLayout
-                android:id="@+id/llStatsRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
 
-                <!-- Card 1: Total Items -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/PantryCardStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="#E5E7EB"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp">
-
-                        <TextView
-                            android:id="@+id/tvTotalItemsCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/text_primary"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            tools:text="48" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/stat_total_items"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Card 2: Expiring Soon -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/PantryCardStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="3dp"
-                    android:layout_marginEnd="3dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#FFF8F0"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="#FED7AA"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp">
-
-                        <TextView
-                            android:id="@+id/tvExpiringSoonCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="#B45309"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            tools:text="4" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/stat_expiring_soon"
-                            android:textColor="#B45309"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Card 3: To Restock -->
-                <com.google.android.material.card.MaterialCardView
-                    style="@style/PantryCardStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="#F4F9F6"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="1dp"
-                    app:strokeColor="#D1E7DD"
-                    app:strokeWidth="1dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:paddingTop="14dp"
-                        android:paddingBottom="14dp">
-
-                        <TextView
-                            android:id="@+id/tvToRestockCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/pantry_primary"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            tools:text="2" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/stat_to_restock"
-                            android:textColor="@color/pantry_primary"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-            </LinearLayout>
 
             <!-- 4. QUICK ACTION BUTTONS -->
             <LinearLayout
@@ -447,47 +311,7 @@
                 android:textSize="13sp"
                 android:visibility="gone" />
 
-            <!-- 6. CATEGORIES SECTION -->
-            <LinearLayout
-                android:id="@+id/llCategoriesHeader"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="22dp"
-                android:layout_marginBottom="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/section_categories_title"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvCategoriesCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_pill_qty"
-                    android:paddingStart="10dp"
-                    android:paddingTop="3dp"
-                    android:paddingEnd="10dp"
-                    android:paddingBottom="3dp"
-                    android:text="6 Categories"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvCategories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                tools:itemCount="6"
-                tools:listitem="@layout/item_category_card" />
 
             <!-- 7. ALL PANTRY ITEMS SECTION -->
             <LinearLayout
@@ -546,7 +370,7 @@
                 android:layout_marginTop="18dp"
                 android:layout_marginBottom="12dp"
                 android:backgroundTint="#F4F9F6"
-                android:text="View All 48 Items in Pantry →"
+                android:text="@string/btn_view_all_items"
                 android:textColor="@color/pantry_primary"
                 android:textSize="13sp"
                 android:textStyle="bold"

@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recentlyPurchasedAdapter: RecentlyPurchasedAdapter
 
     private lateinit var expiringSoonAdapter: ExpiringSoonAdapter
-    private lateinit var categoryAdapter: CategoryAdapter
     private lateinit var pantryOverviewAdapter: PantryOverviewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,12 +115,7 @@ class MainActivity : AppCompatActivity() {
         binding.pantryHomeScreenContainer.rvExpiringSoon.layoutManager = LinearLayoutManager(this)
         binding.pantryHomeScreenContainer.rvExpiringSoon.adapter = expiringSoonAdapter
 
-        // Category Adapter
-        categoryAdapter = CategoryAdapter { category ->
-            pantryViewModel.selectCategory(category.name)
-        }
-        binding.pantryHomeScreenContainer.rvCategories.layoutManager = GridLayoutManager(this, 2)
-        binding.pantryHomeScreenContainer.rvCategories.adapter = categoryAdapter
+
 
         // Pantry Overview Adapter
         pantryOverviewAdapter = PantryOverviewAdapter { item ->
@@ -157,13 +151,6 @@ class MainActivity : AppCompatActivity() {
             pantryViewModel.selectCategory(null)
             pantryViewModel.setSearchQuery("")
             Toast.makeText(this, "Showing all expiring items", Toast.LENGTH_SHORT).show()
-        }
-
-        // View All Pantry Button
-        binding.pantryHomeScreenContainer.btnViewAllPantry.setOnClickListener {
-            pantryViewModel.selectCategory(null)
-            pantryViewModel.setSearchQuery("")
-            Toast.makeText(this, "Showing all items in pantry", Toast.LENGTH_SHORT).show()
         }
 
         // Bell Icon on Home Dashboard Header
@@ -374,19 +361,13 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Pantry Home Dashboard Observations
                 launch {
-                    pantryViewModel.allItems.collect { items ->
-                        binding.pantryHomeScreenContainer.tvTotalItemsCount.text = items.size.toString()
-                        binding.pantryHomeScreenContainer.btnViewAllPantry.text =
-                            getString(R.string.btn_view_all_pantry_format, items.size)
-
-                        val restockCount = items.count { it.stockPercent <= 25 }
-                        binding.pantryHomeScreenContainer.tvToRestockCount.text = restockCount.toString()
+                    pantryViewModel.allItems.collect { _ ->
+                        binding.pantryHomeScreenContainer.btnViewAllPantry.text = getString(R.string.btn_view_all_items)
                     }
                 }
 
                 launch {
                     pantryViewModel.expiringSoonItems.collect { items ->
-                        binding.pantryHomeScreenContainer.tvExpiringSoonCount.text = items.size.toString()
                         expiringSoonAdapter.submitList(items)
                         if (items.isEmpty()) {
                             binding.pantryHomeScreenContainer.tvNoExpiringItems.visibility = View.VISIBLE
@@ -398,23 +379,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                launch {
-                    pantryViewModel.categories.collect { cats ->
-                        categoryAdapter.submitList(cats)
-                        binding.pantryHomeScreenContainer.tvCategoriesCount.text =
-                            getString(R.string.categories_count_format, cats.size)
-                    }
-                }
 
-                launch {
-                    pantryViewModel.selectedCategory.collect { selCat ->
-                        categoryAdapter.setSelectedCategory(selCat)
-                    }
-                }
 
                 launch {
                     pantryViewModel.filteredPantryItems.collect { items ->
-                        pantryOverviewAdapter.submitList(items)
+                        pantryOverviewAdapter.submitList(items.take(4))
                         if (items.isEmpty()) {
                             binding.pantryHomeScreenContainer.tvNoItemsFound.visibility = View.VISIBLE
                             binding.pantryHomeScreenContainer.rvAllPantryItems.visibility = View.GONE
