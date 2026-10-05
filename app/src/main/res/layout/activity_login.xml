@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/login_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="24dp">
+
+        <!-- Back Arrow -->
+        <TextView
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="‹"
+            android:textColor="#30445F"
+            android:textSize="38sp"
+            android:padding="4dp" />
+
+        <!-- PantryPal Logo -->
+        <ImageView
+            android:id="@+id/imgPantryLogo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:contentDescription="PantryPal Logo"
+            android:src="@drawable/ic_pantry_logo" />
+
+        <!-- PantryPal -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="PantryPal"
+            android:textColor="#0B4037"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <!-- Tagline -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Plan Better • Waste Less • Live Smarter"
+            android:textColor="#60738F"
+            android:textSize="16sp" />
+
+        <!-- Welcome -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:gravity="center"
+            android:text="Welcome back!"
+            android:textColor="#17243A"
+            android:textSize="34sp"
+            android:textStyle="bold" />
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Sign in to continue your pantry journey."
+            android:textColor="#507487"
+            android:textSize="18sp" />
+
+        <!-- Email -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:layout_marginTop="34dp"
+            android:background="@drawable/bg_input"
+            android:hint="Email"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#17243A"
+            android:textColorHint="#91A5C2"
+            android:textSize="18sp"
+            android:inputType="textEmailAddress" />
+
+        <!-- Password -->
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_input"
+            android:hint="Password"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="#17243A"
+            android:textColorHint="#91A5C2"
+            android:textSize="18sp"
+            android:inputType="textPassword" />
+
+        <!-- Forgot Password -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="end"
+            android:text="Forgot Password?"
+            android:textColor="#236552"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Pantry Options -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:orientation="horizontal">
+
+            <!-- Personal Pantry -->
+            <LinearLayout
+                android:id="@+id/cardPersonalPantry"
+                android:layout_width="0dp"
+                android:layout_height="220dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/bg_personal_pantry"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="●"
+                    android:textColor="#08704F"
+                    android:textSize="26sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Personal Pantry"
+                    android:textColor="#17243A"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Keep track of your own groceries and meals."
+                    android:textColor="#526477"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="→"
+                    android:textColor="#08704F"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+            <!-- Shared Household -->
+            <LinearLayout
+                android:id="@+id/cardSharedHousehold"
+                android:layout_width="0dp"
+                android:layout_height="220dp"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/bg_shared_household"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="●"
+                    android:textColor="#A65A0A"
+                    android:textSize="26sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Shared Household"
+                    android:textColor="#17243A"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Join a household and manage groceries together."
+                    android:textColor="#526477"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="→"
+                    android:textColor="#A65A0A"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+        <!-- Sign In -->
+        <Button
+            android:id="@+id/btnSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_signin_button"
+            android:text="Sign In"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textAllCaps="false" />
+
+        <!-- Guest -->
+        <TextView
+            android:id="@+id/tvGuest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="Continue as a Guest"
+            android:textColor="#111111"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</ScrollView>

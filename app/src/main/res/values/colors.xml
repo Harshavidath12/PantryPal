@@ -54,4 +54,14 @@
     <!-- Standard Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Create Account Screen -->
+    <color name="create_account_background">#E5FFF3</color>
+    <color name="create_account_text">#183C34</color>
+    <color name="create_account_secondary_text">#5F6865</color>
+    <color name="create_account_border">#B8C9C3</color>
+    <color name="create_account_white">#FFFFFF</color>
+    <color name="create_account_icon">#71807B</color>
+    <color name="create_account_primary">#155F4B</color>
+
 </resources>
