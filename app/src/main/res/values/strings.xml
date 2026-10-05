@@ -74,6 +74,7 @@
     <string name="section_all_pantry_title">All Pantry Items</string>
     <string name="stock_levels">Stock Levels</string>
     <string name="btn_view_all_pantry_format">View All %1$d Items in Pantry →</string>
+    <string name="btn_view_all_items">View All Items</string>
     <string name="no_items_found">No items found</string>
     <string name="no_expiring_items">No items expiring soon</string>
 </resources>
