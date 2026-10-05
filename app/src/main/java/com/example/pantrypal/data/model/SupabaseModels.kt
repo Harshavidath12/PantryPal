@@ -44,3 +44,28 @@ data class NotificationDto(
     @SerialName("is_read") val isRead: Boolean = false,
     @SerialName("created_at") val createdAt: String? = null
 )
+
+@InternalSerializationApi
+@Serializable
+data class SurplusHubDto(
+    val id: String? = null,
+    val name: String,
+    val address: String,
+    @SerialName("distance_km") val distanceKm: Double,
+    @SerialName("open_until") val openUntil: String,
+    @SerialName("accepted_foods") val acceptedFoods: String
+)
+
+@InternalSerializationApi
+@Serializable
+data class SurplusDonationDto(
+    val id: String? = null,
+    @SerialName("donor_id") val donorId: String,
+    @SerialName("hub_id") val hubId: String,
+    @SerialName("food_name") val foodName: String,
+    val quantity: String,
+    @SerialName("best_before") val bestBefore: String,
+    @SerialName("pickup_window") val pickupWindow: String,
+    val status: String = "PENDING",
+    @SerialName("created_at") val createdAt: String? = null
+)
