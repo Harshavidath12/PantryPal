@@ -48,7 +48,7 @@ data class NotificationDto(
 @InternalSerializationApi
 @Serializable
 data class SurplusHubDto(
-    val id: String? = null,
+    val id: String,
     val name: String,
     val address: String,
     @SerialName("distance_km") val distanceKm: Double,
@@ -60,7 +60,7 @@ data class SurplusHubDto(
 @Serializable
 data class SurplusDonationDto(
     val id: String? = null,
-    @SerialName("donor_id") val donorId: String,
+    @SerialName("donor_id") val donorId: String? = null,
     @SerialName("hub_id") val hubId: String,
     @SerialName("food_name") val foodName: String,
     val quantity: String,

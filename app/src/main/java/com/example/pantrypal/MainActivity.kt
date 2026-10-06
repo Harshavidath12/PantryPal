@@ -28,6 +28,7 @@ import com.example.pantrypal.data.model.PrimaryButtonType
 import com.example.pantrypal.data.model.ShoppingFilter
 import com.example.pantrypal.data.repository.NotificationRepository
 import com.example.pantrypal.data.repository.ShoppingRepository
+import com.example.pantrypal.data.repository.SurplusRepository
 import com.example.pantrypal.databinding.ActivityMainBinding
 import com.example.pantrypal.databinding.DialogAddAlertBinding
 import com.example.pantrypal.databinding.DialogRecipeIdeasBinding
@@ -57,6 +58,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var shoppingAdapter: ShoppingAdapter
     private lateinit var recentlyPurchasedAdapter: RecentlyPurchasedAdapter
     private var selectedHubName = "Colombo Community Kitchen"
+    private var selectedHubId: String? = null
+    // Login screens can pass their Supabase auth UUID via the user_id intent extra.
+    private val donorId: String? by lazy { intent.getStringExtra("user_id") }
+    private val surplusRepository = SurplusRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -248,10 +253,6 @@ class MainActivity : AppCompatActivity() {
             binding.surplusScreenContainer.visibility = View.VISIBLE
         }
         findViewById<View>(R.id.btnChooseHub).setOnClickListener { showSurplusDetail("hubs") }
-        findViewById<View>(R.id.btnSelectKitchen).setOnClickListener {
-            selectedHubName = "Colombo Community Kitchen"
-            Toast.makeText(this, "$selectedHubName selected", Toast.LENGTH_SHORT).show()
-        }
         findViewById<View>(R.id.btnDirections).setOnClickListener {
             Toast.makeText(this, "Directions to $selectedHubName", Toast.LENGTH_SHORT).show()
         }
@@ -353,8 +354,106 @@ class MainActivity : AppCompatActivity() {
             else -> "Community Impact"
         }
         findViewById<android.widget.TextView>(R.id.tvDetailTitle).text = title
+        if (page == "hubs") loadSurplusHubs()
+        if (page == "impact") loadDonationImpact()
     }
 
+    @OptIn(InternalSerializationApi::class)
+    private fun loadSurplusHubs() {
+        lifecycleScope.launch {
+            try {
+                val hubs = surplusRepository.getHubs()
+                val list = findViewById<android.widget.LinearLayout>(R.id.hubListContainer)
+                list.removeAllViews()
+                findViewById<android.widget.TextView>(R.id.tvHubResultCount).text = "Nearby hubs · ${hubs.size} active"
+                if (hubs.isEmpty()) {
+                    addHubMessage("No hubs are available yet. Add active hubs in Supabase.")
+                    return@launch
+                }
+                hubs.forEach { hub ->
+                    val card = com.google.android.material.card.MaterialCardView(this@MainActivity).apply {
+                        radius = 18f
+                        cardElevation = 1f
+                        setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
+                        val content = android.widget.LinearLayout(this@MainActivity).apply {
+                            orientation = android.widget.LinearLayout.VERTICAL
+                            setPadding(18, 16, 18, 14)
+                            addView(android.widget.TextView(this@MainActivity).apply {
+                                text = hub.name
+                                textSize = 15f
+                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                            })
+                            addView(android.widget.TextView(this@MainActivity).apply {
+                                text = "${hub.distanceKm} km · Open until ${hub.openUntil}\nAccepts: ${hub.acceptedFoods}\n${hub.address}"
+                                textSize = 12f
+                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                                setPadding(0, 8, 0, 10)
+                            })
+                            addView(android.widget.TextView(this@MainActivity).apply {
+                                text = if (selectedHubId == hub.id) "Selected ✓" else "Select this hub"
+                                textSize = 13f
+                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+                                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                                gravity = android.view.Gravity.END
+                            })
+                        }
+                        addView(content)
+                        setOnClickListener {
+                            selectedHubId = hub.id
+                            selectedHubName = hub.name
+                            Toast.makeText(this@MainActivity, "$selectedHubName selected", Toast.LENGTH_SHORT).show()
+                            showSurplusDetail("flag")
+                        }
+                    }
+                    val params = android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10 }
+                    list.addView(card, params)
+                }
+            } catch (error: Exception) {
+                addHubMessage("Could not load hubs from Supabase: ${error.message ?: "check connection and table policies"}")
+            }
+        }
+    }
+
+    private fun addHubMessage(message: String) {
+        findViewById<android.widget.LinearLayout>(R.id.hubListContainer).apply {
+            removeAllViews()
+            addView(android.widget.TextView(this@MainActivity).apply {
+                text = message
+                textSize = 13f
+                setPadding(10, 16, 10, 16)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+            })
+        }
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    private fun loadDonationImpact() {
+        val id = donorId
+        if (id.isNullOrBlank()) {
+            findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Sign in to view your donation history"
+            return
+        }
+        lifecycleScope.launch {
+            try {
+                val impact = surplusRepository.getImpact(id)
+                findViewById<android.widget.TextView>(R.id.tvImpactFood).text = "${"%.1f".format(impact.foodSavedKg)}kg"
+                findViewById<android.widget.TextView>(R.id.tvImpactMeals).text = impact.meals.toString()
+                findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "${impact.donationCount} donations · ${impact.completedCount} completed"
+                findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "${"%.1f".format(impact.foodSavedKg)} kg"
+                findViewById<android.widget.TextView>(R.id.tvDonations).text = impact.donationCount.toString()
+                val history = surplusRepository.getDonations(id)
+                if (history.isNotEmpty()) {
+                    val latest = history.first()
+                    findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "${latest.foodName} · ${latest.quantity} · ${latest.status}"
+                }
+            } catch (error: Exception) {
+                findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Could not load impact: ${error.message ?: "check Supabase setup"}"
+            }
+        }
+    }
+
+    @OptIn(InternalSerializationApi::class)
     private fun submitSurplusDonation() {
         val name = findViewById<android.widget.EditText>(R.id.etSurplusName).text.toString().trim()
         val quantity = findViewById<android.widget.EditText>(R.id.etSurplusQuantity).text.toString().trim()
@@ -363,11 +462,42 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Complete the food, quantity and best before fields", Toast.LENGTH_SHORT).show()
             return
         }
-        findViewById<android.widget.TextView>(R.id.tvSubmittedFood).text = "$name · $quantity"
-        findViewById<android.widget.TextView>(R.id.tvSubmittedHub).text = selectedHubName
-        findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "Your donation is listed with $selectedHubName. Pickup preference: today, 4:00 PM – 6:00 PM."
-        findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "🥕  $name · $quantity"
-        showSurplusDetail("submitted")
+        val authUserId = donorId
+        val hubId = selectedHubId
+        if (authUserId.isNullOrBlank()) {
+            Toast.makeText(this, "Sign in first to submit a donation.", Toast.LENGTH_LONG).show()
+            return
+        }
+        if (hubId.isNullOrBlank()) {
+            Toast.makeText(this, "Select a hub before submitting.", Toast.LENGTH_SHORT).show()
+            showSurplusDetail("hubs")
+            return
+        }
+        val submitButton = findViewById<View>(R.id.btnSubmitDonation)
+        submitButton.isEnabled = false
+        lifecycleScope.launch {
+            try {
+                surplusRepository.createDonation(
+                    authUserId,
+                    com.example.pantrypal.data.model.SurplusDonationDto(
+                        hubId = hubId,
+                        foodName = name,
+                        quantity = quantity,
+                        bestBefore = expiry,
+                        pickupWindow = "Today, 4:00 PM – 6:00 PM"
+                    )
+                )
+                findViewById<android.widget.TextView>(R.id.tvSubmittedFood).text = "$name · $quantity"
+                findViewById<android.widget.TextView>(R.id.tvSubmittedHub).text = selectedHubName
+                findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "Your donation is listed with $selectedHubName. Pickup preference: today, 4:00 PM – 6:00 PM."
+                findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "🥕  $name · $quantity"
+                showSurplusDetail("submitted")
+            } catch (error: Exception) {
+                Toast.makeText(this@MainActivity, "Donation could not be saved: ${error.message ?: "check Supabase"}", Toast.LENGTH_LONG).show()
+            } finally {
+                submitButton.isEnabled = true
+            }
+        }
     }
 
     @OptIn(InternalSerializationApi::class)
