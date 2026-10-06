@@ -243,22 +243,22 @@ class MainActivity : AppCompatActivity() {
             showSurplusDetail("hubs")
         }
         binding.surplusScreenContainer.findViewById<View>(R.id.btnCommunityImpact).setOnClickListener { showSurplusDetail("impact") }
-        binding.findViewById<View>(R.id.btnSurplusBack).setOnClickListener {
+        findViewById<View>(R.id.btnSurplusBack).setOnClickListener {
             binding.surplusDetailContainer.visibility = View.GONE
             binding.surplusScreenContainer.visibility = View.VISIBLE
         }
-        binding.findViewById<View>(R.id.btnChooseHub).setOnClickListener { showSurplusDetail("hubs") }
-        binding.findViewById<View>(R.id.btnSelectKitchen).setOnClickListener {
+        findViewById<View>(R.id.btnChooseHub).setOnClickListener { showSurplusDetail("hubs") }
+        findViewById<View>(R.id.btnSelectKitchen).setOnClickListener {
             selectedHubName = "Colombo Community Kitchen"
             Toast.makeText(this, "$selectedHubName selected", Toast.LENGTH_SHORT).show()
         }
-        binding.findViewById<View>(R.id.btnDirections).setOnClickListener {
+        findViewById<View>(R.id.btnDirections).setOnClickListener {
             Toast.makeText(this, "Directions to $selectedHubName", Toast.LENGTH_SHORT).show()
         }
-        binding.findViewById<View>(R.id.btnSubmitDonation).setOnClickListener { submitSurplusDonation() }
-        binding.findViewById<View>(R.id.btnTrackDonation).setOnClickListener { showSurplusDetail("impact") }
-        binding.findViewById<View>(R.id.btnAnotherDonation).setOnClickListener { showSurplusDetail("flag") }
-        binding.findViewById<View>(R.id.btnShareImpact).setOnClickListener {
+        findViewById<View>(R.id.btnSubmitDonation).setOnClickListener { submitSurplusDonation() }
+        findViewById<View>(R.id.btnTrackDonation).setOnClickListener { showSurplusDetail("impact") }
+        findViewById<View>(R.id.btnAnotherDonation).setOnClickListener { showSurplusDetail("flag") }
+        findViewById<View>(R.id.btnShareImpact).setOnClickListener {
             val share = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, "I've helped share 14.2 kg of food with my community through PantryPal!")
@@ -338,10 +338,10 @@ class MainActivity : AppCompatActivity() {
         binding.shoppingScreenContainer.root.visibility = View.GONE
         binding.surplusScreenContainer.visibility = View.GONE
         binding.surplusDetailContainer.visibility = View.VISIBLE
-        val impact = binding.findViewById<View>(R.id.layoutImpact)
-        val hubs = binding.findViewById<View>(R.id.layoutHubFinder)
-        val form = binding.findViewById<View>(R.id.layoutFlagForm)
-        val submitted = binding.findViewById<View>(R.id.layoutSubmission)
+        val impact = findViewById<View>(R.id.layoutImpact)
+        val hubs = findViewById<View>(R.id.layoutHubFinder)
+        val form = findViewById<View>(R.id.layoutFlagForm)
+        val submitted = findViewById<View>(R.id.layoutSubmission)
         impact.visibility = if (page == "impact") View.VISIBLE else View.GONE
         hubs.visibility = if (page == "hubs") View.VISIBLE else View.GONE
         form.visibility = if (page == "flag") View.VISIBLE else View.GONE
@@ -352,21 +352,21 @@ class MainActivity : AppCompatActivity() {
             "submitted" -> "Donation submitted"
             else -> "Community Impact"
         }
-        binding.findViewById<android.widget.TextView>(R.id.tvDetailTitle).text = title
+        findViewById<android.widget.TextView>(R.id.tvDetailTitle).text = title
     }
 
     private fun submitSurplusDonation() {
-        val name = binding.findViewById<android.widget.EditText>(R.id.etSurplusName).text.toString().trim()
-        val quantity = binding.findViewById<android.widget.EditText>(R.id.etSurplusQuantity).text.toString().trim()
-        val expiry = binding.findViewById<android.widget.EditText>(R.id.etSurplusExpiry).text.toString().trim()
+        val name = findViewById<android.widget.EditText>(R.id.etSurplusName).text.toString().trim()
+        val quantity = findViewById<android.widget.EditText>(R.id.etSurplusQuantity).text.toString().trim()
+        val expiry = findViewById<android.widget.EditText>(R.id.etSurplusExpiry).text.toString().trim()
         if (name.isBlank() || quantity.isBlank() || expiry.isBlank()) {
             Toast.makeText(this, "Complete the food, quantity and best before fields", Toast.LENGTH_SHORT).show()
             return
         }
-        binding.findViewById<android.widget.TextView>(R.id.tvSubmittedFood).text = "$name · $quantity"
-        binding.findViewById<android.widget.TextView>(R.id.tvSubmittedHub).text = selectedHubName
-        binding.findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "Your donation is listed with $selectedHubName. Pickup preference: today, 4:00 PM – 6:00 PM."
-        binding.findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "🥕  $name · $quantity"
+        findViewById<android.widget.TextView>(R.id.tvSubmittedFood).text = "$name · $quantity"
+        findViewById<android.widget.TextView>(R.id.tvSubmittedHub).text = selectedHubName
+        findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "Your donation is listed with $selectedHubName. Pickup preference: today, 4:00 PM – 6:00 PM."
+        findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "🥕  $name · $quantity"
         showSurplusDetail("submitted")
     }
 
