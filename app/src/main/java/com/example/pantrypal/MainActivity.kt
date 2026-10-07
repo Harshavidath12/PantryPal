@@ -47,7 +47,10 @@ import com.google.android.material.snackbar.Snackbar
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.InternalSerializationApi
+import java.io.File
 
 @OptIn(InternalSerializationApi::class)
 class MainActivity : AppCompatActivity() {
@@ -596,6 +599,7 @@ class MainActivity : AppCompatActivity() {
             findViewById<android.widget.TextView>(R.id.tvImpactLevel).text = "NEW RESCUER"
             activeCard.visibility = View.GONE
             communityCard.visibility = View.GONE
+            findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto).setImageDrawable(null)
             impactHubNames = emptyMap()
             renderDonationHistory(emptyList())
             chart?.setDonations(emptyList())
@@ -633,6 +637,7 @@ class MainActivity : AppCompatActivity() {
                     findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = hubName
                     findViewById<android.widget.TextView>(R.id.tvImpactBeneficiaryTitle).text = hubName
                     findViewById<android.widget.TextView>(R.id.tvImpactBeneficiaryCaption).text = "${latest.foodName} · ${latest.quantity}"
+                    showDonationPhoto(latest.id)
                     findViewById<android.widget.TextView>(R.id.tvImpactActiveFood).text = "${latest.foodName} · ${latest.quantity}"
                     val state = latest.status.uppercase()
                     findViewById<android.widget.TextView>(R.id.tvImpactProgress).text = when (state) {
@@ -649,6 +654,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 } else {
                     findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = "Community hub"
+                    findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto).setImageDrawable(null)
                 }
                 renderDonationHistory(history)
                 chart?.setDonations(history)
@@ -762,6 +768,33 @@ class MainActivity : AppCompatActivity() {
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 
+    private fun showDonationPhoto(donationId: String) {
+        val photoView = findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto)
+        val storedPath = getSharedPreferences("surplus_donation_photos", MODE_PRIVATE)
+            .getString("photo_$donationId", null)
+        val photoFile = storedPath?.let(::File)
+        if (photoFile?.isFile == true) {
+            photoView.setImageURI(Uri.fromFile(photoFile))
+        } else {
+            photoView.setImageDrawable(null)
+        }
+    }
+
+    private suspend fun saveDonationPhoto(uri: Uri, donationId: String) = withContext(Dispatchers.IO) {
+        val folder = File(filesDir, "surplus_donation_photos").apply { mkdirs() }
+        val photoFile = File(folder, "$donationId.img")
+        val input = contentResolver.openInputStream(uri) ?: error("The selected photo could not be opened.")
+        input.use { source -> photoFile.outputStream().use(source::copyTo) }
+        getSharedPreferences("surplus_donation_photos", MODE_PRIVATE)
+            .edit().putString("photo_$donationId", photoFile.absolutePath).apply()
+    }
+
+    private fun removeDonationPhoto(donationId: String) {
+        val preferences = getSharedPreferences("surplus_donation_photos", MODE_PRIVATE)
+        preferences.getString("photo_$donationId", null)?.let(::File)?.delete()
+        preferences.edit().remove("photo_$donationId").apply()
+    }
+
     private fun showEditDonationDialog(donation: com.example.pantrypal.data.repository.DonationHistoryDto) {
         if (!donation.status.equals("PENDING", true)) return
         val form = android.widget.LinearLayout(this).apply {
@@ -825,6 +858,7 @@ class MainActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     try {
                         val deleted = surplusRepository.deleteDonation(donation)
+                        if (deleted) removeDonationPhoto(donation.id)
                         Toast.makeText(
                             this@MainActivity,
                             if (deleted) "Donation deleted" else "This donation is no longer available to delete.",
@@ -1026,7 +1060,7 @@ class MainActivity : AppCompatActivity() {
         submitButton.isEnabled = false
         lifecycleScope.launch {
             try {
-                surplusRepository.createDonation(
+                val donationId = surplusRepository.createDonation(
                     com.example.pantrypal.data.model.SurplusDonationDto(
                         hubId = hubId,
                         foodName = name,
@@ -1035,6 +1069,19 @@ class MainActivity : AppCompatActivity() {
                         pickupWindow = pickupWindow
                     )
                 )
+                val photoUri = selectedSurplusPhotoUri
+                if (photoUri != null) {
+                    try {
+                        saveDonationPhoto(photoUri, donationId)
+                    } catch (_: Exception) {
+                        Toast.makeText(this@MainActivity, "Donation saved, but its photo could not be retained on this device.", Toast.LENGTH_LONG).show()
+                    }
+                }
+                selectedSurplusPhotoUri = null
+                findViewById<android.widget.ImageView>(R.id.ivSurplusPhoto).apply {
+                    setImageDrawable(null)
+                    visibility = View.GONE
+                }
                 findViewById<android.widget.TextView>(R.id.tvSubmittedFood).text = "$name · $quantity"
                 findViewById<android.widget.TextView>(R.id.tvSubmittedWeight).text = quantity
                 findViewById<android.widget.TextView>(R.id.tvSubmittedWindow).text = pickupWindow

@@ -32,9 +32,11 @@ class SurplusRepository {
     }
 
     @OptIn(InternalSerializationApi::class)
-    suspend fun createDonation(donation: SurplusDonationDto) = withContext(Dispatchers.IO) {
+    suspend fun createDonation(donation: SurplusDonationDto): String = withContext(Dispatchers.IO) {
         val donorId = currentDonorId() ?: error("Please sign in before submitting a donation.")
-        SupabaseProvider.client.from("surplus_donations").insert(donation.copy(donorId = donorId))
+        SupabaseProvider.client.from("surplus_donations").insert(donation.copy(donorId = donorId)) {
+            select()
+        }.decodeSingle<SurplusDonationDto>().id ?: error("Donation was saved, but its ID was not returned.")
     }
 
     @OptIn(InternalSerializationApi::class)
