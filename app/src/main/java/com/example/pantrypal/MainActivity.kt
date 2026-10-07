@@ -73,9 +73,24 @@ class MainActivity : AppCompatActivity() {
     private var availableSurplusHubs: List<com.example.pantrypal.data.model.SurplusHubDto> = emptyList()
     private var hubSearchWatcher: android.text.TextWatcher? = null
     private var selectedSurplusPhotoUri: Uri? = null
+    private var pendingPhotoDonationId: String? = null
     private var impactHubNames: Map<String, String> = emptyMap()
     private val surplusPhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
+            val donationId = pendingPhotoDonationId
+            if (donationId != null) {
+                pendingPhotoDonationId = null
+                lifecycleScope.launch {
+                    try {
+                        saveDonationPhoto(uri, donationId)
+                        loadDonationImpact()
+                        Toast.makeText(this@MainActivity, "Donation photo updated", Toast.LENGTH_SHORT).show()
+                    } catch (error: Exception) {
+                        Toast.makeText(this@MainActivity, "Could not save photo: ${error.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+                return@registerForActivityResult
+            }
             selectedSurplusPhotoUri = uri
             findViewById<android.widget.ImageView>(R.id.ivSurplusPhoto).apply {
                 setImageURI(uri)
@@ -589,7 +604,6 @@ class MainActivity : AppCompatActivity() {
         val headline = findViewById<android.widget.TextView>(R.id.tvImpactHeadline)
         val activeCard = findViewById<View>(R.id.tvImpactActiveFood).parent.parent as View
         val communityCard = findViewById<View>(R.id.tvImpactBeneficiaryTitle).parent.parent.parent as View
-        val chart = binding.surplusDetailContainer.findViewById<com.example.pantrypal.ui.surplus.SurplusImpactChart>(R.id.impactChart)
         if (surplusRepository.currentDonorId().isNullOrBlank()) {
             rescuedText.text = "0.0kg"
             mealsText.text = "0"
@@ -602,7 +616,6 @@ class MainActivity : AppCompatActivity() {
             findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto).setImageDrawable(null)
             impactHubNames = emptyMap()
             renderDonationHistory(emptyList())
-            chart?.setDonations(emptyList())
             return
         }
         lifecycleScope.launch {
@@ -657,7 +670,6 @@ class MainActivity : AppCompatActivity() {
                     findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto).setImageDrawable(null)
                 }
                 renderDonationHistory(history)
-                chart?.setDonations(history)
             } catch (error: Exception) {
                 headline.text = "Could not load your donations: ${error.message ?: "check Supabase connection"}"
                 activeCard.visibility = View.GONE
@@ -738,6 +750,20 @@ class MainActivity : AppCompatActivity() {
                         gravity = android.view.Gravity.END
                         setPadding(0, dp(7), 0, 0)
                     }
+                    actions.addView(android.widget.TextView(this@MainActivity).apply {
+                        val savedPhoto = getSharedPreferences("surplus_donation_photos", MODE_PRIVATE)
+                            .getString("photo_${donation.id}", null)?.let(::File)?.isFile == true
+                        text = if (savedPhoto) "Change photo" else "Add photo"
+                        textSize = 10f
+                        setTypeface(typeface, android.graphics.Typeface.BOLD)
+                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+                        setPadding(dp(8), dp(7), dp(8), dp(7))
+                        isClickable = true
+                        setOnClickListener {
+                            pendingPhotoDonationId = donation.id
+                            surplusPhotoPicker.launch("image/*")
+                        }
+                    })
                     actions.addView(android.widget.TextView(this@MainActivity).apply {
                         text = "Edit"
                         textSize = 11f
