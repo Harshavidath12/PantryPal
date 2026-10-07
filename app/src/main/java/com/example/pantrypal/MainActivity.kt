@@ -875,71 +875,143 @@ class MainActivity : AppCompatActivity() {
 
     private fun showEditDonationDialog(donation: com.example.pantrypal.data.repository.DonationHistoryDto) {
         if (!donation.status.equals("PENDING", true)) return
-        val form = android.widget.LinearLayout(this).apply {
+        val primary = ContextCompat.getColor(this, R.color.pantry_primary)
+        val primaryDark = ContextCompat.getColor(this, R.color.pantry_primary_dark)
+        val pale = ContextCompat.getColor(this, R.color.pantry_primary_light)
+        val muted = ContextCompat.getColor(this, R.color.text_secondary)
+        fun rounded(fill: Int, stroke: Int = fill, width: Int = 0): android.graphics.drawable.GradientDrawable =
+            android.graphics.drawable.GradientDrawable().apply {
+                setColor(fill)
+                cornerRadius = dp(14).toFloat()
+                if (width > 0) setStroke(dp(width), stroke)
+            }
+        val content = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(dp(22), dp(8), dp(22), 0)
+            setPadding(dp(20), dp(6), dp(20), dp(4))
         }
         fun label(text: String) {
-            form.addView(android.widget.TextView(this).apply {
+            content.addView(android.widget.TextView(this).apply {
                 this.text = text
-                textSize = 12f
-                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
-                setPadding(0, dp(6), 0, 0)
+                textSize = 11f
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setTextColor(muted)
+                setPadding(dp(2), dp(10), 0, dp(4))
             })
         }
         fun field(hintText: String, value: String, type: Int = android.text.InputType.TYPE_CLASS_TEXT): android.widget.EditText {
-            return android.widget.EditText(this).apply {
+            val edit = android.widget.EditText(this).apply {
                 hint = hintText
                 setText(value)
                 inputType = type
                 setSingleLine(true)
                 textSize = 14f
-            }.also { edit ->
-                form.addView(edit, android.widget.LinearLayout.LayoutParams(-1, dp(48)))
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                background = rounded(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg), ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_container), 1)
+                setPadding(dp(13), 0, dp(13), 0)
             }
+            content.addView(edit, android.widget.LinearLayout.LayoutParams(-1, dp(48)))
+            return edit
         }
+        content.addView(android.widget.TextView(this).apply {
+            text = "Fine-tune your donation"
+            textSize = 12f
+            setTextColor(muted)
+            setPadding(0, 0, 0, dp(8))
+        })
         val food = field("Food description", donation.foodName)
         label("Quantity type")
-        val quantityMode = android.widget.RadioGroup(this).apply { orientation = android.widget.RadioGroup.HORIZONTAL }
-        val kgOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "Kilograms (kg)" }
-        val unitsOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "Units" }
-        quantityMode.addView(kgOption)
-        quantityMode.addView(unitsOption)
+        val quantityMode = android.widget.RadioGroup(this).apply {
+            orientation = android.widget.RadioGroup.HORIZONTAL
+            background = rounded(pale)
+            setPadding(dp(4), dp(4), dp(4), dp(4))
+        }
+        val kgOption = android.widget.RadioButton(this).apply {
+            id = View.generateViewId(); text = "KG"; gravity = android.view.Gravity.CENTER
+            buttonDrawable = null; setPadding(dp(8), dp(9), dp(8), dp(9)); textSize = 12f
+        }
+        val unitsOption = android.widget.RadioButton(this).apply {
+            id = View.generateViewId(); text = "Units"; gravity = android.view.Gravity.CENTER
+            buttonDrawable = null; setPadding(dp(8), dp(9), dp(8), dp(9)); textSize = 12f
+        }
+        quantityMode.addView(kgOption, android.widget.RadioGroup.LayoutParams(0, -2, 1f))
+        quantityMode.addView(unitsOption, android.widget.RadioGroup.LayoutParams(0, -2, 1f))
         val oldQuantityMatch = Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(kg|kgs|units?)?", RegexOption.IGNORE_CASE).find(donation.quantity)
         val oldAmount = oldQuantityMatch?.groupValues?.get(1).orEmpty()
         val startsAsUnits = oldQuantityMatch?.groupValues?.get(2)?.startsWith("unit", true) == true
         quantityMode.check(if (startsAsUnits) unitsOption.id else kgOption.id)
-        form.addView(quantityMode)
-        val quantity = field("Amount", oldAmount, android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL)
-        quantityMode.setOnCheckedChangeListener { _, checkedId ->
-            quantity.inputType = if (checkedId == unitsOption.id) android.text.InputType.TYPE_CLASS_NUMBER
+        content.addView(quantityMode)
+        label("Amount")
+        val quantity = field(
+            if (startsAsUnits) "Number of items" else "Weight in kg",
+            oldAmount,
+            if (startsAsUnits) android.text.InputType.TYPE_CLASS_NUMBER
+            else android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        )
+        fun refreshQuantityMode() {
+            val units = quantityMode.checkedRadioButtonId == unitsOption.id
+            listOf(kgOption, unitsOption).forEach { option ->
+                val selected = option.isChecked
+                option.background = rounded(if (selected) primary else android.graphics.Color.TRANSPARENT)
+                option.setTextColor(if (selected) android.graphics.Color.WHITE else primaryDark)
+            }
+            quantity.inputType = if (units) android.text.InputType.TYPE_CLASS_NUMBER
                 else android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-            quantity.hint = if (checkedId == unitsOption.id) "Number of items" else "Weight in kg"
+            quantity.hint = if (units) "Number of items" else "Weight in kg"
         }
+        refreshQuantityMode()
+        quantityMode.setOnCheckedChangeListener { _, checkedId ->
+            refreshQuantityMode()
+        }
+        label("Best before")
         val bestBefore = field("Best before", donation.bestBefore)
         label("Pickup preference")
         val pickupMode = android.widget.RadioGroup(this).apply { orientation = android.widget.RadioGroup.VERTICAL }
-        val courierOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "Volunteer / courier pickup" }
-        val dropoffOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "I will drop it off at the hub" }
-        pickupMode.addView(courierOption)
-        pickupMode.addView(dropoffOption)
-        val isDropoff = donation.pickupWindow.startsWith("Drop off at", ignoreCase = true)
-        pickupMode.check(if (isDropoff) dropoffOption.id else courierOption.id)
-        form.addView(pickupMode)
-        val minimumHint = android.widget.TextView(this).apply {
-            text = "Courier minimum: 10 kg or 15 units. Self drop-off has no courier minimum."
-            textSize = 11f
-            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
-            setPadding(0, dp(4), 0, 0)
+        fun pickupOption(title: String, detail: String): android.widget.RadioButton = android.widget.RadioButton(this).apply {
+            id = View.generateViewId()
+            text = "$title\n$detail"
+            textSize = 12f
+            setLineSpacing(dp(2).toFloat(), 1f)
+            buttonTintList = android.content.res.ColorStateList.valueOf(primary)
+            setPadding(dp(11), dp(6), dp(11), dp(6))
         }
-        form.addView(minimumHint)
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        val courierOption = pickupOption("Volunteer / courier pickup", "10 kg or 15 units minimum")
+        val dropoffOption = pickupOption("Self drop-off at hub", "Completes the donation immediately")
+        val isDropoff = donation.pickupWindow.startsWith("Drop off at", ignoreCase = true)
+        pickupMode.addView(courierOption, android.widget.LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(6) })
+        pickupMode.addView(dropoffOption, android.widget.LinearLayout.LayoutParams(-1, -2))
+        pickupMode.check(if (isDropoff) dropoffOption.id else courierOption.id)
+        fun refreshPickupMode() {
+            listOf(courierOption, dropoffOption).forEach { option ->
+                option.background = rounded(
+                    if (option.isChecked) ContextCompat.getColor(this, R.color.pantry_primary_light) else ContextCompat.getColor(this, R.color.pantry_card_bg),
+                    if (option.isChecked) ContextCompat.getColor(this, R.color.pantry_primary) else ContextCompat.getColor(this, R.color.pantry_primary_container),
+                    1
+                )
+            }
+        }
+        refreshPickupMode()
+        pickupMode.setOnCheckedChangeListener { _, _ -> refreshPickupMode() }
+        content.addView(pickupMode)
+        content.addView(android.widget.TextView(this).apply {
+            text = "Self drop-off has no courier minimum. Choosing it marks this donation complete."
+            textSize = 11f
+            setTextColor(primaryDark)
+            background = rounded(pale)
+            setPadding(dp(12), dp(9), dp(12), dp(9))
+        }, android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(7) })
+        val scroll = android.widget.ScrollView(this).apply {
+            isFillViewport = true
+            addView(content)
+        }
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("Edit donation")
-            .setView(form)
+            .setView(scroll)
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Save changes", null)
             .create()
         dialog.setOnShowListener {
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(primary)
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(muted)
             dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val foodValue = food.text.toString().trim()
                 val amountText = quantity.text.toString().trim()
@@ -959,7 +1031,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, if (units) "Courier pickup requires at least 15 units." else "Courier pickup requires at least 10 kg.", Toast.LENGTH_LONG).show()
                     return@setOnClickListener
                 }
-                val quantityValue = if (units) "${amount.toInt()} units" else "$amount kg"
+                val quantityValue = if (units) "${amount.toInt()} units" else "${amount.toString().trimEnd('0').trimEnd('.')} kg"
                 val pickupValue = if (dropoff) {
                     val hubName = impactHubNames[donation.hubId] ?: "community hub"
                     "Drop off at $hubName"
@@ -973,7 +1045,11 @@ class MainActivity : AppCompatActivity() {
                         dialog.dismiss()
                         loadDonationImpact()
                     } catch (error: Exception) {
-                        Toast.makeText(this@MainActivity, "Could not update donation: ${error.message}", Toast.LENGTH_LONG).show()
+                        val detail = error.message.orEmpty()
+                        val message = if (detail.contains("row-level security", ignoreCase = true)) {
+                            "Supabase blocked this edit. Run surplus_update_policy.sql in SQL Editor, then retry."
+                        } else "Could not update donation: ${detail.ifBlank { "Please try again." }}"
+                        Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
                     }
                 }
             }
