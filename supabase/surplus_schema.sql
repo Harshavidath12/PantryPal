@@ -23,9 +23,15 @@ create table if not exists public.surplus_donations (
     best_before text not null,
     pickup_window text not null,
     status text not null default 'PENDING'
-        check (status in ('PENDING', 'CLAIMED', 'PICKED_UP', 'CANCELLED')),
+        check (status in ('PENDING', 'CLAIMED', 'PICKED_UP', 'DROPPED_OFF', 'CANCELLED')),
     created_at timestamptz not null default now()
 );
+
+alter table public.surplus_donations
+    drop constraint if exists surplus_donations_status_check;
+alter table public.surplus_donations
+    add constraint surplus_donations_status_check
+    check (status in ('PENDING', 'CLAIMED', 'PICKED_UP', 'DROPPED_OFF', 'CANCELLED'));
 
 create index if not exists surplus_donations_donor_created_idx
     on public.surplus_donations (donor_id, created_at desc);
@@ -52,10 +58,11 @@ create policy "Donors can create their own surplus donations"
     with check (auth.uid() = donor_id);
 
 drop policy if exists "Donors can update their own pending surplus donations" on public.surplus_donations;
-create policy "Donors can update their own pending surplus donations"
+drop policy if exists "Donors can update their own active surplus donations" on public.surplus_donations;
+create policy "Donors can update their own active surplus donations"
     on public.surplus_donations for update to authenticated
-    using (auth.uid() = donor_id and status = 'PENDING')
-    with check (auth.uid() = donor_id and status = 'PENDING');
+    using (auth.uid() = donor_id and status in ('PENDING', 'CLAIMED'))
+    with check (auth.uid() = donor_id and status in ('PENDING', 'CLAIMED', 'PICKED_UP'));
 
 drop policy if exists "Donors can delete their own pending surplus donations" on public.surplus_donations;
 create policy "Donors can delete their own pending surplus donations"

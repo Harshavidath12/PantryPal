@@ -71,9 +71,29 @@ class SurplusRepository {
     }
 
     @OptIn(InternalSerializationApi::class)
+    suspend fun advanceDonationStatus(donation: DonationHistoryDto): Boolean = withContext(Dispatchers.IO) {
+        val donorId = currentDonorId() ?: error("Please sign in before updating a donation stage.")
+        val nextStatus = when (donation.status.uppercase()) {
+            "PENDING" -> "CLAIMED"
+            "CLAIMED" -> "PICKED_UP"
+            else -> return@withContext false
+        }
+        SupabaseProvider.client.from("surplus_donations").update({
+            set("status", nextStatus)
+        }) {
+            select()
+            filter {
+                eq("id", donation.id)
+                eq("donor_id", donorId)
+                eq("status", donation.status)
+            }
+        }.decodeList<DonationHistoryDto>().isNotEmpty()
+    }
+
+    @OptIn(InternalSerializationApi::class)
     suspend fun getImpact(): DonationImpact = withContext(Dispatchers.IO) {
         val donations = getDonations()
-        val completed = donations.filter { it.status == "PICKED_UP" }
+        val completed = donations.filter { it.status in setOf("PICKED_UP", "DROPPED_OFF") }
         val savedKg = completed.sumOf { donation ->
             Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(?:kg|kgs|g|grams?)\\b", RegexOption.IGNORE_CASE)
                 .find(donation.quantity)?.groupValues?.get(1)?.toDoubleOrNull() ?: 0.0
