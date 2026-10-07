@@ -232,17 +232,6 @@
             android:textSize="20sp"
             android:textAllCaps="false" />
 
-        <!-- Guest -->
-        <TextView
-            android:id="@+id/tvGuest"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center"
-            android:text="Continue as a Guest"
-            android:textColor="#111111"
-            android:textSize="17sp"
-            android:textStyle="bold" />
 
     </LinearLayout>
 
