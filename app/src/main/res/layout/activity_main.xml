@@ -422,7 +422,7 @@
                     <EditText android:id="@+id/etSurplusName" android:layout_width="match_parent" android:layout_height="42dp" android:background="@drawable/bg_sync_card" android:hint="Mixed garden vegetables" android:paddingHorizontal="10dp" android:singleLine="true" android:textSize="12sp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal">
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="5dp" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Quantity / Unit" android:textColor="@color/text_primary" android:textSize="11sp" android:textStyle="bold"/><EditText android:id="@+id/etSurplusQuantity" android:layout_width="match_parent" android:layout_height="40dp" android:background="@drawable/bg_sync_card" android:hint="2.3 kg (crate)" android:inputType="text" android:paddingHorizontal="8dp" android:singleLine="true" android:textSize="11sp"/></LinearLayout>
-                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Best before" android:textColor="@color/text_primary" android:textSize="11sp" android:textStyle="bold"/><EditText android:id="@+id/etSurplusExpiry" android:layout_width="match_parent" android:layout_height="40dp" android:background="@drawable/bg_sync_card" android:hint="Oct 28, 2026" android:paddingHorizontal="8dp" android:singleLine="true" android:textSize="11sp"/></LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Best before" android:textColor="@color/text_primary" android:textSize="11sp" android:textStyle="bold"/><EditText android:id="@+id/etSurplusExpiry" android:layout_width="match_parent" android:layout_height="40dp" android:background="@drawable/bg_sync_card" android:clickable="true" android:drawableEnd="@drawable/ic_calendar" android:drawablePadding="6dp" android:drawableTint="@color/pantry_primary" android:focusable="false" android:focusableInTouchMode="false" android:hint="Select date" android:paddingHorizontal="8dp" android:singleLine="true" android:textSize="11sp"/></LinearLayout>
                     </LinearLayout>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:text="Pickup preference" android:textColor="@color/text_primary" android:textSize="11sp" android:textStyle="bold"/>
                     <RadioGroup android:id="@+id/rgSurplusPickup" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
@@ -432,18 +432,18 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Food safety standards" android:textColor="@color/pantry_primary" android:textSize="12sp" android:textStyle="bold"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Only fresh, safe and sealed food can be shared." android:textColor="@color/text_secondary" android:textSize="10sp"/>
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnChooseHub" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="8dp" android:text="Find a hub" android:textAllCaps="false" android:visibility="gone" app:backgroundTint="@color/pantry_primary" app:cornerRadius="15dp"/>
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnSubmitDonation" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="7dp" android:layout_marginBottom="18dp" android:text="Submit for Volunteer Pickup" android:textAllCaps="false" app:backgroundTint="#FFB84D" app:cornerRadius="15dp"/>
+                    <com.google.android.material.button.MaterialButton android:id="@+id/btnSubmitDonation" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="7dp" android:layout_marginBottom="18dp" android:text="Submit for Volunteer Pickup" android:textAllCaps="false" android:textColor="@color/pantry_primary_dark" app:backgroundTint="#FFB84D" app:cornerRadius="15dp" app:icon="@drawable/ic_delivery_truck" app:iconGravity="textStart" app:iconPadding="8dp" app:iconTint="@color/pantry_primary_dark"/>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
 
-    <!-- Bottom Navigation Bar Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bottomNavCard"
-        style="@style/PantryCardStyle"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
+      <!-- Bottom Navigation Bar Card -->
+      <com.google.android.material.card.MaterialCardView
+          android:id="@+id/bottomNavCard"
+          style="@style/PantryCardStyle"
+          android:layout_width="match_parent"
+          android:layout_height="56dp"
         app:cardCornerRadius="0dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -455,154 +455,34 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp">
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp">
 
-            <!-- 1. Pantry Tab -->
-            <LinearLayout
-                android:id="@+id/navPantry"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/ivNavPantry"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:contentDescription="@string/nav_pantry"
-                    android:src="@drawable/ic_pantry"
-                    app:tint="@color/pantry_primary" />
-
-                <TextView
-                    android:id="@+id/tvNavPantry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/nav_pantry"
-                    android:textColor="@color/pantry_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
+            <LinearLayout android:id="@+id/navPantry" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical">
+                <ImageView android:id="@+id/ivNavPantry" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="@string/nav_pantry" android:src="@drawable/ic_pantry" app:tint="@color/text_secondary" />
+                <TextView android:id="@+id/tvNavPantry" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="@string/nav_pantry" android:textColor="@color/text_secondary" android:textSize="9sp" />
             </LinearLayout>
 
-            <!-- 2. Shopping Tab -->
-            <LinearLayout
-                android:id="@+id/navShopping"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/ivNavShopping"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:contentDescription="@string/nav_shopping"
-                    android:src="@drawable/ic_shopping"
-                    app:tint="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/tvNavShopping"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/nav_shopping"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+            <LinearLayout android:id="@+id/fabAddAlert" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical">
+                <ImageView android:id="@+id/ivNavAdd" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="@string/cd_add_new_alert" android:src="@drawable/ic_add_tab" app:tint="@color/text_secondary" />
+                <TextView android:id="@+id/tvNavAdd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="Add" android:textColor="@color/text_secondary" android:textSize="9sp" />
             </LinearLayout>
 
-            <!-- 3. The Center Green + Button -->
-            <!-- Inline directly into the Nav Bar so it aligns perfectly in the flow -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center">
-
-                <FrameLayout
-                    android:id="@+id/fabAddAlert"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_fab"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:contentDescription="@string/cd_add_new_alert"
-                        android:src="@drawable/ic_plus" />
-                </FrameLayout>
+            <LinearLayout android:id="@+id/navShopping" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical">
+                <ImageView android:id="@+id/ivNavShopping" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="@string/nav_shopping" android:src="@drawable/ic_shopping" app:tint="@color/text_secondary" />
+                <TextView android:id="@+id/tvNavShopping" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="@string/nav_shopping" android:textColor="@color/text_secondary" android:textSize="9sp" />
             </LinearLayout>
 
-
-            <!-- 4. Surplus Tab -->
-            <LinearLayout
-                android:id="@+id/navSurplus"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/ivNavSurplus"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:contentDescription="@string/nav_surplus"
-                    android:src="@drawable/ic_leaf"
-                    app:tint="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/tvNavSurplus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/nav_surplus"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+            <LinearLayout android:id="@+id/navSurplus" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical">
+                <ImageView android:id="@+id/ivNavSurplus" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="@string/nav_surplus" android:src="@drawable/ic_leaf" app:tint="@color/text_secondary" />
+                <TextView android:id="@+id/tvNavSurplus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="@string/nav_surplus" android:textColor="@color/text_secondary" android:textSize="9sp" />
             </LinearLayout>
 
-            <!-- 5. Profile Tab -->
-            <LinearLayout
-                android:id="@+id/navProfile"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/ivNavProfile"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    android:contentDescription="@string/cd_profile"
-                    android:src="@drawable/ic_person"
-                    app:tint="@color/text_secondary" />
-
-                <TextView
-                    android:id="@+id/tvNavProfile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/nav_profile"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+            <LinearLayout android:id="@+id/navProfile" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical">
+                <ImageView android:id="@+id/ivNavProfile" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="@string/cd_profile" android:src="@drawable/ic_person" app:tint="@color/text_secondary" />
+                <TextView android:id="@+id/tvNavProfile" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:text="@string/nav_profile" android:textColor="@color/text_secondary" android:textSize="9sp" />
             </LinearLayout>
 
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+        </LinearLayout></com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

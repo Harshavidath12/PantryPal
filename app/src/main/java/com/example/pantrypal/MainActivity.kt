@@ -97,6 +97,7 @@ class MainActivity : AppCompatActivity() {
         setupShoppingUI()
         setupClickListeners()
         setupSurplusSafetyChecklist()
+        setupSurplusDatePicker()
         observeUiState()
     }
 
@@ -353,6 +354,7 @@ class MainActivity : AppCompatActivity() {
                 binding.ivNavSurplus.setColorFilter(primaryColor)
                 binding.tvNavSurplus.setTextColor(primaryColor)
                 binding.tvNavSurplus.typeface = Typeface.DEFAULT_BOLD
+                loadDonationImpact()
             }
             NavTab.PROFILE -> {
                 binding.pantryScreenContainer.visibility = View.GONE
@@ -642,10 +644,55 @@ class MainActivity : AppCompatActivity() {
                 bottomMargin = (4 * resources.displayMetrics.density).toInt()
             })
         }
+        val quantityField = findViewById<android.widget.EditText>(R.id.etSurplusQuantity)
+        quantityField.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateCommunityImpactEstimate(s?.toString().orEmpty())
+            }
+            override fun afterTextChanged(s: android.text.Editable?) = Unit
+        })
+        updateCommunityImpactEstimate(quantityField.text.toString())
         val insertAt = form.indexOfChild(submitButton).coerceAtLeast(0)
         form.addView(checklist, insertAt, android.widget.LinearLayout.LayoutParams(-1, -2).apply {
             topMargin = 12
         })
+    }
+
+    private fun updateCommunityImpactEstimate(quantity: String) {
+        val kilograms = parseKilograms(quantity)
+        val communityCheck = foodSafetyChecks.getOrNull(3) ?: return
+        communityCheck.text = if (kilograms == null || kilograms <= 0.0) {
+            "Community impact\nEnter a quantity to see your estimate"
+        } else {
+            val co2Kg = kilograms * 2.48
+            val meals = (kilograms * 1.74 + 0.5).toInt()
+            val points = (kilograms * 19.5 + 0.5).toInt()
+            "Community impact\n~${"%.1f".format(co2Kg)} kg CO₂ prevented · $meals meals · +$points pts"
+        }
+    }
+
+    private fun setupSurplusDatePicker() {
+        val expiryField = findViewById<android.widget.EditText>(R.id.etSurplusExpiry)
+        expiryField.contentDescription = "Choose best before date"
+        expiryField.setOnClickListener {
+            val today = java.util.Calendar.getInstance()
+            android.app.DatePickerDialog(
+                this,
+                { _, year, month, day ->
+                    val selected = java.util.Calendar.getInstance().apply {
+                        set(year, month, day)
+                    }
+                    val formatter = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+                    expiryField.setText(formatter.format(selected.time))
+                },
+                today.get(java.util.Calendar.YEAR),
+                today.get(java.util.Calendar.MONTH),
+                today.get(java.util.Calendar.DAY_OF_MONTH)
+            ).apply {
+                datePicker.minDate = today.timeInMillis
+            }.show()
+        }
     }
 
     @OptIn(InternalSerializationApi::class)
