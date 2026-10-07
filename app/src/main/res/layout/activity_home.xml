@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@drawable/bg_home_gradient">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:paddingTop="42dp"
+        android:paddingBottom="40dp">
+
+        <!-- PantryPal Logo -->
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_pantry_logo"
+            android:contentDescription="PantryPal logo"
+            android:scaleType="centerInside"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- App Name -->
+        <TextView
+            android:id="@+id/tvPantryPal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="PantryPal"
+            android:textColor="#153D38"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/imgLogo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:text="A smarter home for fresher tomorrows"
+            android:textColor="#647994"
+            android:textSize="17sp"
+            app:layout_constraintTop_toBottomOf="@id/tvPantryPal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Grocery Image -->
+        <ImageView
+            android:id="@+id/imgGroceries"
+            android:layout_width="0dp"
+            android:layout_height="225dp"
+            android:layout_marginTop="34dp"
+            android:src="@drawable/pantry_hero"
+            android:scaleType="centerCrop"
+            android:contentDescription="Fresh groceries"
+            android:background="@drawable/bg_rounded_image"
+            android:clipToOutline="true"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Sign In Button -->
+        <Button
+            android:id="@+id/btnSignIn"
+            android:layout_width="0dp"
+            android:layout_height="66dp"
+            android:layout_marginTop="30dp"
+            android:text="Sign In"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:background="@drawable/bg_primary_button"
+            android:elevation="2dp"
+            android:stateListAnimator="@null"
+            app:layout_constraintTop_toBottomOf="@id/imgGroceries"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Create Account Button -->
+        <Button
+            android:id="@+id/btnCreateAccount"
+            android:layout_width="0dp"
+            android:layout_height="66dp"
+            android:layout_marginTop="16dp"
+            android:text="Create Account"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:background="@drawable/bg_secondary_button"
+            android:elevation="2dp"
+            android:stateListAnimator="@null"
+            app:layout_constraintTop_toBottomOf="@id/btnSignIn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- OR Divider -->
+        <LinearLayout
+            android:id="@+id/layoutOr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="45dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/btnCreateAccount"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#D9E2E7" />
+
+            <TextView
+                android:layout_width="42dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="OR"
+                android:textColor="#8A9DB4"
+                android:textSize="14sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#D9E2E7" />
+
+        </LinearLayout>
+
+        <!-- Join Household Row -->
+
+        <LinearLayout
+            android:id="@+id/layoutJoinHousehold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="135dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/btnCreateAccount"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Key Icon -->
+            <ImageView
+                android:id="@+id/imgInvite"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="9dp"
+                android:src="@drawable/key"
+                android:scaleType="fitCenter"
+                android:contentDescription="Invite code" />
+
+            <!-- Invite Text -->
+            <TextView
+                android:id="@+id/tvInvite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Have an invite code?"
+                android:textColor="#8A9DB4"
+                android:textSize="16sp"/>
+
+            <Space
+                android:layout_width="6dp"
+                android:layout_height="1dp" />
+
+            <!-- Join Household -->
+            <TextView
+                android:id="@+id/tvJoinHousehold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Join Household"
+                android:textColor="#236856"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

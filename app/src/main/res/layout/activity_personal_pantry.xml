@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#202020">
+
+    <!-- MAIN PHONE CONTENT -->
+    <LinearLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:background="#EFFFF7"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- HEADER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="#EFFFF7">
+
+            <!-- LOGO -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_pantry_logo"
+                    android:scaleType="centerInside"
+                    android:contentDescription="PantryPal Logo"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PANTRYPAL"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.12"
+                        android:textColor="#276550"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pantry"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="#102820"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- NOTIFICATION -->
+            <ImageView
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:padding="9dp"
+                android:src="@drawable/ic_bell"
+                android:scaleType="centerInside"
+                android:contentDescription="Notifications"/>
+
+            <!-- PROFILE -->
+            <ImageView
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:padding="9dp"
+                android:src="@drawable/ic_person"
+                android:scaleType="centerInside"
+                android:background="@drawable/bg_profile_circle"
+                android:contentDescription="Profile"/>
+
+        </LinearLayout>
+
+
+        <!-- SCROLLABLE CONTENT -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="18dp">
+
+                <!-- PAGE TITLE -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="266dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="My Pantry"
+                        android:textColor="#102820"
+                        android:textSize="23sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+                <!-- SEARCH -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="329dp"
+                        android:layout_height="50dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_search_container"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="10dp">
+
+                        <TextView
+                            android:layout_width="30dp"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="⌕"
+                            android:textColor="#697A74"
+                            android:textSize="25sp" />
+
+                        <EditText
+                            android:id="@+id/searchEditText"
+                            android:layout_width="282dp"
+                            android:layout_height="36dp"
+                            android:background="@android:color/transparent"
+                            android:hint="Search groceries..."
+                            android:singleLine="true"
+                            android:textColor="#263A34"
+                            android:textColorHint="#78847F"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:gravity="center"
+                        android:text="☷"
+                        android:textColor="#243B34"
+                        android:textSize="25sp" />
+
+                </LinearLayout>
+
+
+                <!-- SUMMARY CARDS -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="92dp"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <!-- TOTAL -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="5dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_total_card">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="▣"
+                            android:textSize="18sp"
+                            android:textColor="#3B876F"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="12"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#22604C"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Items"
+                            android:textSize="10sp"
+                            android:textColor="#22604C"/>
+
+                    </LinearLayout>
+
+                    <!-- EXPIRING -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_expiring_card">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="◷"
+                            android:textSize="18sp"
+                            android:textColor="#E59B00"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#A86100"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Expiring Soon"
+                            android:textSize="10sp"
+                            android:textColor="#A86100"/>
+
+                    </LinearLayout>
+
+                    <!-- LOW STOCK -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="5dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_lowstock_card">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="⌁"
+                            android:textSize="18sp"
+                            android:textColor="#E05A5A"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#C33D3D"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Low Stock"
+                            android:textSize="10sp"
+                            android:textColor="#C33D3D"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- TABS -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="12dp"
+                    android:padding="3dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_tabs">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="All Items"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/bg_selected_tab"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Categories"
+                        android:textSize="11sp"
+                        android:textColor="#30483F"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Expiry"
+                        android:textSize="11sp"
+                        android:textColor="#30483F"/>
+
+                </LinearLayout>
+
+
+                <!-- PRODUCT GRID -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <!-- RICE -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="226dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:orientation="vertical"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_product_card">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="130dp">
+
+                            <ImageView
+                                android:id="@+id/riceImage"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/rice"
+                                android:contentDescription="Rice"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="25dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="6dp"
+                                android:gravity="center"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:text="Pantry"
+                                android:textSize="9sp"
+                                android:textColor="#28705A"
+                                android:background="@drawable/bg_location_tag"/>
+
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Rice"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#172D26"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="›"
+                                android:textSize="24sp"
+                                android:textColor="#71817B"/>
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="2 kg"
+                            android:textSize="11sp"
+                            android:textColor="#82908B"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center"
+                            android:paddingStart="7dp"
+                            android:paddingEnd="7dp"
+                            android:text="▣ Exp: 12 May 2025"
+                            android:textSize="9sp"
+                            android:textColor="#24715A"
+                            android:background="@drawable/bg_expiry_green"/>
+
+                    </LinearLayout>
+
+
+                    <!-- MILK -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="226dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:orientation="vertical"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_product_card">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="130dp">
+
+                            <ImageView
+                                android:id="@+id/milkImage"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/milk"
+                                android:contentDescription="Milk"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="25dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="6dp"
+                                android:gravity="center"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:text="Fridge"
+                                android:textSize="9sp"
+                                android:textColor="#28705A"
+                                android:background="@drawable/bg_location_tag"/>
+
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Milk"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#172D26"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="›"
+                                android:textSize="24sp"
+                                android:textColor="#71817B"/>
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="1 L"
+                            android:textSize="11sp"
+                            android:textColor="#82908B"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center"
+                            android:paddingStart="7dp"
+                            android:paddingEnd="7dp"
+                            android:text="◷ Exp: 08 Apr 2025"
+                            android:textSize="9sp"
+                            android:textColor="#C57900"
+                            android:background="@drawable/bg_expiry_yellow"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!-- SECOND ROW -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <!-- EGGS -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="226dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="6dp"
+                        android:orientation="vertical"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_product_card">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="130dp">
+
+                            <ImageView
+                                android:id="@+id/eggsImage"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/eggs"
+                                android:contentDescription="Eggs"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="25dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="6dp"
+                                android:gravity="center"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:text="Fridge"
+                                android:textSize="9sp"
+                                android:textColor="#28705A"
+                                android:background="@drawable/bg_location_tag"/>
+
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Eggs"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#172D26"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="›"
+                                android:textSize="24sp"
+                                android:textColor="#71817B"/>
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="6 pcs"
+                            android:textSize="11sp"
+                            android:textColor="#82908B"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center"
+                            android:paddingStart="7dp"
+                            android:paddingEnd="7dp"
+                            android:text="! Exp: 15 Apr 2025"
+                            android:textSize="9sp"
+                            android:textColor="#D84444"
+                            android:background="@drawable/bg_expiry_red"/>
+
+                    </LinearLayout>
+
+                    <!-- TOMATO RICE -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="226dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="6dp"
+                        android:orientation="vertical"
+                        android:padding="10dp"
+                        android:background="@drawable/bg_product_card">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="130dp">
+
+                            <ImageView
+                                android:id="@+id/tomatoImage"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/tomato"
+                                android:contentDescription="Tomato"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="25dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="6dp"
+                                android:gravity="center"
+                                android:paddingStart="8dp"
+                                android:paddingEnd="8dp"
+                                android:text="Pantry"
+                                android:textSize="9sp"
+                                android:textColor="#28705A"
+                                android:background="@drawable/bg_location_tag"/>
+
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Rice"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="#172D26"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="›"
+                                android:textSize="24sp"
+                                android:textColor="#71817B"/>
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="3 items"
+                            android:textSize="11sp"
+                            android:textColor="#82908B"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="25dp"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center"
+                            android:paddingStart="7dp"
+                            android:paddingEnd="7dp"
+                            android:text="▣ Exp: 20 Jun 2025"
+                            android:textSize="9sp"
+                            android:textColor="#24715A"
+                            android:background="@drawable/bg_expiry_green"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!-- ZERO WASTE CHEF -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="16dp"
+                    android:padding="14dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_chef_card">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ZERO WASTE CHEF"
+                            android:textSize="8sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.08"
+                            android:textColor="#B7E3D0"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="Make Savory Egg Fried Rice"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="Uses Eggs (expiring soon) &amp; Pantry Rice to&#10;eliminate waste."
+                            android:textSize="9sp"
+                            android:textColor="#D2E8DF"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="45dp"
+                        android:layout_height="45dp"
+                        android:gravity="center"
+                        android:text="♨"
+                        android:textSize="22sp"
+                        android:textColor="#FFFFFF"
+                        android:background="@drawable/bg_chef_icon"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+
+    <!-- BOTTOM NAVIGATION -->
+    <LinearLayout
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="74dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- PANTRY -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="▦"
+                android:textSize="20sp"
+                android:textColor="#657A73"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PANTRY"
+                android:textSize="9sp"
+                android:textColor="#657A73"/>
+
+        </LinearLayout>
+
+        <!-- ADD -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="⊞"
+                android:textSize="22sp"
+                android:textColor="#657A73"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add"
+                android:textSize="9sp"
+                android:textColor="#657A73"/>
+
+        </LinearLayout>
+
+        <!-- SHOPPING -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="☷"
+                android:textSize="21sp"
+                android:textColor="#657A73"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shopping"
+                android:textSize="9sp"
+                android:textColor="#657A73"/>
+
+        </LinearLayout>
+
+        <!-- SURPLUS -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="⇧"
+                android:textSize="21sp"
+                android:textColor="#657A73"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Surplus"
+                android:textSize="9sp"
+                android:textColor="#657A73"/>
+
+        </LinearLayout>
+
+        <!-- PROFILE -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="♙"
+                android:textSize="21sp"
+                android:textColor="#657A73"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textSize="9sp"
+                android:textColor="#657A73"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

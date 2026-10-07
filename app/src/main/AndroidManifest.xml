@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -13,16 +15,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PantryPal">
 
+        <!-- Home Screen - First screen when app opens -->
         <activity
-            android:name=".LoginActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:name=".HomeActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Login Screen -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Create Account Screen -->
+        <activity
+            android:name=".CreateAccountActivity"
+            android:exported="false" />
+
+        <!-- Existing MainActivity -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
