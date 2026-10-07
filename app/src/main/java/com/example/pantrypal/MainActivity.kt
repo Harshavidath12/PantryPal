@@ -281,16 +281,16 @@ class MainActivity : AppCompatActivity() {
             selectTab(NavTab.SURPLUS)
         }
 
-        binding.surplusScreenContainer.findViewById<View>(R.id.btnFlagSurplus).setOnClickListener {
+        binding.surplusScreenContainer.root.findViewById<View>(R.id.btnFlagSurplus).setOnClickListener {
             showSurplusDetail("flag")
         }
-        binding.surplusScreenContainer.findViewById<View>(R.id.btnFindHub).setOnClickListener {
+        binding.surplusScreenContainer.root.findViewById<View>(R.id.btnFindHub).setOnClickListener {
             showSurplusDetail("hubs")
         }
-        binding.surplusScreenContainer.findViewById<View>(R.id.btnCommunityImpact).setOnClickListener { showSurplusDetail("impact") }
+        binding.surplusScreenContainer.root.findViewById<View>(R.id.btnCommunityImpact).setOnClickListener { showSurplusDetail("impact") }
         findViewById<View>(R.id.btnSurplusBack).setOnClickListener {
-            binding.surplusDetailContainer.visibility = View.GONE
-            binding.surplusScreenContainer.visibility = View.VISIBLE
+            binding.surplusDetailContainer.root.visibility = View.GONE
+            binding.surplusScreenContainer.root.visibility = View.VISIBLE
         }
         findViewById<View>(R.id.btnChooseHub).setOnClickListener { showSurplusDetail("hubs") }
         findViewById<View>(R.id.btnFlagTab).setOnClickListener { showSurplusDetail("flag") }
@@ -355,8 +355,8 @@ class MainActivity : AppCompatActivity() {
             NavTab.PANTRY -> {
                 binding.pantryScreenContainer.visibility = View.VISIBLE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
-                binding.surplusScreenContainer.visibility = View.GONE
-                binding.surplusDetailContainer.visibility = View.GONE
+                binding.surplusScreenContainer.root.visibility = View.GONE
+                binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
                 binding.tvNavPantry.setTextColor(primaryColor)
@@ -365,8 +365,8 @@ class MainActivity : AppCompatActivity() {
             NavTab.SHOPPING -> {
                 binding.pantryScreenContainer.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.VISIBLE
-                binding.surplusScreenContainer.visibility = View.GONE
-                binding.surplusDetailContainer.visibility = View.GONE
+                binding.surplusScreenContainer.root.visibility = View.GONE
+                binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
                 binding.tvNavShopping.setTextColor(primaryColor)
@@ -375,8 +375,8 @@ class MainActivity : AppCompatActivity() {
             NavTab.SURPLUS -> {
                 binding.pantryScreenContainer.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
-                binding.surplusScreenContainer.visibility = View.VISIBLE
-                binding.surplusDetailContainer.visibility = View.GONE
+                binding.surplusScreenContainer.root.visibility = View.VISIBLE
+                binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
                 binding.ivNavSurplus.setColorFilter(primaryColor)
                 binding.tvNavSurplus.setTextColor(primaryColor)
@@ -386,8 +386,8 @@ class MainActivity : AppCompatActivity() {
             NavTab.PROFILE -> {
                 binding.pantryScreenContainer.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
-                binding.surplusScreenContainer.visibility = View.GONE
-                binding.surplusDetailContainer.visibility = View.GONE
+                binding.surplusScreenContainer.root.visibility = View.GONE
+                binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.VISIBLE
                 updateTestAuthProfile()
                 binding.ivNavProfile.setColorFilter(primaryColor)
@@ -400,8 +400,8 @@ class MainActivity : AppCompatActivity() {
     private fun showSurplusDetail(page: String) {
         binding.pantryScreenContainer.visibility = View.GONE
         binding.shoppingScreenContainer.root.visibility = View.GONE
-        binding.surplusScreenContainer.visibility = View.GONE
-        binding.surplusDetailContainer.visibility = View.VISIBLE
+        binding.surplusScreenContainer.root.visibility = View.GONE
+        binding.surplusDetailContainer.root.visibility = View.VISIBLE
         val impact = findViewById<View>(R.id.layoutImpact)
         val hubs = findViewById<View>(R.id.layoutHubFinder)
         val form = findViewById<View>(R.id.layoutFlagForm)
@@ -429,7 +429,7 @@ class MainActivity : AppCompatActivity() {
         titleView.setTextColor(ContextCompat.getColor(this, if (darkHeader) R.color.white else R.color.text_primary))
         backButton.setTextColor(ContextCompat.getColor(this, if (darkHeader) R.color.white else R.color.text_primary))
         headerAction.setTextColor(ContextCompat.getColor(this, if (darkHeader) R.color.white else R.color.pantry_primary))
-        binding.surplusDetailContainer.setBackgroundColor(
+        binding.surplusDetailContainer.root.setBackgroundColor(
             ContextCompat.getColor(this, if (page == "impact" || page == "submitted") R.color.pantry_primary_light else R.color.pantry_bg)
         )
         val activeTint = ContextCompat.getColor(this, R.color.pantry_primary)
