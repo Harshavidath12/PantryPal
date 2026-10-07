@@ -75,7 +75,8 @@ class SurplusRepository {
         val donations = getDonations()
         val completed = donations.filter { it.status == "PICKED_UP" }
         val savedKg = completed.sumOf { donation ->
-            Regex("[0-9]+(?:\\.[0-9]+)?").find(donation.quantity)?.value?.toDoubleOrNull() ?: 0.0
+            Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(?:kg|kgs|g|grams?)\\b", RegexOption.IGNORE_CASE)
+                .find(donation.quantity)?.groupValues?.get(1)?.toDoubleOrNull() ?: 0.0
         }
         DonationImpact(
             donationCount = donations.size,

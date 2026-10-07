@@ -626,8 +626,8 @@ class MainActivity : AppCompatActivity() {
                 } catch (_: Exception) {
                     emptyMap()
                 }
-                val rescuedKg = history.filter { it.status.equals("PICKED_UP", true) }.sumOf { donation ->
-                    Regex("[0-9]+(?:\\.[0-9]+)?").find(donation.quantity)?.value?.toDoubleOrNull() ?: 0.0
+        val rescuedKg = history.filter { it.status.equals("PICKED_UP", true) }.sumOf { donation ->
+                    parseKilograms(donation.quantity) ?: 0.0
                 }
                 val meals = (rescuedKg * 8.3).toInt()
                 rescuedText.text = "${"%.1f".format(rescuedKg)}kg"
@@ -931,6 +931,23 @@ class MainActivity : AppCompatActivity() {
             })
         }
         val quantityField = findViewById<android.widget.EditText>(R.id.etSurplusQuantity)
+        findViewById<android.widget.RadioGroup>(R.id.rgQuantityMode).setOnCheckedChangeListener { _, checkedId ->
+            val unitsMode = checkedId == R.id.rbQuantityUnits
+            quantityField.setText("")
+            quantityField.inputType = if (unitsMode) {
+                android.text.InputType.TYPE_CLASS_NUMBER
+            } else {
+                android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            }
+            quantityField.hint = if (unitsMode) "1" else "2.3"
+            findViewById<android.widget.TextView>(R.id.tvQuantitySuffix).text = if (unitsMode) "units" else "kg"
+            foodSafetyChecks.getOrNull(2)?.text = if (unitsMode) {
+                "Unit count provided\nWeight-based courier eligibility is not estimated"
+            } else {
+                "Meets 2 kg courier minimum\nEligible for free green courier pickup"
+            }
+            updateCommunityImpactEstimate(quantityField.text.toString())
+        }
         quantityField.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -946,8 +963,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateCommunityImpactEstimate(quantity: String) {
-        val kilograms = parseKilograms(quantity)
         val communityCheck = foodSafetyChecks.getOrNull(3) ?: return
+        if (findViewById<android.widget.RadioButton>(R.id.rbQuantityUnits).isChecked) {
+            val count = quantity.trim().toIntOrNull()
+            communityCheck.text = if (count == null || count <= 0) {
+                "Community impact\nEnter a whole number of units"
+            } else {
+                "Community impact\n$count food units · weight-based impact unavailable"
+            }
+            return
+        }
+        val kilograms = parseKilograms(quantity)
         communityCheck.text = if (kilograms == null || kilograms <= 0.0) {
             "Community impact\nEnter a quantity to see your estimate"
         } else {
@@ -1051,9 +1077,9 @@ class MainActivity : AppCompatActivity() {
     @OptIn(InternalSerializationApi::class)
     private fun submitSurplusDonation() {
         val name = findViewById<android.widget.EditText>(R.id.etSurplusName).text.toString().trim()
-        val quantity = findViewById<android.widget.EditText>(R.id.etSurplusQuantity).text.toString().trim()
+        val rawQuantity = findViewById<android.widget.EditText>(R.id.etSurplusQuantity).text.toString().trim()
         val expiry = findViewById<android.widget.EditText>(R.id.etSurplusExpiry).text.toString().trim()
-        if (name.isBlank() || quantity.isBlank() || expiry.isBlank()) {
+        if (name.isBlank() || rawQuantity.isBlank() || expiry.isBlank()) {
             Toast.makeText(this, "Complete the food, quantity and best before fields", Toast.LENGTH_SHORT).show()
             return
         }
@@ -1068,10 +1094,24 @@ class MainActivity : AppCompatActivity() {
             showSurplusDetail("hubs")
             return
         }
-        val kilograms = parseKilograms(quantity)
-        if (kilograms == null || kilograms < 2.0) {
-            Toast.makeText(this, "Surplus donations must be at least 2 kg.", Toast.LENGTH_LONG).show()
-            return
+        val unitsMode = findViewById<android.widget.RadioButton>(R.id.rbQuantityUnits).isChecked
+        val quantity: String
+        val kilograms: Double?
+        if (unitsMode) {
+            val units = rawQuantity.toIntOrNull()
+            if (units == null || units < 1) {
+                Toast.makeText(this, "Enter a whole number of units (at least 1).", Toast.LENGTH_LONG).show()
+                return
+            }
+            quantity = "$units units"
+            kilograms = null
+        } else {
+            kilograms = parseKilograms("$rawQuantity kg")
+            if (kilograms == null || kilograms < 2.0) {
+                Toast.makeText(this, "Weight donations must be at least 2 kg.", Toast.LENGTH_LONG).show()
+                return
+            }
+            quantity = "$rawQuantity kg"
         }
         if (foodSafetyChecks.any { !it.isChecked }) {
             Toast.makeText(this, "Confirm every food safety item before submitting.", Toast.LENGTH_LONG).show()
@@ -1125,7 +1165,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun parseKilograms(quantity: String): Double? {
-        val match = Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(kg|kgs|g|grams?)?", RegexOption.IGNORE_CASE).find(quantity.trim())
+        val match = Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(kg|kgs|g|grams?)\\b", RegexOption.IGNORE_CASE).find(quantity.trim())
             ?: return null
         val value = match.groupValues[1].toDoubleOrNull() ?: return null
         return when (match.groupValues[2].lowercase()) {
