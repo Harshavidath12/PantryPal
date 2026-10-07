@@ -453,70 +453,97 @@ class MainActivity : AppCompatActivity() {
             addHubMessage("No hubs match your search.")
             return
         }
+        val density = resources.displayMetrics.density
+        fun dp(value: Int) = (value * density).toInt()
         hubs.forEach { hub ->
             val selected = selectedHubId == hub.id
             val card = com.google.android.material.card.MaterialCardView(this@MainActivity).apply {
-                radius = 17f
-                cardElevation = 1f
-                strokeWidth = (1 * resources.displayMetrics.density).toInt()
+                radius = dp(16).toFloat()
+                cardElevation = dp(2).toFloat()
+                strokeWidth = dp(if (selected) 2 else 1)
                 strokeColor = ContextCompat.getColor(this@MainActivity, if (selected) R.color.pantry_primary else R.color.pantry_primary_light)
                 setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
-                val row = android.widget.LinearLayout(this@MainActivity).apply {
+                val content = android.widget.LinearLayout(this@MainActivity).apply {
+                    orientation = android.widget.LinearLayout.VERTICAL
+                    setPadding(dp(13), dp(11), dp(13), dp(11))
+                }
+                val titleRow = android.widget.LinearLayout(this@MainActivity).apply {
                     orientation = android.widget.LinearLayout.HORIZONTAL
                     gravity = android.view.Gravity.CENTER_VERTICAL
-                    val stripe = View(this@MainActivity).apply {
-                        setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
-                    }
-                    addView(stripe, android.widget.LinearLayout.LayoutParams((3 * resources.displayMetrics.density).toInt(), -1))
-                    val content = android.widget.LinearLayout(this@MainActivity).apply {
-                        orientation = android.widget.LinearLayout.VERTICAL
-                        setPadding(12, 10, 12, 10)
-                        val titleRow = android.widget.LinearLayout(this@MainActivity).apply {
-                            orientation = android.widget.LinearLayout.HORIZONTAL
-                            gravity = android.view.Gravity.CENTER_VERTICAL
-                            addView(android.widget.TextView(this@MainActivity).apply {
-                                text = hub.name
-                                textSize = 13f
-                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
-                                setTypeface(typeface, android.graphics.Typeface.BOLD)
-                            }, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
-                            addView(android.widget.TextView(this@MainActivity).apply {
-                                text = if (selected) "✓" else "●"
-                                textSize = 14f
-                                setTextColor(ContextCompat.getColor(this@MainActivity, if (selected) R.color.pantry_primary else R.color.pantry_primary_light))
-                            })
-                        }
-                        addView(titleRow)
-                        addView(android.widget.TextView(this@MainActivity).apply {
-                            text = "⌖ ${"%.1f".format(hub.distanceKm)} km away   ·   ◷ Open until ${hub.openUntil}"
-                            textSize = 9f
-                            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
-                            setPadding(0, 2, 0, 5)
-                        })
-                        val footer = android.widget.LinearLayout(this@MainActivity).apply {
-                            orientation = android.widget.LinearLayout.HORIZONTAL
-                            gravity = android.view.Gravity.CENTER_VERTICAL
-                            addView(android.widget.TextView(this@MainActivity).apply {
-                                text = "✓ Accepts: ${hub.acceptedFoods}"
-                                textSize = 8f
-                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
-                                setPadding(8, 5, 8, 5)
-                                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
-                            }, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
-                            addView(android.widget.TextView(this@MainActivity).apply {
-                                text = "● Open Now"
-                                textSize = 8f
-                                setTypeface(typeface, android.graphics.Typeface.BOLD)
-                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
-                                setPadding(8, 5, 8, 5)
-                                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
-                            })
-                        }
-                        addView(footer)
-                    }
-                    addView(content, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
                 }
-                addView(row)
+                val icon = android.widget.TextView(this@MainActivity).apply {
+                    text = "⌂"
+                    textSize = 17f
+                    gravity = android.view.Gravity.CENTER
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+                    background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+                }
+                titleRow.addView(icon, android.widget.LinearLayout.LayoutParams(dp(34), dp(34)))
+                val titleBlock = android.widget.LinearLayout(this@MainActivity).apply {
+                    orientation = android.widget.LinearLayout.VERTICAL
+                    setPadding(dp(9), 0, 0, 0)
+                }
+                titleBlock.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = hub.name
+                    textSize = 13f
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                })
+                titleBlock.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "Community food hub"
+                    textSize = 9f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                })
+                titleRow.addView(titleBlock, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
+                titleRow.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = if (selected) "✓" else "•"
+                    textSize = 19f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, if (selected) R.color.pantry_primary else R.color.text_secondary))
+                })
+                content.addView(titleRow)
+
+                val metaRow = android.widget.LinearLayout(this@MainActivity).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    setPadding(dp(43), dp(5), 0, dp(7))
+                }
+                metaRow.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "⌖ ${"%.1f".format(hub.distanceKm)} km away"
+                    textSize = 9f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                })
+                metaRow.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "  ·  Open until ${hub.openUntil}"
+                    textSize = 9f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                })
+                content.addView(metaRow)
+
+                val footer = android.widget.LinearLayout(this@MainActivity).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                }
+                footer.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "✓  ${hub.acceptedFoods}"
+                    textSize = 8f
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
+                    setPadding(dp(8), dp(5), dp(8), dp(5))
+                    background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+                }, android.widget.LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(6) })
+                footer.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "● Open now"
+                    textSize = 8f
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
+                    setPadding(dp(8), dp(5), dp(8), dp(5))
+                    background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+                })
+                content.addView(footer)
+                addView(content)
                 setOnClickListener {
                     selectedHubId = hub.id
                     selectedHubName = hub.name
@@ -524,7 +551,7 @@ class MainActivity : AppCompatActivity() {
                     showSurplusDetail("flag")
                 }
             }
-            val params = android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = 8 }
+            val params = android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) }
             list.addView(card, params)
         }
     }
