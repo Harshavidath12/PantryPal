@@ -62,7 +62,7 @@ drop policy if exists "Donors can update their own active surplus donations" on 
 create policy "Donors can update their own active surplus donations"
     on public.surplus_donations for update to authenticated
     using (auth.uid() = donor_id and status in ('PENDING', 'CLAIMED'))
-    with check (auth.uid() = donor_id and status in ('PENDING', 'CLAIMED', 'PICKED_UP'));
+    with check (auth.uid() = donor_id and status in ('PENDING', 'CLAIMED', 'PICKED_UP', 'DROPPED_OFF'));
 
 drop policy if exists "Donors can delete their own pending surplus donations" on public.surplus_donations;
 create policy "Donors can delete their own pending surplus donations"

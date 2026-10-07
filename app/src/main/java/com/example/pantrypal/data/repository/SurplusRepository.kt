@@ -40,13 +40,14 @@ class SurplusRepository {
     }
 
     @OptIn(InternalSerializationApi::class)
-    suspend fun updateDonation(donation: DonationHistoryDto, foodName: String, quantity: String, bestBefore: String, pickupWindow: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun updateDonation(donation: DonationHistoryDto, foodName: String, quantity: String, bestBefore: String, pickupWindow: String, status: String = donation.status): Boolean = withContext(Dispatchers.IO) {
         val donorId = currentDonorId() ?: error("Please sign in before editing a donation.")
         SupabaseProvider.client.from("surplus_donations").update({
             set("food_name", foodName)
             set("quantity", quantity)
             set("best_before", bestBefore)
             set("pickup_window", pickupWindow)
+            set("status", status)
         }) {
             select()
             filter {
@@ -78,6 +79,7 @@ class SurplusRepository {
             "CLAIMED" -> "PICKED_UP"
             else -> return@withContext false
         }
+        if (!meetsCourierMinimum(donation.quantity)) return@withContext false
         SupabaseProvider.client.from("surplus_donations").update({
             set("status", nextStatus)
         }) {
@@ -88,6 +90,13 @@ class SurplusRepository {
                 eq("status", donation.status)
             }
         }.decodeList<DonationHistoryDto>().isNotEmpty()
+    }
+
+    private fun meetsCourierMinimum(quantity: String): Boolean {
+        val amount = Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(kg|kgs|units?)", RegexOption.IGNORE_CASE)
+            .find(quantity) ?: return false
+        val value = amount.groupValues[1].toDoubleOrNull() ?: return false
+        return if (amount.groupValues[2].startsWith("unit", true)) value >= 15 && value % 1.0 == 0.0 else value >= 10.0
     }
 
     @OptIn(InternalSerializationApi::class)

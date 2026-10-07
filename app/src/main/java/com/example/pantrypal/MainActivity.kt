@@ -646,16 +646,22 @@ class MainActivity : AppCompatActivity() {
                 findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "${"%.1f".format(rescuedKg)} kg"
                 findViewById<android.widget.TextView>(R.id.tvDonations).text = history.size.toString()
                 val latest = history.firstOrNull()
-                activeCard.visibility = if (latest == null) View.GONE else View.VISIBLE
+                val activeDonation = history.firstOrNull {
+                    it.status.equals("PENDING", true) || it.status.equals("CLAIMED", true)
+                }
+                activeCard.visibility = if (activeDonation == null) View.GONE else View.VISIBLE
                 communityCard.visibility = if (latest == null) View.GONE else View.VISIBLE
                 if (latest != null) {
-                    val hubName = impactHubNames[latest.hubId] ?: "Community hub"
-                    findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = hubName
-                    findViewById<android.widget.TextView>(R.id.tvImpactBeneficiaryTitle).text = hubName
+                    val latestHubName = impactHubNames[latest.hubId] ?: "Community hub"
+                    findViewById<android.widget.TextView>(R.id.tvImpactBeneficiaryTitle).text = latestHubName
                     findViewById<android.widget.TextView>(R.id.tvImpactBeneficiaryCaption).text = "${latest.foodName} · ${latest.quantity}"
-                    showDonationPhoto(latest.id)
-                    findViewById<android.widget.TextView>(R.id.tvImpactActiveFood).text = "${latest.foodName} · ${latest.quantity}"
-                    val state = latest.status.uppercase()
+                }
+                if (activeDonation != null) {
+                    val hubName = impactHubNames[activeDonation.hubId] ?: "Community hub"
+                    findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = hubName
+                    showDonationPhoto(activeDonation.id)
+                    findViewById<android.widget.TextView>(R.id.tvImpactActiveFood).text = "${activeDonation.foodName} · ${activeDonation.quantity}"
+                    val state = activeDonation.status.uppercase()
                     findViewById<android.widget.TextView>(R.id.tvImpactProgress).text = when (state) {
                         "PICKED_UP" -> "●──────●──────●\nFlagged          Claimed          Picked up"
                         "DROPPED_OFF" -> "●────────────●\nFlagged          Dropped off at hub"
@@ -664,15 +670,18 @@ class MainActivity : AppCompatActivity() {
                         else -> "●──────○──────○\nFlagged          Claim pending          Pickup next"
                     }
                     findViewById<android.widget.TextView>(R.id.tvImpactClaim).text = when (state) {
-                        "CLAIMED" -> "A community hub claimed this donation · Pickup window: ${latest.pickupWindow}"
+                        "CLAIMED" -> "A community hub claimed this donation · Pickup window: ${activeDonation.pickupWindow}"
                         "PICKED_UP" -> "Donation picked up · Your food helped a nearby community"
-                        "DROPPED_OFF" -> "Self drop-off recorded at $hubName · Donation completed"
-                        "CANCELLED" -> "This donation was cancelled. Add another donation to continue helping."
-                        else -> "Waiting for a nearby hub to claim this donation · ${latest.pickupWindow}"
+                        else -> "Waiting for a nearby hub to claim this donation · ${activeDonation.pickupWindow}"
                     }
                 } else {
-                    findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = "Community hub"
-                    findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto).setImageDrawable(null)
+                    findViewById<android.widget.TextView>(R.id.tvImpactActiveFood).text = "No courier pickup in progress"
+                    findViewById<android.widget.TextView>(R.id.tvImpactProgress).text = "Flagged          Claimed          Picked up"
+                    findViewById<android.widget.TextView>(R.id.tvImpactClaim).text = "Courier donations will appear here while they are pending or claimed."
+                    if (latest != null) showDonationPhoto(latest.id) else {
+                        findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = "Community hub"
+                        findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto).setImageDrawable(null)
+                    }
                 }
                 renderDonationHistory(history)
                 chart.setDonations(history)
@@ -790,26 +799,30 @@ class MainActivity : AppCompatActivity() {
                         setOnClickListener { confirmDeleteDonation(donation) }
                     })
                     actions.addView(android.widget.TextView(this@MainActivity).apply {
-                        text = "Mark claimed"
+                        val eligible = meetsCourierMinimum(donation.quantity)
+                        text = if (eligible) "Mark claimed" else "Edit · 10 kg / 15 units min"
                         textSize = 10f
                         setTypeface(typeface, android.graphics.Typeface.BOLD)
-                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                        setTextColor(ContextCompat.getColor(this@MainActivity, if (eligible) R.color.white else R.color.pantry_primary))
                         setPadding(dp(9), dp(7), dp(9), dp(7))
-                        background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_chip_selected)
+                        background = ContextCompat.getDrawable(this@MainActivity, if (eligible) R.drawable.bg_chip_selected else R.drawable.bg_sync_card)
                         isClickable = true
-                        setOnClickListener { confirmAdvanceDonation(donation) }
+                        setOnClickListener {
+                            if (eligible) confirmAdvanceDonation(donation) else showEditDonationDialog(donation)
+                        }
                     })
                     body.addView(actions)
                 } else if (donation.status.equals("CLAIMED", true)) {
                     val advance = android.widget.TextView(this@MainActivity).apply {
-                        text = "Mark picked up"
+                        val eligible = meetsCourierMinimum(donation.quantity)
+                        text = if (eligible) "Mark picked up" else "Pickup minimum not met"
                         textSize = 10f
                         setTypeface(typeface, android.graphics.Typeface.BOLD)
-                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                        setTextColor(ContextCompat.getColor(this@MainActivity, if (eligible) R.color.white else R.color.text_secondary))
                         setPadding(dp(10), dp(7), dp(10), dp(7))
-                        background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_chip_selected)
-                        isClickable = true
-                        setOnClickListener { confirmAdvanceDonation(donation) }
+                        background = ContextCompat.getDrawable(this@MainActivity, if (eligible) R.drawable.bg_chip_selected else R.drawable.bg_sync_card)
+                        isClickable = eligible
+                        setOnClickListener { if (eligible) confirmAdvanceDonation(donation) }
                     }
                     body.addView(advance, android.widget.LinearLayout.LayoutParams(-2, -2).apply {
                         gravity = android.view.Gravity.END
@@ -825,6 +838,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private fun meetsCourierMinimum(quantity: String): Boolean {
+        val match = Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(kg|kgs|units?)", RegexOption.IGNORE_CASE)
+            .find(quantity) ?: return false
+        val amount = match.groupValues[1].toDoubleOrNull() ?: return false
+        return if (match.groupValues[2].startsWith("unit", true)) amount >= 15 && amount % 1.0 == 0.0 else amount >= 10.0
+    }
 
     private fun showDonationPhoto(donationId: String) {
         val photoView = findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto)
@@ -859,6 +879,14 @@ class MainActivity : AppCompatActivity() {
             orientation = android.widget.LinearLayout.VERTICAL
             setPadding(dp(22), dp(8), dp(22), 0)
         }
+        fun label(text: String) {
+            form.addView(android.widget.TextView(this).apply {
+                this.text = text
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                setPadding(0, dp(6), 0, 0)
+            })
+        }
         fun field(hintText: String, value: String, type: Int = android.text.InputType.TYPE_CLASS_TEXT): android.widget.EditText {
             return android.widget.EditText(this).apply {
                 hint = hintText
@@ -871,9 +899,40 @@ class MainActivity : AppCompatActivity() {
             }
         }
         val food = field("Food description", donation.foodName)
-        val quantity = field("Quantity", donation.quantity)
+        label("Quantity type")
+        val quantityMode = android.widget.RadioGroup(this).apply { orientation = android.widget.RadioGroup.HORIZONTAL }
+        val kgOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "Kilograms (kg)" }
+        val unitsOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "Units" }
+        quantityMode.addView(kgOption)
+        quantityMode.addView(unitsOption)
+        val oldQuantityMatch = Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(kg|kgs|units?)?", RegexOption.IGNORE_CASE).find(donation.quantity)
+        val oldAmount = oldQuantityMatch?.groupValues?.get(1).orEmpty()
+        val startsAsUnits = oldQuantityMatch?.groupValues?.get(2)?.startsWith("unit", true) == true
+        quantityMode.check(if (startsAsUnits) unitsOption.id else kgOption.id)
+        form.addView(quantityMode)
+        val quantity = field("Amount", oldAmount, android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL)
+        quantityMode.setOnCheckedChangeListener { _, checkedId ->
+            quantity.inputType = if (checkedId == unitsOption.id) android.text.InputType.TYPE_CLASS_NUMBER
+                else android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            quantity.hint = if (checkedId == unitsOption.id) "Number of items" else "Weight in kg"
+        }
         val bestBefore = field("Best before", donation.bestBefore)
-        val pickup = field("Pickup window", donation.pickupWindow)
+        label("Pickup preference")
+        val pickupMode = android.widget.RadioGroup(this).apply { orientation = android.widget.RadioGroup.VERTICAL }
+        val courierOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "Volunteer / courier pickup" }
+        val dropoffOption = android.widget.RadioButton(this).apply { id = View.generateViewId(); text = "I will drop it off at the hub" }
+        pickupMode.addView(courierOption)
+        pickupMode.addView(dropoffOption)
+        val isDropoff = donation.pickupWindow.startsWith("Drop off at", ignoreCase = true)
+        pickupMode.check(if (isDropoff) dropoffOption.id else courierOption.id)
+        form.addView(pickupMode)
+        val minimumHint = android.widget.TextView(this).apply {
+            text = "Courier minimum: 10 kg or 15 units. Self drop-off has no courier minimum."
+            textSize = 11f
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+            setPadding(0, dp(4), 0, 0)
+        }
+        form.addView(minimumHint)
         val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Edit donation")
             .setView(form)
@@ -883,16 +942,32 @@ class MainActivity : AppCompatActivity() {
         dialog.setOnShowListener {
             dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val foodValue = food.text.toString().trim()
-                val quantityValue = quantity.text.toString().trim()
+                val amountText = quantity.text.toString().trim()
                 val dateValue = bestBefore.text.toString().trim()
-                val pickupValue = pickup.text.toString().trim()
-                if (foodValue.isBlank() || quantityValue.isBlank() || dateValue.isBlank() || pickupValue.isBlank()) {
+                if (foodValue.isBlank() || amountText.isBlank() || dateValue.isBlank()) {
                     Toast.makeText(this, "Please complete all donation fields.", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
+                val units = quantityMode.checkedRadioButtonId == unitsOption.id
+                val dropoff = pickupMode.checkedRadioButtonId == dropoffOption.id
+                val amount = amountText.toDoubleOrNull()
+                if (amount == null || amount <= 0.0 || (units && amount % 1.0 != 0.0)) {
+                    Toast.makeText(this, if (units) "Enter a whole number of units." else "Enter a valid weight greater than zero.", Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                if (!dropoff && (if (units) amount < 15.0 else amount < 10.0)) {
+                    Toast.makeText(this, if (units) "Courier pickup requires at least 15 units." else "Courier pickup requires at least 10 kg.", Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                val quantityValue = if (units) "${amount.toInt()} units" else "$amount kg"
+                val pickupValue = if (dropoff) {
+                    val hubName = impactHubNames[donation.hubId] ?: "community hub"
+                    "Drop off at $hubName"
+                } else "Today, 2:00 PM – 5:00 PM"
+                val updatedStatus = if (dropoff) "DROPPED_OFF" else "PENDING"
                 lifecycleScope.launch {
                     try {
-                        val updated = surplusRepository.updateDonation(donation, foodValue, quantityValue, dateValue, pickupValue)
+                        val updated = surplusRepository.updateDonation(donation, foodValue, quantityValue, dateValue, pickupValue, updatedStatus)
                         if (updated) Toast.makeText(this@MainActivity, "Donation updated", Toast.LENGTH_SHORT).show()
                         else Toast.makeText(this@MainActivity, "This donation is no longer editable.", Toast.LENGTH_LONG).show()
                         dialog.dismiss()
