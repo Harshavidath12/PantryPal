@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -12,6 +13,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -64,6 +66,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var foodSafetyChecks: List<android.widget.CheckBox>
     private var availableSurplusHubs: List<com.example.pantrypal.data.model.SurplusHubDto> = emptyList()
     private var hubSearchWatcher: android.text.TextWatcher? = null
+    private var selectedSurplusPhotoUri: Uri? = null
+    private val surplusPhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            selectedSurplusPhotoUri = uri
+            findViewById<android.widget.ImageView>(R.id.ivSurplusPhoto).apply {
+                setImageURI(uri)
+                visibility = View.VISIBLE
+            }
+            findViewById<View>(R.id.tvSurplusPhotoPrompt).visibility = View.GONE
+            Toast.makeText(this, "Photo added", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -268,6 +282,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         findViewById<View>(R.id.btnSubmitDonation).setOnClickListener { submitSurplusDonation() }
+        findViewById<View>(R.id.btnAddSurplusPhoto).setOnClickListener { surplusPhotoPicker.launch("image/*") }
         findViewById<View>(R.id.btnTrackDonation).setOnClickListener { showSurplusDetail("impact") }
         findViewById<View>(R.id.btnAnotherDonation).setOnClickListener { showSurplusDetail("flag") }
         findViewById<View>(R.id.btnShareImpact).setOnClickListener {
