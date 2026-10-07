@@ -270,17 +270,12 @@ class MainActivity : AppCompatActivity() {
             binding.surplusScreenContainer.visibility = View.VISIBLE
         }
         findViewById<View>(R.id.btnChooseHub).setOnClickListener { showSurplusDetail("hubs") }
+        findViewById<View>(R.id.btnFlagTab).setOnClickListener { showSurplusDetail("flag") }
+        findViewById<View>(R.id.btnFindHubTab).setOnClickListener { showSurplusDetail("hubs") }
         findViewById<View>(R.id.btnDirections).setOnClickListener {
-            val route = android.content.Intent(
-                android.content.Intent.ACTION_VIEW,
-                android.net.Uri.parse("geo:0,0?q=${android.net.Uri.encode(selectedHubName)}")
-            )
-            try {
-                startActivity(route)
-            } catch (_: android.content.ActivityNotFoundException) {
-                Toast.makeText(this, "No maps app is available for directions.", Toast.LENGTH_SHORT).show()
-            }
+            openSelectedHubDirections()
         }
+        findViewById<View>(R.id.tvHubMapPreview).setOnClickListener { openSelectedHubDirections() }
         findViewById<View>(R.id.btnSubmitDonation).setOnClickListener { submitSurplusDonation() }
         findViewById<View>(R.id.btnAddSurplusPhoto).setOnClickListener { surplusPhotoPicker.launch("image/*") }
         findViewById<View>(R.id.btnTrackDonation).setOnClickListener { showSurplusDetail("impact") }
@@ -295,6 +290,18 @@ class MainActivity : AppCompatActivity() {
 
         binding.navProfile.setOnClickListener {
             selectTab(NavTab.PROFILE)
+        }
+    }
+
+    private fun openSelectedHubDirections() {
+        val route = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("geo:0,0?q=${Uri.encode(selectedHubName)}")
+        )
+        try {
+            startActivity(route)
+        } catch (_: android.content.ActivityNotFoundException) {
+            Toast.makeText(this, "No maps app is available for directions.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -369,17 +376,40 @@ class MainActivity : AppCompatActivity() {
         val hubs = findViewById<View>(R.id.layoutHubFinder)
         val form = findViewById<View>(R.id.layoutFlagForm)
         val submitted = findViewById<View>(R.id.layoutSubmission)
+        val tabs = findViewById<View>(R.id.surplusDetailTabs)
         impact.visibility = if (page == "impact") View.VISIBLE else View.GONE
         hubs.visibility = if (page == "hubs") View.VISIBLE else View.GONE
         form.visibility = if (page == "flag") View.VISIBLE else View.GONE
         submitted.visibility = if (page == "submitted") View.VISIBLE else View.GONE
+        tabs.visibility = if (page == "flag" || page == "hubs") View.VISIBLE else View.GONE
         val title = when (page) {
-            "hubs" -> "Find a Hub"
-            "flag" -> "Flag Surplus"
-            "submitted" -> "Donation submitted"
-            else -> "Community Impact"
+            "submitted" -> "Surplus Feed"
+            "impact" -> "Community Impact"
+            else -> "Surplus"
         }
-        findViewById<android.widget.TextView>(R.id.tvDetailTitle).text = title
+        val header = findViewById<android.widget.LinearLayout>(R.id.surplusDetailHeader)
+        val titleView = findViewById<android.widget.TextView>(R.id.tvDetailTitle)
+        val backButton = findViewById<android.widget.TextView>(R.id.btnSurplusBack)
+        val headerAction = findViewById<android.widget.TextView>(R.id.btnSurplusHeaderAction)
+        titleView.text = title
+        backButton.visibility = if (page == "flag" || page == "submitted") View.INVISIBLE else View.VISIBLE
+        headerAction.text = if (page == "impact") "▣" else "♙"
+        val darkHeader = page == "impact"
+        header.setBackgroundColor(if (darkHeader) android.graphics.Color.rgb(37, 94, 81) else android.graphics.Color.TRANSPARENT)
+        titleView.setTextColor(ContextCompat.getColor(this, if (darkHeader) R.color.white else R.color.text_primary))
+        backButton.setTextColor(ContextCompat.getColor(this, if (darkHeader) R.color.white else R.color.text_primary))
+        headerAction.setTextColor(ContextCompat.getColor(this, if (darkHeader) R.color.white else R.color.pantry_primary))
+        binding.surplusDetailContainer.setBackgroundColor(
+            ContextCompat.getColor(this, if (page == "impact" || page == "submitted") R.color.pantry_primary_light else R.color.pantry_bg)
+        )
+        val activeTint = ContextCompat.getColor(this, R.color.pantry_primary)
+        val inactiveTint = android.graphics.Color.TRANSPARENT
+        val flagTab = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnFlagTab)
+        val hubTab = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnFindHubTab)
+        flagTab.backgroundTintList = android.content.res.ColorStateList.valueOf(if (page == "flag") activeTint else inactiveTint)
+        hubTab.backgroundTintList = android.content.res.ColorStateList.valueOf(if (page == "hubs") activeTint else inactiveTint)
+        flagTab.setTextColor(ContextCompat.getColor(this, if (page == "flag") R.color.white else R.color.text_primary))
+        hubTab.setTextColor(ContextCompat.getColor(this, if (page == "hubs") R.color.white else R.color.text_primary))
         if (page == "hubs") loadSurplusHubs()
         if (page == "impact") loadDonationImpact()
     }
@@ -422,43 +452,78 @@ class MainActivity : AppCompatActivity() {
             return
         }
         hubs.forEach { hub ->
-                    val card = com.google.android.material.card.MaterialCardView(this@MainActivity).apply {
-                        radius = 18f
-                        cardElevation = 1f
-                        setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
-                        val content = android.widget.LinearLayout(this@MainActivity).apply {
-                            orientation = android.widget.LinearLayout.VERTICAL
-                            setPadding(18, 16, 18, 14)
+            val selected = selectedHubId == hub.id
+            val card = com.google.android.material.card.MaterialCardView(this@MainActivity).apply {
+                radius = 17f
+                cardElevation = 1f
+                strokeWidth = (1 * resources.displayMetrics.density).toInt()
+                strokeColor = ContextCompat.getColor(this@MainActivity, if (selected) R.color.pantry_primary else R.color.pantry_primary_light)
+                setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
+                val row = android.widget.LinearLayout(this@MainActivity).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                    val stripe = View(this@MainActivity).apply {
+                        setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+                    }
+                    addView(stripe, android.widget.LinearLayout.LayoutParams((3 * resources.displayMetrics.density).toInt(), -1))
+                    val content = android.widget.LinearLayout(this@MainActivity).apply {
+                        orientation = android.widget.LinearLayout.VERTICAL
+                        setPadding(12, 10, 12, 10)
+                        val titleRow = android.widget.LinearLayout(this@MainActivity).apply {
+                            orientation = android.widget.LinearLayout.HORIZONTAL
+                            gravity = android.view.Gravity.CENTER_VERTICAL
                             addView(android.widget.TextView(this@MainActivity).apply {
                                 text = hub.name
-                                textSize = 15f
+                                textSize = 13f
                                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
                                 setTypeface(typeface, android.graphics.Typeface.BOLD)
-                            })
+                            }, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
                             addView(android.widget.TextView(this@MainActivity).apply {
-                                text = "${hub.distanceKm} km · Open until ${hub.openUntil}\nAccepts: ${hub.acceptedFoods}\n${hub.address}"
-                                textSize = 12f
-                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
-                                setPadding(0, 8, 0, 10)
+                                text = if (selected) "✓" else "●"
+                                textSize = 14f
+                                setTextColor(ContextCompat.getColor(this@MainActivity, if (selected) R.color.pantry_primary else R.color.pantry_primary_light))
                             })
+                        }
+                        addView(titleRow)
+                        addView(android.widget.TextView(this@MainActivity).apply {
+                            text = "⌖ ${"%.1f".format(hub.distanceKm)} km away   ·   ◷ Open until ${hub.openUntil}"
+                            textSize = 9f
+                            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                            setPadding(0, 2, 0, 5)
+                        })
+                        val footer = android.widget.LinearLayout(this@MainActivity).apply {
+                            orientation = android.widget.LinearLayout.HORIZONTAL
+                            gravity = android.view.Gravity.CENTER_VERTICAL
                             addView(android.widget.TextView(this@MainActivity).apply {
-                                text = if (selectedHubId == hub.id) "Selected ✓" else "Select this hub"
-                                textSize = 13f
-                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+                                text = "✓ Accepts: ${hub.acceptedFoods}"
+                                textSize = 8f
+                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
+                                setPadding(8, 5, 8, 5)
+                                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+                            }, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
+                            addView(android.widget.TextView(this@MainActivity).apply {
+                                text = "● Open Now"
+                                textSize = 8f
                                 setTypeface(typeface, android.graphics.Typeface.BOLD)
-                                gravity = android.view.Gravity.END
+                                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
+                                setPadding(8, 5, 8, 5)
+                                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
                             })
                         }
-                        addView(content)
-                        setOnClickListener {
-                            selectedHubId = hub.id
-                            selectedHubName = hub.name
-                            Toast.makeText(this@MainActivity, "$selectedHubName selected", Toast.LENGTH_SHORT).show()
-                            showSurplusDetail("flag")
-                        }
+                        addView(footer)
                     }
-                    val params = android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10 }
-                    list.addView(card, params)
+                    addView(content, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
+                }
+                addView(row)
+                setOnClickListener {
+                    selectedHubId = hub.id
+                    selectedHubName = hub.name
+                    Toast.makeText(this@MainActivity, "$selectedHubName selected", Toast.LENGTH_SHORT).show()
+                    showSurplusDetail("flag")
+                }
+            }
+            val params = android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = 8 }
+            list.addView(card, params)
         }
     }
 
@@ -477,7 +542,7 @@ class MainActivity : AppCompatActivity() {
     @OptIn(InternalSerializationApi::class)
     private fun loadDonationImpact() {
         if (surplusRepository.currentDonorId().isNullOrBlank()) {
-            findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Sign in to view your donation history"
+            findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Active since March 2024"
             return
         }
         lifecycleScope.launch {
@@ -485,13 +550,29 @@ class MainActivity : AppCompatActivity() {
                 val impact = surplusRepository.getImpact()
                 findViewById<android.widget.TextView>(R.id.tvImpactFood).text = "${"%.1f".format(impact.foodSavedKg)}kg"
                 findViewById<android.widget.TextView>(R.id.tvImpactMeals).text = impact.meals.toString()
-                findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "${impact.donationCount} donations · ${impact.completedCount} completed"
+                findViewById<android.widget.TextView>(R.id.tvImpactCo2).text = "${"%.0f".format(impact.co2SavedKg)}kg"
+                findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Active since March 2024 · ${impact.donationCount} donations"
                 findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "${"%.1f".format(impact.foodSavedKg)} kg"
                 findViewById<android.widget.TextView>(R.id.tvDonations).text = impact.donationCount.toString()
                 val history = surplusRepository.getDonations()
                 if (history.isNotEmpty()) {
                     val latest = history.first()
                     findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "${latest.foodName} · ${latest.quantity} · ${latest.status}"
+                    findViewById<android.widget.TextView>(R.id.tvImpactActiveFood).text = "${latest.foodName} · ${latest.quantity}"
+                    val progress = findViewById<android.widget.TextView>(R.id.tvImpactProgress)
+                    val state = latest.status.uppercase()
+                    progress.text = when (state) {
+                        "PICKED_UP" -> "●──────●──────●\nFlagged          Claimed          Picked up"
+                        "CLAIMED" -> "●──────●──────○\nFlagged          Claimed          Pickup next"
+                        "CANCELLED" -> "Donation cancelled · You can list another item"
+                        else -> "●──────○──────○\nFlagged          Claim pending          Pickup next"
+                    }
+                    findViewById<android.widget.TextView>(R.id.tvImpactClaim).text = when (state) {
+                        "CLAIMED" -> "A community hub claimed this donation · Pickup window: ${latest.pickupWindow}"
+                        "PICKED_UP" -> "Donation picked up · Your food helped a nearby community"
+                        "CANCELLED" -> "This donation was cancelled. Add another donation to continue helping."
+                        else -> "Waiting for a nearby hub to claim this donation · ${latest.pickupWindow}"
+                    }
                     renderDonationHistory(history)
                 }
             } catch (error: Exception) {
@@ -535,27 +616,32 @@ class MainActivity : AppCompatActivity() {
         val submitButton = findViewById<View>(R.id.btnSubmitDonation)
         val checklist = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(12, 8, 12, 8)
-            background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+            setPadding(0, 4, 0, 2)
         }
         val safetyItems = listOf(
-            "Food is not expired and is safe to eat",
-            "Food is properly stored and sealed",
-            "Donation meets the 2 kg minimum",
-            "I understand this supports community impact"
+            "Not expired\nHarvested within a safe consumption window",
+            "Properly stored & sealed\nFood-grade container, good quality produce",
+            "Meets 2 kg courier minimum\nEligible for free green courier pickup",
+            "Community impact\n~5.7 kg CO₂ prevented · 4 meals"
         )
         foodSafetyChecks = safetyItems.map { label ->
             android.widget.CheckBox(this).apply {
                 text = label
-                textSize = 12f
+                textSize = 10f
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                setPadding((10 * resources.displayMetrics.density).toInt(), 0, (8 * resources.displayMetrics.density).toInt(), 0)
+                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
                 buttonTintList = android.content.res.ColorStateList.valueOf(
                     ContextCompat.getColor(this@MainActivity, R.color.pantry_primary)
                 )
                 isChecked = false
             }
         }
-        foodSafetyChecks.forEach(checklist::addView)
+        foodSafetyChecks.forEach { checkbox ->
+            checklist.addView(checkbox, android.widget.LinearLayout.LayoutParams(-1, (42 * resources.displayMetrics.density).toInt()).apply {
+                bottomMargin = (4 * resources.displayMetrics.density).toInt()
+            })
+        }
         val insertAt = form.indexOfChild(submitButton).coerceAtLeast(0)
         form.addView(checklist, insertAt, android.widget.LinearLayout.LayoutParams(-1, -2).apply {
             topMargin = 12
@@ -592,6 +678,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
         val submitButton = findViewById<View>(R.id.btnSubmitDonation)
+        val pickupWindow = if (findViewById<android.widget.RadioButton>(R.id.rbSurplusDropoff).isChecked) {
+            "Drop off at $selectedHubName"
+        } else {
+            "Today, 2:00 PM – 5:00 PM"
+        }
         submitButton.isEnabled = false
         lifecycleScope.launch {
             try {
@@ -601,12 +692,15 @@ class MainActivity : AppCompatActivity() {
                         foodName = name,
                         quantity = quantity,
                         bestBefore = expiry,
-                        pickupWindow = "Today, 2:00 PM – 5:00 PM"
+                        pickupWindow = pickupWindow
                     )
                 )
                 findViewById<android.widget.TextView>(R.id.tvSubmittedFood).text = "$name · $quantity"
-                findViewById<android.widget.TextView>(R.id.tvSubmittedHub).text = selectedHubName
-                findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "Your donation is listed with $selectedHubName. Pantry courier pickup: today, 2:00 PM – 5:00 PM."
+                findViewById<android.widget.TextView>(R.id.tvSubmittedWeight).text = quantity
+                findViewById<android.widget.TextView>(R.id.tvSubmittedWindow).text = pickupWindow
+                findViewById<android.widget.TextView>(R.id.tvSubmittedStatus).text = if (pickupWindow.startsWith("Drop off")) "Hub drop off" else "Queued for pickup"
+                findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "$name · $quantity has been added to your pickup queue."
+                findViewById<android.widget.TextView>(R.id.tvSubmissionCo2).text = "♻  Est. ${"%.1f".format((kilograms ?: 0.0) * 2.9)} kg CO₂ emissions prevented"
                 findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "🥕  $name · $quantity"
                 showSurplusDetail("submitted")
             } catch (error: Exception) {
