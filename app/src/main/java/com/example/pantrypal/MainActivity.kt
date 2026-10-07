@@ -31,7 +31,6 @@ import com.example.pantrypal.data.model.ShoppingFilter
 import com.example.pantrypal.data.repository.NotificationRepository
 import com.example.pantrypal.data.repository.ShoppingRepository
 import com.example.pantrypal.data.repository.SurplusRepository
-import com.example.pantrypal.data.remote.SupabaseProvider
 import com.example.pantrypal.databinding.ActivityMainBinding
 import com.example.pantrypal.databinding.DialogAddAlertBinding
 import com.example.pantrypal.databinding.DialogRecipeIdeasBinding
@@ -44,8 +43,6 @@ import com.example.pantrypal.ui.shopping.ShoppingAdapter
 import com.example.pantrypal.ui.shopping.ShoppingViewModel
 import com.example.pantrypal.ui.shopping.ShoppingViewModelFactory
 import com.google.android.material.snackbar.Snackbar
-import io.github.jan.supabase.gotrue.auth
-import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -314,8 +311,6 @@ class MainActivity : AppCompatActivity() {
         binding.navProfile.setOnClickListener {
             selectTab(NavTab.PROFILE)
         }
-        findViewById<View>(R.id.btnTestAuthSignIn).setOnClickListener { signInForSurplusTest() }
-        findViewById<View>(R.id.btnTestAuthSignOut).setOnClickListener { signOutFromSurplusTest() }
     }
 
     private fun openSelectedHubDirections() {
@@ -389,7 +384,6 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.VISIBLE
-                updateTestAuthProfile()
                 binding.ivNavProfile.setColorFilter(primaryColor)
                 binding.tvNavProfile.setTextColor(primaryColor)
                 binding.tvNavProfile.typeface = Typeface.DEFAULT_BOLD
@@ -605,21 +599,6 @@ class MainActivity : AppCompatActivity() {
         val activeCard = findViewById<View>(R.id.tvImpactActiveFood).parent.parent as View
         val communityCard = findViewById<View>(R.id.tvImpactBeneficiaryTitle).parent.parent.parent as View
         val chart = findViewById<com.example.pantrypal.ui.surplus.SurplusImpactChart>(R.id.impactChart)
-        if (surplusRepository.currentDonorId().isNullOrBlank()) {
-            rescuedText.text = "0.0kg"
-            mealsText.text = "0"
-            co2Text.text = "0.0kg"
-            headline.text = "Sign in to see your donations"
-            findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = "Community hub"
-            findViewById<android.widget.TextView>(R.id.tvImpactLevel).text = "NEW RESCUER"
-            activeCard.visibility = View.GONE
-            communityCard.visibility = View.GONE
-            findViewById<android.widget.ImageView>(R.id.ivImpactDonationPhoto).setImageDrawable(null)
-            impactHubNames = emptyMap()
-            renderDonationHistory(emptyList())
-            chart.setDonations(emptyList())
-            return
-        }
         lifecycleScope.launch {
             try {
                 val history = surplusRepository.getDonations()
@@ -636,7 +615,7 @@ class MainActivity : AppCompatActivity() {
                 mealsText.text = meals.toString()
                 co2Text.text = "${"%.1f".format(rescuedKg * 2.0)}kg"
                 val completedCount = history.count { it.status in setOf("PICKED_UP", "DROPPED_OFF") }
-                headline.text = "${history.size} donation${if (history.size == 1) "" else "s"} · $completedCount completed"
+                headline.text = "${history.size} community donation${if (history.size == 1) "" else "s"} · $completedCount completed"
                 findViewById<android.widget.TextView>(R.id.tvImpactLevel).text = when {
                     history.size >= 10 -> "LEVEL 3 RESCUER"
                     history.size >= 5 -> "LEVEL 2 RESCUER"
@@ -686,7 +665,7 @@ class MainActivity : AppCompatActivity() {
                 renderDonationHistory(history)
                 chart.setDonations(history)
             } catch (error: Exception) {
-                headline.text = "Could not load your donations: ${error.message ?: "check Supabase connection"}"
+                headline.text = "Could not load community donations: ${error.message ?: "check Supabase connection"}"
                 activeCard.visibility = View.GONE
                 communityCard.visibility = View.GONE
                 renderDonationHistory(emptyList())
@@ -708,7 +687,7 @@ class MainActivity : AppCompatActivity() {
         if (history.isEmpty()) {
             val empty = android.widget.TextView(this).apply {
                 tag = "surplus-history-item"
-                text = if (surplusRepository.currentDonorId().isNullOrBlank()) "Sign in to view your donation history." else "No donations yet. Add a surplus donation to see it here."
+                text = "No community donations yet. Add the first surplus donation to get started."
                 textSize = 12f
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
                 setPadding(dp(14), dp(14), dp(14), dp(14))
@@ -1047,7 +1026,7 @@ class MainActivity : AppCompatActivity() {
                     } catch (error: Exception) {
                         val detail = error.message.orEmpty()
                         val message = if (detail.contains("row-level security", ignoreCase = true)) {
-                            "Supabase blocked this edit. Run surplus_update_policy.sql in SQL Editor, then retry."
+                            "Supabase blocked this edit. Run surplus_guest_mode.sql in SQL Editor, then retry."
                         } else "Could not update donation: ${detail.ifBlank { "Please try again." }}"
                         Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
                     }
@@ -1061,7 +1040,7 @@ class MainActivity : AppCompatActivity() {
         if (!donation.status.equals("PENDING", true)) return
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Delete donation?")
-            .setMessage("${donation.foodName} · ${donation.quantity} will be removed from your donation history.")
+            .setMessage("${donation.foodName} · ${donation.quantity} will be removed from the shared community history.")
             .setNegativeButton("Keep", null)
             .setPositiveButton("Delete") { _, _ ->
                 lifecycleScope.launch {
@@ -1211,73 +1190,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Temporary email/password sign-in surface for surplus CRUD testing; the group can replace it with its final auth flow. */
-    private fun updateTestAuthProfile() {
-        val status = findViewById<android.widget.TextView>(R.id.tvTestAuthStatus)
-        val signIn = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTestAuthSignIn)
-        val signOut = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTestAuthSignOut)
-        val emailField = findViewById<android.widget.EditText>(R.id.etTestAuthEmail)
-        val passwordField = findViewById<android.widget.EditText>(R.id.etTestAuthPassword)
-        val currentUser = SupabaseProvider.client.auth.currentUserOrNull()
-        if (currentUser == null) {
-            status.text = "Not signed in · use your Supabase test account"
-            signIn.visibility = View.VISIBLE
-            signOut.visibility = View.GONE
-            emailField.visibility = View.VISIBLE
-            passwordField.visibility = View.VISIBLE
-        } else {
-            status.text = "Signed in\n${currentUser.email ?: "Supabase user"}"
-            signIn.visibility = View.GONE
-            signOut.visibility = View.VISIBLE
-            emailField.visibility = View.GONE
-            passwordField.visibility = View.GONE
-        }
-    }
-
-    private fun signInForSurplusTest() {
-        val emailField = findViewById<android.widget.EditText>(R.id.etTestAuthEmail)
-        val passwordField = findViewById<android.widget.EditText>(R.id.etTestAuthPassword)
-        val email = emailField.text.toString().trim()
-        val password = passwordField.text.toString()
-        val status = findViewById<android.widget.TextView>(R.id.tvTestAuthStatus)
-        if (email.isBlank() || password.isBlank()) {
-            status.text = "Enter the email and password for your Supabase test user."
-            return
-        }
-        lifecycleScope.launch {
-            val signIn = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTestAuthSignIn)
-            signIn.isEnabled = false
-            status.text = "Signing in…"
-            try {
-                SupabaseProvider.client.auth.signInWith(Email) {
-                    this.email = email
-                    this.password = password
-                }
-                passwordField.text?.clear()
-                updateTestAuthProfile()
-                Toast.makeText(this@MainActivity, "Signed in. You can submit a test donation.", Toast.LENGTH_LONG).show()
-            } catch (error: Exception) {
-                status.text = error.message?.takeIf { it.isNotBlank() }
-                    ?: "Sign-in failed. Check the email, password, and invitation status."
-            } finally {
-                signIn.isEnabled = true
-            }
-        }
-    }
-
-    private fun signOutFromSurplusTest() {
-        lifecycleScope.launch {
-            val status = findViewById<android.widget.TextView>(R.id.tvTestAuthStatus)
-            try {
-                SupabaseProvider.client.auth.signOut()
-                updateTestAuthProfile()
-                Toast.makeText(this@MainActivity, "Signed out", Toast.LENGTH_SHORT).show()
-            } catch (error: Exception) {
-                status.text = error.message ?: "Could not sign out."
-            }
-        }
-    }
-
     private fun setupSurplusDatePicker() {
         val expiryField = findViewById<android.widget.EditText>(R.id.etSurplusExpiry)
         expiryField.contentDescription = "Choose best before date"
@@ -1310,12 +1222,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Complete the food, quantity and best before fields", Toast.LENGTH_SHORT).show()
             return
         }
-        val authUserId = surplusRepository.currentDonorId()
         val hubId = selectedHubId
-        if (authUserId.isNullOrBlank()) {
-            Toast.makeText(this, "Sign in first to submit a donation.", Toast.LENGTH_LONG).show()
-            return
-        }
         if (hubId.isNullOrBlank()) {
             Toast.makeText(this, "Select a hub before submitting.", Toast.LENGTH_SHORT).show()
             showSurplusDetail("hubs")

@@ -373,7 +373,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Temporary test sign-in"
+                        android:text="Community sharing"
                         android:textColor="@color/pantry_primary_dark"
                         android:textSize="17sp"
                         android:textStyle="bold" />
@@ -381,68 +381,10 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5dp"
-                        android:text="Sign in with your Supabase test account to create and view your surplus donations."
+                        android:layout_marginTop="6dp"
+                        android:text="Guest mode is on. No account is needed. Surplus donations and impact are shared with everyone using the app."
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tvTestAuthStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:background="@drawable/bg_sync_card"
-                        android:padding="11dp"
-                        android:text="Not signed in"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/etTestAuthEmail"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="15dp"
-                        android:autofillHints="emailAddress"
-                        android:background="@drawable/bg_search_container"
-                        android:hint="Email address"
-                        android:inputType="textEmailAddress"
-                        android:paddingHorizontal="13dp"
-                        android:singleLine="true"
-                        android:textSize="14sp" />
-
-                    <EditText
-                        android:id="@+id/etTestAuthPassword"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="9dp"
-                        android:autofillHints="password"
-                        android:background="@drawable/bg_search_container"
-                        android:hint="Password"
-                        android:inputType="textPassword"
-                        android:paddingHorizontal="13dp"
-                        android:singleLine="true"
-                        android:textSize="14sp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnTestAuthSignIn"
-                        android:layout_width="match_parent"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="14dp"
-                        android:text="Sign in to test donations"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@color/pantry_primary"
-                        app:cornerRadius="15dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnTestAuthSignOut"
-                        android:layout_width="match_parent"
-                        android:layout_height="46dp"
-                        android:layout_marginTop="7dp"
-                        android:text="Sign out"
-                        android:textAllCaps="false"
-                        android:visibility="gone"
-                        app:backgroundTint="@color/pantry_primary_light"
-                        app:cornerRadius="15dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

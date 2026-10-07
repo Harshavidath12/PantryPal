@@ -3,7 +3,6 @@ package com.example.pantrypal.data.repository
 import com.example.pantrypal.data.model.SurplusDonationDto
 import com.example.pantrypal.data.model.SurplusHubDto
 import com.example.pantrypal.data.remote.SupabaseProvider
-import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
@@ -12,9 +11,8 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/** Data access for the surplus feature. donorId is supplied by the app's login flow. */
+/** Public guest-mode data access for the community surplus board. */
 class SurplusRepository {
-    fun currentDonorId(): String? = SupabaseProvider.client.auth.currentUserOrNull()?.id
     @OptIn(InternalSerializationApi::class)
     suspend fun getHubs(): List<SurplusHubDto> = withContext(Dispatchers.IO) {
         SupabaseProvider.client.from("surplus_hubs").select {
@@ -24,24 +22,20 @@ class SurplusRepository {
 
     @OptIn(InternalSerializationApi::class)
     suspend fun getDonations(): List<DonationHistoryDto> = withContext(Dispatchers.IO) {
-        val donorId = currentDonorId() ?: return@withContext emptyList()
         SupabaseProvider.client.from("surplus_donations").select {
-            filter { eq("donor_id", donorId) }
             order("created_at", Order.DESCENDING)
         }.decodeList()
     }
 
     @OptIn(InternalSerializationApi::class)
     suspend fun createDonation(donation: SurplusDonationDto): String = withContext(Dispatchers.IO) {
-        val donorId = currentDonorId() ?: error("Please sign in before submitting a donation.")
-        SupabaseProvider.client.from("surplus_donations").insert(donation.copy(donorId = donorId)) {
+        SupabaseProvider.client.from("surplus_donations").insert(donation.copy(donorId = null)) {
             select()
         }.decodeSingle<SurplusDonationDto>().id ?: error("Donation was saved, but its ID was not returned.")
     }
 
     @OptIn(InternalSerializationApi::class)
     suspend fun updateDonation(donation: DonationHistoryDto, foodName: String, quantity: String, bestBefore: String, pickupWindow: String, status: String = donation.status): Boolean = withContext(Dispatchers.IO) {
-        val donorId = currentDonorId() ?: error("Please sign in before editing a donation.")
         SupabaseProvider.client.from("surplus_donations").update({
             set("food_name", foodName)
             set("quantity", quantity)
@@ -52,7 +46,6 @@ class SurplusRepository {
             select()
             filter {
                 eq("id", donation.id)
-                eq("donor_id", donorId)
                 eq("status", "PENDING")
             }
         }.decodeList<DonationHistoryDto>().isNotEmpty()
@@ -60,12 +53,10 @@ class SurplusRepository {
 
     @OptIn(InternalSerializationApi::class)
     suspend fun deleteDonation(donation: DonationHistoryDto): Boolean = withContext(Dispatchers.IO) {
-        val donorId = currentDonorId() ?: error("Please sign in before deleting a donation.")
         SupabaseProvider.client.from("surplus_donations").delete {
             select()
             filter {
                 eq("id", donation.id)
-                eq("donor_id", donorId)
                 eq("status", "PENDING")
             }
         }.decodeList<DonationHistoryDto>().isNotEmpty()
@@ -73,7 +64,6 @@ class SurplusRepository {
 
     @OptIn(InternalSerializationApi::class)
     suspend fun advanceDonationStatus(donation: DonationHistoryDto): Boolean = withContext(Dispatchers.IO) {
-        val donorId = currentDonorId() ?: error("Please sign in before updating a donation stage.")
         val nextStatus = when (donation.status.uppercase()) {
             "PENDING" -> "CLAIMED"
             "CLAIMED" -> "PICKED_UP"
@@ -86,7 +76,6 @@ class SurplusRepository {
             select()
             filter {
                 eq("id", donation.id)
-                eq("donor_id", donorId)
                 eq("status", donation.status)
             }
         }.decodeList<DonationHistoryDto>().isNotEmpty()
@@ -120,7 +109,7 @@ class SurplusRepository {
 @Serializable
 data class DonationHistoryDto(
     val id: String,
-    @SerialName("donor_id") val donorId: String,
+    @SerialName("donor_id") val donorId: String? = null,
     @SerialName("hub_id") val hubId: String,
     @SerialName("food_name") val foodName: String,
     val quantity: String,

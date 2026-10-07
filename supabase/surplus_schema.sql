@@ -1,6 +1,6 @@
 -- PantryPal surplus redistribution feature schema.
--- Run in Supabase SQL Editor. Hub records are public; donations are scoped to
--- the authenticated donor. This assumes Supabase Auth is used by the app.
+-- Run in Supabase SQL Editor. Surplus donations are shared public community
+-- records so the app can create and display them without a sign-in screen.
 
 create table if not exists public.surplus_hubs (
     id uuid primary key default gen_random_uuid(),
@@ -16,7 +16,7 @@ create table if not exists public.surplus_hubs (
 
 create table if not exists public.surplus_donations (
     id uuid primary key default gen_random_uuid(),
-    donor_id uuid not null references auth.users(id) on delete cascade,
+    donor_id uuid references auth.users(id) on delete set null,
     hub_id uuid not null references public.surplus_hubs(id),
     food_name text not null,
     quantity text not null,
@@ -40,7 +40,7 @@ alter table public.surplus_hubs enable row level security;
 alter table public.surplus_donations enable row level security;
 
 grant select on public.surplus_hubs to anon, authenticated;
-grant select, insert, update, delete on public.surplus_donations to authenticated;
+grant select, insert, update, delete on public.surplus_donations to anon, authenticated;
 
 drop policy if exists "Anyone can read active surplus hubs" on public.surplus_hubs;
 create policy "Anyone can read active surplus hubs"
@@ -48,26 +48,30 @@ create policy "Anyone can read active surplus hubs"
     using (is_active = true);
 
 drop policy if exists "Donors can read their own surplus donations" on public.surplus_donations;
-create policy "Donors can read their own surplus donations"
-    on public.surplus_donations for select to authenticated
-    using (auth.uid() = donor_id);
+drop policy if exists "Anyone can read community surplus donations" on public.surplus_donations;
+create policy "Anyone can read community surplus donations"
+    on public.surplus_donations for select to anon, authenticated
+    using (true);
 
 drop policy if exists "Donors can create their own surplus donations" on public.surplus_donations;
-create policy "Donors can create their own surplus donations"
-    on public.surplus_donations for insert to authenticated
-    with check (auth.uid() = donor_id);
+drop policy if exists "Anyone can create community surplus donations" on public.surplus_donations;
+create policy "Anyone can create community surplus donations"
+    on public.surplus_donations for insert to anon, authenticated
+    with check (donor_id is null);
 
 drop policy if exists "Donors can update their own pending surplus donations" on public.surplus_donations;
 drop policy if exists "Donors can update their own active surplus donations" on public.surplus_donations;
-create policy "Donors can update their own active surplus donations"
-    on public.surplus_donations for update to authenticated
-    using (auth.uid() = donor_id and status in ('PENDING', 'CLAIMED'))
-    with check (auth.uid() = donor_id and status in ('PENDING', 'CLAIMED', 'PICKED_UP', 'DROPPED_OFF'));
+drop policy if exists "Anyone can update community surplus donations" on public.surplus_donations;
+create policy "Anyone can update community surplus donations"
+    on public.surplus_donations for update to anon, authenticated
+    using (donor_id is null and status in ('PENDING', 'CLAIMED'))
+    with check (donor_id is null and status in ('PENDING', 'CLAIMED', 'PICKED_UP', 'DROPPED_OFF'));
 
 drop policy if exists "Donors can delete their own pending surplus donations" on public.surplus_donations;
-create policy "Donors can delete their own pending surplus donations"
-    on public.surplus_donations for delete to authenticated
-    using (auth.uid() = donor_id and status = 'PENDING');
+drop policy if exists "Anyone can delete pending community surplus donations" on public.surplus_donations;
+create policy "Anyone can delete pending community surplus donations"
+    on public.surplus_donations for delete to anon, authenticated
+    using (donor_id is null and status = 'PENDING');
 
 insert into public.surplus_hubs (name, address, distance_km, open_until, accepted_foods)
 values
