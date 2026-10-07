@@ -34,7 +34,7 @@ alter table public.surplus_hubs enable row level security;
 alter table public.surplus_donations enable row level security;
 
 grant select on public.surplus_hubs to anon, authenticated;
-grant select, insert on public.surplus_donations to authenticated;
+grant select, insert, update, delete on public.surplus_donations to authenticated;
 
 drop policy if exists "Anyone can read active surplus hubs" on public.surplus_hubs;
 create policy "Anyone can read active surplus hubs"
@@ -50,6 +50,17 @@ drop policy if exists "Donors can create their own surplus donations" on public.
 create policy "Donors can create their own surplus donations"
     on public.surplus_donations for insert to authenticated
     with check (auth.uid() = donor_id);
+
+drop policy if exists "Donors can update their own pending surplus donations" on public.surplus_donations;
+create policy "Donors can update their own pending surplus donations"
+    on public.surplus_donations for update to authenticated
+    using (auth.uid() = donor_id and status = 'PENDING')
+    with check (auth.uid() = donor_id and status = 'PENDING');
+
+drop policy if exists "Donors can delete their own pending surplus donations" on public.surplus_donations;
+create policy "Donors can delete their own pending surplus donations"
+    on public.surplus_donations for delete to authenticated
+    using (auth.uid() = donor_id and status = 'PENDING');
 
 insert into public.surplus_hubs (name, address, distance_km, open_until, accepted_foods)
 values

@@ -38,6 +38,37 @@ class SurplusRepository {
     }
 
     @OptIn(InternalSerializationApi::class)
+    suspend fun updateDonation(donation: DonationHistoryDto, foodName: String, quantity: String, bestBefore: String, pickupWindow: String): Boolean = withContext(Dispatchers.IO) {
+        val donorId = currentDonorId() ?: error("Please sign in before editing a donation.")
+        SupabaseProvider.client.from("surplus_donations").update({
+            set("food_name", foodName)
+            set("quantity", quantity)
+            set("best_before", bestBefore)
+            set("pickup_window", pickupWindow)
+        }) {
+            select()
+            filter {
+                eq("id", donation.id)
+                eq("donor_id", donorId)
+                eq("status", "PENDING")
+            }
+        }.decodeList<DonationHistoryDto>().isNotEmpty()
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    suspend fun deleteDonation(donation: DonationHistoryDto): Boolean = withContext(Dispatchers.IO) {
+        val donorId = currentDonorId() ?: error("Please sign in before deleting a donation.")
+        SupabaseProvider.client.from("surplus_donations").delete {
+            select()
+            filter {
+                eq("id", donation.id)
+                eq("donor_id", donorId)
+                eq("status", "PENDING")
+            }
+        }.decodeList<DonationHistoryDto>().isNotEmpty()
+    }
+
+    @OptIn(InternalSerializationApi::class)
     suspend fun getImpact(): DonationImpact = withContext(Dispatchers.IO) {
         val donations = getDonations()
         val completed = donations.filter { it.status == "PICKED_UP" }

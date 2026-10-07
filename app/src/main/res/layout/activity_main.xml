@@ -383,13 +383,13 @@
                 <LinearLayout android:id="@+id/surplusDetailTabs" android:layout_width="match_parent" android:layout_height="38dp" android:layout_marginTop="5dp" android:background="@drawable/bg_sync_card" android:gravity="center" android:orientation="horizontal" android:padding="3dp" android:visibility="gone"><com.google.android.material.button.MaterialButton android:id="@+id/btnFlagTab" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:insetTop="0dp" android:insetBottom="0dp" android:minHeight="0dp" android:text="▧  Flag Surplus" android:textAllCaps="false" android:textSize="10sp" app:backgroundTint="@color/pantry_primary" app:cornerRadius="12dp"/><com.google.android.material.button.MaterialButton android:id="@+id/btnFindHubTab" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:insetTop="0dp" android:insetBottom="0dp" android:minHeight="0dp" android:text="⌖  Find a Hub" android:textAllCaps="false" android:textColor="@color/text_primary" android:textSize="10sp" app:backgroundTint="@android:color/transparent" app:cornerRadius="12dp"/></LinearLayout>
 
                 <LinearLayout android:id="@+id/layoutImpact" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                    <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" app:cardBackgroundColor="@color/pantry_primary_light"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="13dp"><TextView android:layout_width="38dp" android:layout_height="38dp" android:background="@drawable/bg_circle_icon" android:gravity="center" android:text="♧" android:textColor="@color/pantry_primary" android:textSize="19sp"/><LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Maple Street Hub" android:textColor="@color/pantry_primary_dark" android:textSize="13sp" android:textStyle="bold"/><TextView android:id="@+id/tvImpactHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Active since March 2024" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_chip_selected" android:paddingHorizontal="10dp" android:paddingVertical="5dp" android:text="LEVEL 3 RESCUER" android:textColor="@color/white" android:textSize="8sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView>
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal"><com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="5dp" android:layout_weight="1"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rescued" android:textColor="@color/text_secondary" android:textSize="10sp"/><TextView android:id="@+id/tvImpactFood" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="14.2kg" android:textColor="@color/pantry_primary" android:textSize="20sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView><com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginHorizontal="5dp" android:layout_weight="1"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Meals" android:textColor="@color/text_secondary" android:textSize="10sp"/><TextView android:id="@+id/tvImpactMeals" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18" android:textColor="@color/pantry_primary" android:textSize="20sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView><com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:layout_weight="1"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CO₂ saved" android:textColor="@color/text_secondary" android:textSize="10sp"/><TextView android:id="@+id/tvImpactCo2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="28kg" android:textColor="@color/pantry_primary" android:textSize="20sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView></LinearLayout>
+                    <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" app:cardBackgroundColor="@color/pantry_primary_light"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="13dp"><TextView android:layout_width="38dp" android:layout_height="38dp" android:background="@drawable/bg_circle_icon" android:gravity="center" android:text="♧" android:textColor="@color/pantry_primary" android:textSize="19sp"/><LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvImpactHubName" android:text="Community hub" android:textColor="@color/pantry_primary_dark" android:textSize="13sp" android:textStyle="bold"/><TextView android:id="@+id/tvImpactHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="Active since March 2024" android:textColor="@color/text_secondary" android:textSize="10sp"/></LinearLayout><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_chip_selected" android:paddingHorizontal="10dp" android:paddingVertical="5dp" android:id="@+id/tvImpactLevel" android:text="COMMUNITY RESCUER" android:textColor="@color/white" android:textSize="8sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal"><com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="5dp" android:layout_weight="1"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rescued" android:textColor="@color/text_secondary" android:textSize="10sp"/><TextView android:id="@+id/tvImpactFood" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0kg" android:textColor="@color/pantry_primary" android:textSize="20sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView><com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginHorizontal="5dp" android:layout_weight="1"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Meals" android:textColor="@color/text_secondary" android:textSize="10sp"/><TextView android:id="@+id/tvImpactMeals" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/pantry_primary" android:textSize="20sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView><com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:layout_weight="1"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CO₂ saved" android:textColor="@color/text_secondary" android:textSize="10sp"/><TextView android:id="@+id/tvImpactCo2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0kg" android:textColor="@color/pantry_primary" android:textSize="20sp" android:textStyle="bold"/></LinearLayout></com.google.android.material.card.MaterialCardView></LinearLayout>
                     <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="14dp"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LIVE ACTION    Active donation" android:textColor="@color/pantry_primary" android:textSize="11sp" android:textStyle="bold"/><TextView android:id="@+id/tvImpactActiveFood" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Mixed vegetables · 2.3 kg" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:id="@+id/tvImpactProgress" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:gravity="center" android:text="●──────●──────○\nFlagged          Claimed          Picked up" android:textColor="@color/pantry_primary" android:textSize="11sp"/><TextView android:id="@+id/tvImpactClaim" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_sync_card" android:padding="10dp" android:text="Claimed by a nearby community hub · Pickup details will appear here" android:textColor="@color/text_secondary" android:textSize="11sp"/></LinearLayout></com.google.android.material.card.MaterialCardView>
-                    <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="12dp"><TextView android:layout_width="48dp" android:layout_height="52dp" android:gravity="center" android:text="🥕" android:textSize="28sp"/><LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Community Pantry 4B" android:textColor="@color/pantry_primary" android:textSize="10sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Nourishing families" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Your surplus food is helping nearby households." android:textColor="@color/text_secondary" android:textSize="11sp"/></LinearLayout></LinearLayout></com.google.android.material.card.MaterialCardView>
+                    <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:padding="12dp"><TextView android:layout_width="48dp" android:layout_height="52dp" android:gravity="center" android:text="🥕" android:textSize="28sp"/><LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/tvImpactBeneficiaryTitle" android:text="Community hub" android:textColor="@color/pantry_primary" android:textSize="10sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:id="@+id/tvImpactBeneficiaryCaption" android:text="Your donation supports nearby households" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Your surplus food is helping nearby households." android:textColor="@color/text_secondary" android:textSize="11sp"/></LinearLayout></LinearLayout></com.google.android.material.card.MaterialCardView>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Donation history" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold"/>
                     <com.google.android.material.card.MaterialCardView style="@style/PantryCardStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp"><TextView android:id="@+id/tvLatestDonation" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🥕  Mixed vegetables · 2.3 kg" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Green Path Community Pantry   ·   Received" android:textColor="@color/text_secondary" android:textSize="12sp"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Oct 26, 2025  ·  Pickup completed" android:textColor="@color/text_secondary" android:textSize="12sp"/></LinearLayout></com.google.android.material.card.MaterialCardView>
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Monthly waste log" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold"/><com.example.pantrypal.ui.surplus.SurplusImpactChart android:layout_width="match_parent" android:layout_height="190dp" android:layout_marginTop="6dp" android:contentDescription="Monthly chart of expired and consumed food, January through May" android:importantForAccessibility="yes"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Monthly donation impact" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold"/><com.example.pantrypal.ui.surplus.SurplusImpactChart android:id="@+id/impactChart" android:layout_width="match_parent" android:layout_height="190dp" android:layout_marginTop="6dp" android:contentDescription="Monthly chart of expired and consumed food, January through May" android:importantForAccessibility="yes"/>
                     <com.google.android.material.button.MaterialButton android:id="@+id/btnShareImpact" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="12dp" android:layout_marginBottom="20dp" android:text="🏆  Share my impact" android:textAllCaps="false" app:backgroundTint="#FFB84D" app:cornerRadius="18dp"/>
                 </LinearLayout>
 
@@ -438,7 +438,122 @@
         </ScrollView>
     </FrameLayout>
 
-      <!-- Bottom Navigation Bar Card -->
+    <!-- Temporary Profile page for testing Supabase Auth; replace with the group's final profile flow. -->
+    <ScrollView
+        android:id="@+id/profileScreenContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="22dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Profile"
+                android:textColor="@color/text_primary"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/PantryCardStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Temporary test sign-in"
+                        android:textColor="@color/pantry_primary_dark"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="Sign in with your Supabase test account to create and view your surplus donations."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvTestAuthStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/bg_sync_card"
+                        android:padding="11dp"
+                        android:text="Not signed in"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <EditText
+                        android:id="@+id/etTestAuthEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="15dp"
+                        android:autofillHints="emailAddress"
+                        android:background="@drawable/bg_search_container"
+                        android:hint="Email address"
+                        android:inputType="textEmailAddress"
+                        android:paddingHorizontal="13dp"
+                        android:singleLine="true"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etTestAuthPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="9dp"
+                        android:autofillHints="password"
+                        android:background="@drawable/bg_search_container"
+                        android:hint="Password"
+                        android:inputType="textPassword"
+                        android:paddingHorizontal="13dp"
+                        android:singleLine="true"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTestAuthSignIn"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="14dp"
+                        android:text="Sign in to test donations"
+                        android:textAllCaps="false"
+                        app:backgroundTint="@color/pantry_primary"
+                        app:cornerRadius="15dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnTestAuthSignOut"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="7dp"
+                        android:text="Sign out"
+                        android:textAllCaps="false"
+                        android:visibility="gone"
+                        app:backgroundTint="@color/pantry_primary_light"
+                        app:cornerRadius="15dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Navigation Bar Card -->
       <com.google.android.material.card.MaterialCardView
           android:id="@+id/bottomNavCard"
           style="@style/PantryCardStyle"

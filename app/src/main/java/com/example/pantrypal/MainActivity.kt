@@ -31,6 +31,7 @@ import com.example.pantrypal.data.model.ShoppingFilter
 import com.example.pantrypal.data.repository.NotificationRepository
 import com.example.pantrypal.data.repository.ShoppingRepository
 import com.example.pantrypal.data.repository.SurplusRepository
+import com.example.pantrypal.data.remote.SupabaseProvider
 import com.example.pantrypal.databinding.ActivityMainBinding
 import com.example.pantrypal.databinding.DialogAddAlertBinding
 import com.example.pantrypal.databinding.DialogRecipeIdeasBinding
@@ -43,6 +44,8 @@ import com.example.pantrypal.ui.shopping.ShoppingAdapter
 import com.example.pantrypal.ui.shopping.ShoppingViewModel
 import com.example.pantrypal.ui.shopping.ShoppingViewModelFactory
 import com.google.android.material.snackbar.Snackbar
+import io.github.jan.supabase.gotrue.auth
+import io.github.jan.supabase.gotrue.providers.builtin.Email
 import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 
@@ -67,6 +70,7 @@ class MainActivity : AppCompatActivity() {
     private var availableSurplusHubs: List<com.example.pantrypal.data.model.SurplusHubDto> = emptyList()
     private var hubSearchWatcher: android.text.TextWatcher? = null
     private var selectedSurplusPhotoUri: Uri? = null
+    private var impactHubNames: Map<String, String> = emptyMap()
     private val surplusPhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             selectedSurplusPhotoUri = uri
@@ -292,6 +296,8 @@ class MainActivity : AppCompatActivity() {
         binding.navProfile.setOnClickListener {
             selectTab(NavTab.PROFILE)
         }
+        findViewById<View>(R.id.btnTestAuthSignIn).setOnClickListener { signInForSurplusTest() }
+        findViewById<View>(R.id.btnTestAuthSignOut).setOnClickListener { signOutFromSurplusTest() }
     }
 
     private fun openSelectedHubDirections() {
@@ -333,6 +339,7 @@ class MainActivity : AppCompatActivity() {
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.visibility = View.GONE
                 binding.surplusDetailContainer.visibility = View.GONE
+                findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
                 binding.tvNavPantry.setTextColor(primaryColor)
                 binding.tvNavPantry.typeface = Typeface.DEFAULT_BOLD
@@ -342,6 +349,7 @@ class MainActivity : AppCompatActivity() {
                 binding.shoppingScreenContainer.root.visibility = View.VISIBLE
                 binding.surplusScreenContainer.visibility = View.GONE
                 binding.surplusDetailContainer.visibility = View.GONE
+                findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
                 binding.tvNavShopping.setTextColor(primaryColor)
                 binding.tvNavShopping.typeface = Typeface.DEFAULT_BOLD
@@ -351,6 +359,7 @@ class MainActivity : AppCompatActivity() {
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.visibility = View.VISIBLE
                 binding.surplusDetailContainer.visibility = View.GONE
+                findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
                 binding.ivNavSurplus.setColorFilter(primaryColor)
                 binding.tvNavSurplus.setTextColor(primaryColor)
                 binding.tvNavSurplus.typeface = Typeface.DEFAULT_BOLD
@@ -361,7 +370,8 @@ class MainActivity : AppCompatActivity() {
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.visibility = View.GONE
                 binding.surplusDetailContainer.visibility = View.GONE
-                Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
+                findViewById<View>(R.id.profileScreenContainer).visibility = View.VISIBLE
+                updateTestAuthProfile()
                 binding.ivNavProfile.setColorFilter(primaryColor)
                 binding.tvNavProfile.setTextColor(primaryColor)
                 binding.tvNavProfile.typeface = Typeface.DEFAULT_BOLD
@@ -570,27 +580,62 @@ class MainActivity : AppCompatActivity() {
 
     @OptIn(InternalSerializationApi::class)
     private fun loadDonationImpact() {
+        val rescuedText = findViewById<android.widget.TextView>(R.id.tvImpactFood)
+        val mealsText = findViewById<android.widget.TextView>(R.id.tvImpactMeals)
+        val co2Text = findViewById<android.widget.TextView>(R.id.tvImpactCo2)
+        val headline = findViewById<android.widget.TextView>(R.id.tvImpactHeadline)
+        val activeCard = findViewById<View>(R.id.tvImpactActiveFood).parent.parent as View
+        val communityCard = findViewById<View>(R.id.tvImpactBeneficiaryTitle).parent.parent.parent as View
+        val chart = binding.surplusDetailContainer.findViewById<com.example.pantrypal.ui.surplus.SurplusImpactChart>(R.id.impactChart)
         if (surplusRepository.currentDonorId().isNullOrBlank()) {
-            findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Active since March 2024"
+            rescuedText.text = "0.0kg"
+            mealsText.text = "0"
+            co2Text.text = "0.0kg"
+            headline.text = "Sign in to see your donations"
+            findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = "Community hub"
+            findViewById<android.widget.TextView>(R.id.tvImpactLevel).text = "NEW RESCUER"
+            activeCard.visibility = View.GONE
+            communityCard.visibility = View.GONE
+            impactHubNames = emptyMap()
+            renderDonationHistory(emptyList())
+            chart?.setDonations(emptyList())
             return
         }
         lifecycleScope.launch {
             try {
-                val impact = surplusRepository.getImpact()
-                findViewById<android.widget.TextView>(R.id.tvImpactFood).text = "${"%.1f".format(impact.foodSavedKg)}kg"
-                findViewById<android.widget.TextView>(R.id.tvImpactMeals).text = impact.meals.toString()
-                findViewById<android.widget.TextView>(R.id.tvImpactCo2).text = "${"%.0f".format(impact.co2SavedKg)}kg"
-                findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Active since March 2024 · ${impact.donationCount} donations"
-                findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "${"%.1f".format(impact.foodSavedKg)} kg"
-                findViewById<android.widget.TextView>(R.id.tvDonations).text = impact.donationCount.toString()
                 val history = surplusRepository.getDonations()
-                if (history.isNotEmpty()) {
-                    val latest = history.first()
-                    findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "${latest.foodName} · ${latest.quantity} · ${latest.status}"
+                impactHubNames = try {
+                    surplusRepository.getHubs().associate { it.id to it.name }
+                } catch (_: Exception) {
+                    emptyMap()
+                }
+                val rescuedKg = history.filter { it.status.equals("PICKED_UP", true) }.sumOf { donation ->
+                    Regex("[0-9]+(?:\\.[0-9]+)?").find(donation.quantity)?.value?.toDoubleOrNull() ?: 0.0
+                }
+                val meals = (rescuedKg * 8.3).toInt()
+                rescuedText.text = "${"%.1f".format(rescuedKg)}kg"
+                mealsText.text = meals.toString()
+                co2Text.text = "${"%.1f".format(rescuedKg * 2.0)}kg"
+                headline.text = "${history.size} donation${if (history.size == 1) "" else "s"} · ${history.count { it.status == "PICKED_UP" }} rescued"
+                findViewById<android.widget.TextView>(R.id.tvImpactLevel).text = when {
+                    history.size >= 10 -> "LEVEL 3 RESCUER"
+                    history.size >= 5 -> "LEVEL 2 RESCUER"
+                    history.isNotEmpty() -> "LEVEL 1 RESCUER"
+                    else -> "NEW RESCUER"
+                }
+                findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "${"%.1f".format(rescuedKg)} kg"
+                findViewById<android.widget.TextView>(R.id.tvDonations).text = history.size.toString()
+                val latest = history.firstOrNull()
+                activeCard.visibility = if (latest == null) View.GONE else View.VISIBLE
+                communityCard.visibility = if (latest == null) View.GONE else View.VISIBLE
+                if (latest != null) {
+                    val hubName = impactHubNames[latest.hubId] ?: "Community hub"
+                    findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = hubName
+                    findViewById<android.widget.TextView>(R.id.tvImpactBeneficiaryTitle).text = hubName
+                    findViewById<android.widget.TextView>(R.id.tvImpactBeneficiaryCaption).text = "${latest.foodName} · ${latest.quantity}"
                     findViewById<android.widget.TextView>(R.id.tvImpactActiveFood).text = "${latest.foodName} · ${latest.quantity}"
-                    val progress = findViewById<android.widget.TextView>(R.id.tvImpactProgress)
                     val state = latest.status.uppercase()
-                    progress.text = when (state) {
+                    findViewById<android.widget.TextView>(R.id.tvImpactProgress).text = when (state) {
                         "PICKED_UP" -> "●──────●──────●\nFlagged          Claimed          Picked up"
                         "CLAIMED" -> "●──────●──────○\nFlagged          Claimed          Pickup next"
                         "CANCELLED" -> "Donation cancelled · You can list another item"
@@ -602,10 +647,16 @@ class MainActivity : AppCompatActivity() {
                         "CANCELLED" -> "This donation was cancelled. Add another donation to continue helping."
                         else -> "Waiting for a nearby hub to claim this donation · ${latest.pickupWindow}"
                     }
-                    renderDonationHistory(history)
+                } else {
+                    findViewById<android.widget.TextView>(R.id.tvImpactHubName).text = "Community hub"
                 }
+                renderDonationHistory(history)
+                chart?.setDonations(history)
             } catch (error: Exception) {
-                findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Could not load impact: ${error.message ?: "check Supabase setup"}"
+                headline.text = "Could not load your donations: ${error.message ?: "check Supabase connection"}"
+                activeCard.visibility = View.GONE
+                communityCard.visibility = View.GONE
+                renderDonationHistory(emptyList())
             }
         }
     }
@@ -618,26 +669,174 @@ class MainActivity : AppCompatActivity() {
             }
         }
         val anchor = findViewById<View>(R.id.tvLatestDonation).parent.parent as View
+        anchor.visibility = View.GONE // Hide the old mock donation card; history below is loaded from the signed-in donor.
         var insertIndex = impactLayout.indexOfChild(anchor) + 1
+        if (history.isEmpty()) {
+            val empty = android.widget.TextView(this).apply {
+                tag = "surplus-history-item"
+                text = if (surplusRepository.currentDonorId().isNullOrBlank()) "Sign in to view your donation history." else "No donations yet. Add a surplus donation to see it here."
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                setPadding(dp(14), dp(14), dp(14), dp(14))
+            }
+            impactLayout.addView(empty, insertIndex, android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(7) })
+            return
+        }
         history.forEach { donation ->
             val date = donation.createdAt?.take(10)?.takeIf { it.isNotBlank() } ?: "Recent donation"
+            val pending = donation.status.equals("PENDING", true)
             val card = com.google.android.material.card.MaterialCardView(this).apply {
                 tag = "surplus-history-item"
-                radius = 18f
-                cardElevation = 1f
+                radius = dp(17).toFloat()
+                cardElevation = dp(1).toFloat()
                 setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
-                val text = android.widget.TextView(this@MainActivity).apply {
-                    this.text = "🥬  ${donation.foodName} · ${donation.quantity}\n${donation.status.replace('_', ' ')} · $date"
-                    textSize = 13f
-                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
-                    setPadding(18, 15, 18, 15)
+                val body = android.widget.LinearLayout(this@MainActivity).apply {
+                    orientation = android.widget.LinearLayout.VERTICAL
+                    setPadding(dp(14), dp(12), dp(14), dp(11))
                 }
-                addView(text)
+                val titleRow = android.widget.LinearLayout(this@MainActivity).apply {
+                    orientation = android.widget.LinearLayout.HORIZONTAL
+                    gravity = android.view.Gravity.CENTER_VERTICAL
+                }
+                titleRow.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "${donation.foodName} · ${donation.quantity}"
+                    textSize = 14f
+                    maxLines = 1
+                    ellipsize = android.text.TextUtils.TruncateAt.END
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                    setTypeface(typeface, android.graphics.Typeface.BOLD)
+                }, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
+                titleRow.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = donation.status.replace('_', ' ')
+                    textSize = 9f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, if (pending) R.color.pantry_primary_dark else R.color.text_secondary))
+                    setPadding(dp(8), dp(5), dp(8), dp(5))
+                    background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+                })
+                body.addView(titleRow)
+                body.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "${impactHubNames[donation.hubId] ?: "Community hub"} · Best before ${donation.bestBefore}"
+                    textSize = 10f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                    setPadding(0, dp(5), 0, 0)
+                })
+                body.addView(android.widget.TextView(this@MainActivity).apply {
+                    text = "Pickup: ${donation.pickupWindow} · $date"
+                    textSize = 10f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                    setPadding(0, dp(3), 0, 0)
+                })
+                if (pending) {
+                    val actions = android.widget.LinearLayout(this@MainActivity).apply {
+                        orientation = android.widget.LinearLayout.HORIZONTAL
+                        gravity = android.view.Gravity.END
+                        setPadding(0, dp(7), 0, 0)
+                    }
+                    actions.addView(android.widget.TextView(this@MainActivity).apply {
+                        text = "Edit"
+                        textSize = 11f
+                        setTypeface(typeface, android.graphics.Typeface.BOLD)
+                        setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+                        setPadding(dp(12), dp(7), dp(12), dp(7))
+                        isClickable = true
+                        setOnClickListener { showEditDonationDialog(donation) }
+                    })
+                    actions.addView(android.widget.TextView(this@MainActivity).apply {
+                        text = "Delete"
+                        textSize = 11f
+                        setTypeface(typeface, android.graphics.Typeface.BOLD)
+                        setTextColor(android.graphics.Color.rgb(174, 69, 60))
+                        setPadding(dp(12), dp(7), dp(4), dp(7))
+                        isClickable = true
+                        setOnClickListener { confirmDeleteDonation(donation) }
+                    })
+                    body.addView(actions)
+                }
+                addView(body)
             }
             impactLayout.addView(card, insertIndex++, android.widget.LinearLayout.LayoutParams(-1, -2).apply {
-                topMargin = 8
+                topMargin = dp(7)
             })
         }
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    private fun showEditDonationDialog(donation: com.example.pantrypal.data.repository.DonationHistoryDto) {
+        if (!donation.status.equals("PENDING", true)) return
+        val form = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(dp(22), dp(8), dp(22), 0)
+        }
+        fun field(hintText: String, value: String, type: Int = android.text.InputType.TYPE_CLASS_TEXT): android.widget.EditText {
+            return android.widget.EditText(this).apply {
+                hint = hintText
+                setText(value)
+                inputType = type
+                setSingleLine(true)
+                textSize = 14f
+            }.also { edit ->
+                form.addView(edit, android.widget.LinearLayout.LayoutParams(-1, dp(48)))
+            }
+        }
+        val food = field("Food description", donation.foodName)
+        val quantity = field("Quantity", donation.quantity)
+        val bestBefore = field("Best before", donation.bestBefore)
+        val pickup = field("Pickup window", donation.pickupWindow)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Edit donation")
+            .setView(form)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Save changes", null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val foodValue = food.text.toString().trim()
+                val quantityValue = quantity.text.toString().trim()
+                val dateValue = bestBefore.text.toString().trim()
+                val pickupValue = pickup.text.toString().trim()
+                if (foodValue.isBlank() || quantityValue.isBlank() || dateValue.isBlank() || pickupValue.isBlank()) {
+                    Toast.makeText(this, "Please complete all donation fields.", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                lifecycleScope.launch {
+                    try {
+                        val updated = surplusRepository.updateDonation(donation, foodValue, quantityValue, dateValue, pickupValue)
+                        if (updated) Toast.makeText(this@MainActivity, "Donation updated", Toast.LENGTH_SHORT).show()
+                        else Toast.makeText(this@MainActivity, "This donation is no longer editable.", Toast.LENGTH_LONG).show()
+                        dialog.dismiss()
+                        loadDonationImpact()
+                    } catch (error: Exception) {
+                        Toast.makeText(this@MainActivity, "Could not update donation: ${error.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+        dialog.show()
+    }
+
+    private fun confirmDeleteDonation(donation: com.example.pantrypal.data.repository.DonationHistoryDto) {
+        if (!donation.status.equals("PENDING", true)) return
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete donation?")
+            .setMessage("${donation.foodName} · ${donation.quantity} will be removed from your donation history.")
+            .setNegativeButton("Keep", null)
+            .setPositiveButton("Delete") { _, _ ->
+                lifecycleScope.launch {
+                    try {
+                        val deleted = surplusRepository.deleteDonation(donation)
+                        Toast.makeText(
+                            this@MainActivity,
+                            if (deleted) "Donation deleted" else "This donation is no longer available to delete.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        loadDonationImpact()
+                    } catch (error: Exception) {
+                        Toast.makeText(this@MainActivity, "Could not delete donation: ${error.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .show()
     }
 
     private fun setupSurplusSafetyChecklist() {
@@ -696,6 +895,73 @@ class MainActivity : AppCompatActivity() {
             val meals = (kilograms * 1.74 + 0.5).toInt()
             val points = (kilograms * 19.5 + 0.5).toInt()
             "Community impact\n~${"%.1f".format(co2Kg)} kg CO₂ prevented · $meals meals · +$points pts"
+        }
+    }
+
+    /** Temporary email/password sign-in surface for surplus CRUD testing; the group can replace it with its final auth flow. */
+    private fun updateTestAuthProfile() {
+        val status = findViewById<android.widget.TextView>(R.id.tvTestAuthStatus)
+        val signIn = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTestAuthSignIn)
+        val signOut = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTestAuthSignOut)
+        val emailField = findViewById<android.widget.EditText>(R.id.etTestAuthEmail)
+        val passwordField = findViewById<android.widget.EditText>(R.id.etTestAuthPassword)
+        val currentUser = SupabaseProvider.client.auth.currentUserOrNull()
+        if (currentUser == null) {
+            status.text = "Not signed in · use your Supabase test account"
+            signIn.visibility = View.VISIBLE
+            signOut.visibility = View.GONE
+            emailField.visibility = View.VISIBLE
+            passwordField.visibility = View.VISIBLE
+        } else {
+            status.text = "Signed in\n${currentUser.email ?: "Supabase user"}"
+            signIn.visibility = View.GONE
+            signOut.visibility = View.VISIBLE
+            emailField.visibility = View.GONE
+            passwordField.visibility = View.GONE
+        }
+    }
+
+    private fun signInForSurplusTest() {
+        val emailField = findViewById<android.widget.EditText>(R.id.etTestAuthEmail)
+        val passwordField = findViewById<android.widget.EditText>(R.id.etTestAuthPassword)
+        val email = emailField.text.toString().trim()
+        val password = passwordField.text.toString()
+        val status = findViewById<android.widget.TextView>(R.id.tvTestAuthStatus)
+        if (email.isBlank() || password.isBlank()) {
+            status.text = "Enter the email and password for your Supabase test user."
+            return
+        }
+        lifecycleScope.launch {
+            val signIn = findViewById<com.google.android.material.button.MaterialButton>(R.id.btnTestAuthSignIn)
+            signIn.isEnabled = false
+            status.text = "Signing in…"
+            try {
+                SupabaseProvider.client.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = password
+                }
+                passwordField.text?.clear()
+                updateTestAuthProfile()
+                Toast.makeText(this@MainActivity, "Signed in. You can submit a test donation.", Toast.LENGTH_LONG).show()
+            } catch (error: Exception) {
+                status.text = error.message?.takeIf { it.isNotBlank() }
+                    ?: "Sign-in failed. Check the email, password, and invitation status."
+            } finally {
+                signIn.isEnabled = true
+            }
+        }
+    }
+
+    private fun signOutFromSurplusTest() {
+        lifecycleScope.launch {
+            val status = findViewById<android.widget.TextView>(R.id.tvTestAuthStatus)
+            try {
+                SupabaseProvider.client.auth.signOut()
+                updateTestAuthProfile()
+                Toast.makeText(this@MainActivity, "Signed out", Toast.LENGTH_SHORT).show()
+            } catch (error: Exception) {
+                status.text = error.message ?: "Could not sign out."
+            }
         }
     }
 
