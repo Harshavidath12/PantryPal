@@ -26,6 +26,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase-bom" }
 supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
+supabase-auth = { module = "io.github.jan-tennert.supabase:gotrue-kt" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor-client" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-runtime" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle-runtime" }

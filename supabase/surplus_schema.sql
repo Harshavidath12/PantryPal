@@ -10,7 +10,8 @@ create table if not exists public.surplus_hubs (
     open_until text not null default 'Contact hub',
     accepted_foods text not null default 'Packaged food',
     is_active boolean not null default true,
-    created_at timestamptz not null default now()
+    created_at timestamptz not null default now(),
+    constraint surplus_hubs_name_address_unique unique (name, address)
 );
 
 create table if not exists public.surplus_donations (
@@ -32,6 +33,9 @@ create index if not exists surplus_donations_donor_created_idx
 alter table public.surplus_hubs enable row level security;
 alter table public.surplus_donations enable row level security;
 
+grant select on public.surplus_hubs to anon, authenticated;
+grant select, insert on public.surplus_donations to authenticated;
+
 drop policy if exists "Anyone can read active surplus hubs" on public.surplus_hubs;
 create policy "Anyone can read active surplus hubs"
     on public.surplus_hubs for select
@@ -52,4 +56,8 @@ values
     ('Colombo Community Kitchen', 'Colombo community area', 1.2, '6:00 PM', 'Produce, dairy, dry goods'),
     ('Green Table NGO', 'Colombo community area', 2.4, '5:00 PM', 'Packaged, dry goods'),
     ('Maple Street Hub', 'Colombo community area', 3.1, '7:00 PM', 'Fresh produce, bakery')
-on conflict do nothing;
+on conflict (name, address) do update set
+    distance_km = excluded.distance_km,
+    open_until = excluded.open_until,
+    accepted_foods = excluded.accepted_foods,
+    is_active = true;

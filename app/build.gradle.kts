@@ -48,6 +48,7 @@ dependencies {
     // Supabase Postgrest (Database)
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.auth)
     implementation(libs.ktor.client.android)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 

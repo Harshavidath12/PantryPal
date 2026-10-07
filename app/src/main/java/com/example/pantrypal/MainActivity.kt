@@ -44,6 +44,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 
+@OptIn(InternalSerializationApi::class)
 class MainActivity : AppCompatActivity() {
 
     private enum class NavTab {
@@ -59,9 +60,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recentlyPurchasedAdapter: RecentlyPurchasedAdapter
     private var selectedHubName = "Colombo Community Kitchen"
     private var selectedHubId: String? = null
-    // Login screens can pass their Supabase auth UUID via the user_id intent extra.
-    private val donorId: String? by lazy { intent.getStringExtra("user_id") }
     private val surplusRepository = SurplusRepository()
+    private lateinit var foodSafetyChecks: List<android.widget.CheckBox>
+    private var availableSurplusHubs: List<com.example.pantrypal.data.model.SurplusHubDto> = emptyList()
+    private var hubSearchWatcher: android.text.TextWatcher? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +82,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupShoppingUI()
         setupClickListeners()
+        setupSurplusSafetyChecklist()
         observeUiState()
     }
 
@@ -254,7 +257,15 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.btnChooseHub).setOnClickListener { showSurplusDetail("hubs") }
         findViewById<View>(R.id.btnDirections).setOnClickListener {
-            Toast.makeText(this, "Directions to $selectedHubName", Toast.LENGTH_SHORT).show()
+            val route = android.content.Intent(
+                android.content.Intent.ACTION_VIEW,
+                android.net.Uri.parse("geo:0,0?q=${android.net.Uri.encode(selectedHubName)}")
+            )
+            try {
+                startActivity(route)
+            } catch (_: android.content.ActivityNotFoundException) {
+                Toast.makeText(this, "No maps app is available for directions.", Toast.LENGTH_SHORT).show()
+            }
         }
         findViewById<View>(R.id.btnSubmitDonation).setOnClickListener { submitSurplusDonation() }
         findViewById<View>(R.id.btnTrackDonation).setOnClickListener { showSurplusDetail("impact") }
@@ -362,15 +373,40 @@ class MainActivity : AppCompatActivity() {
     private fun loadSurplusHubs() {
         lifecycleScope.launch {
             try {
-                val hubs = surplusRepository.getHubs()
-                val list = findViewById<android.widget.LinearLayout>(R.id.hubListContainer)
-                list.removeAllViews()
-                findViewById<android.widget.TextView>(R.id.tvHubResultCount).text = "Nearby hubs · ${hubs.size} active"
-                if (hubs.isEmpty()) {
+                availableSurplusHubs = surplusRepository.getHubs()
+                if (availableSurplusHubs.isEmpty()) {
                     addHubMessage("No hubs are available yet. Add active hubs in Supabase.")
                     return@launch
                 }
-                hubs.forEach { hub ->
+                renderSurplusHubs(availableSurplusHubs)
+                val search = findViewById<android.widget.EditText>(R.id.etHubSearch)
+                hubSearchWatcher?.let(search::removeTextChangedListener)
+                hubSearchWatcher = object : android.text.TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        val query = s?.toString()?.trim().orEmpty()
+                        renderSurplusHubs(availableSurplusHubs.filter {
+                            it.name.contains(query, ignoreCase = true) || it.address.contains(query, ignoreCase = true)
+                        })
+                    }
+                    override fun afterTextChanged(s: android.text.Editable?) = Unit
+                }
+                search.addTextChangedListener(hubSearchWatcher)
+            } catch (error: Exception) {
+                addHubMessage("Could not load hubs from Supabase: ${error.message ?: "check connection and table policies"}")
+            }
+        }
+    }
+
+    private fun renderSurplusHubs(hubs: List<com.example.pantrypal.data.model.SurplusHubDto>) {
+        val list = findViewById<android.widget.LinearLayout>(R.id.hubListContainer)
+        list.removeAllViews()
+        findViewById<android.widget.TextView>(R.id.tvHubResultCount).text = "Nearby hubs · ${hubs.size} active"
+        if (hubs.isEmpty()) {
+            addHubMessage("No hubs match your search.")
+            return
+        }
+        hubs.forEach { hub ->
                     val card = com.google.android.material.card.MaterialCardView(this@MainActivity).apply {
                         radius = 18f
                         cardElevation = 1f
@@ -408,10 +444,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     val params = android.widget.LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10 }
                     list.addView(card, params)
-                }
-            } catch (error: Exception) {
-                addHubMessage("Could not load hubs from Supabase: ${error.message ?: "check connection and table policies"}")
-            }
         }
     }
 
@@ -429,28 +461,90 @@ class MainActivity : AppCompatActivity() {
 
     @OptIn(InternalSerializationApi::class)
     private fun loadDonationImpact() {
-        val id = donorId
-        if (id.isNullOrBlank()) {
+        if (surplusRepository.currentDonorId().isNullOrBlank()) {
             findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Sign in to view your donation history"
             return
         }
         lifecycleScope.launch {
             try {
-                val impact = surplusRepository.getImpact(id)
+                val impact = surplusRepository.getImpact()
                 findViewById<android.widget.TextView>(R.id.tvImpactFood).text = "${"%.1f".format(impact.foodSavedKg)}kg"
                 findViewById<android.widget.TextView>(R.id.tvImpactMeals).text = impact.meals.toString()
                 findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "${impact.donationCount} donations · ${impact.completedCount} completed"
                 findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "${"%.1f".format(impact.foodSavedKg)} kg"
                 findViewById<android.widget.TextView>(R.id.tvDonations).text = impact.donationCount.toString()
-                val history = surplusRepository.getDonations(id)
+                val history = surplusRepository.getDonations()
                 if (history.isNotEmpty()) {
                     val latest = history.first()
                     findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "${latest.foodName} · ${latest.quantity} · ${latest.status}"
+                    renderDonationHistory(history)
                 }
             } catch (error: Exception) {
                 findViewById<android.widget.TextView>(R.id.tvImpactHeadline).text = "Could not load impact: ${error.message ?: "check Supabase setup"}"
             }
         }
+    }
+
+    private fun renderDonationHistory(history: List<com.example.pantrypal.data.repository.DonationHistoryDto>) {
+        val impactLayout = findViewById<android.widget.LinearLayout>(R.id.layoutImpact)
+        for (index in impactLayout.childCount - 1 downTo 0) {
+            if (impactLayout.getChildAt(index).tag == "surplus-history-item") {
+                impactLayout.removeViewAt(index)
+            }
+        }
+        val anchor = findViewById<View>(R.id.tvLatestDonation).parent.parent as View
+        var insertIndex = impactLayout.indexOfChild(anchor) + 1
+        history.forEach { donation ->
+            val date = donation.createdAt?.take(10)?.takeIf { it.isNotBlank() } ?: "Recent donation"
+            val card = com.google.android.material.card.MaterialCardView(this).apply {
+                tag = "surplus-history-item"
+                radius = 18f
+                cardElevation = 1f
+                setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
+                val text = android.widget.TextView(this@MainActivity).apply {
+                    this.text = "🥬  ${donation.foodName} · ${donation.quantity}\n${donation.status.replace('_', ' ')} · $date"
+                    textSize = 13f
+                    setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                    setPadding(18, 15, 18, 15)
+                }
+                addView(text)
+            }
+            impactLayout.addView(card, insertIndex++, android.widget.LinearLayout.LayoutParams(-1, -2).apply {
+                topMargin = 8
+            })
+        }
+    }
+
+    private fun setupSurplusSafetyChecklist() {
+        val form = findViewById<android.widget.LinearLayout>(R.id.layoutFlagForm)
+        val submitButton = findViewById<View>(R.id.btnSubmitDonation)
+        val checklist = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(12, 8, 12, 8)
+            background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+        }
+        val safetyItems = listOf(
+            "Food is not expired and is safe to eat",
+            "Food is properly stored and sealed",
+            "Donation meets the 2 kg minimum",
+            "I understand this supports community impact"
+        )
+        foodSafetyChecks = safetyItems.map { label ->
+            android.widget.CheckBox(this).apply {
+                text = label
+                textSize = 12f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+                buttonTintList = android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(this@MainActivity, R.color.pantry_primary)
+                )
+                isChecked = false
+            }
+        }
+        foodSafetyChecks.forEach(checklist::addView)
+        val insertAt = form.indexOfChild(submitButton).coerceAtLeast(0)
+        form.addView(checklist, insertAt, android.widget.LinearLayout.LayoutParams(-1, -2).apply {
+            topMargin = 12
+        })
     }
 
     @OptIn(InternalSerializationApi::class)
@@ -462,7 +556,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Complete the food, quantity and best before fields", Toast.LENGTH_SHORT).show()
             return
         }
-        val authUserId = donorId
+        val authUserId = surplusRepository.currentDonorId()
         val hubId = selectedHubId
         if (authUserId.isNullOrBlank()) {
             Toast.makeText(this, "Sign in first to submit a donation.", Toast.LENGTH_LONG).show()
@@ -473,23 +567,31 @@ class MainActivity : AppCompatActivity() {
             showSurplusDetail("hubs")
             return
         }
+        val kilograms = parseKilograms(quantity)
+        if (kilograms == null || kilograms < 2.0) {
+            Toast.makeText(this, "Surplus donations must be at least 2 kg.", Toast.LENGTH_LONG).show()
+            return
+        }
+        if (foodSafetyChecks.any { !it.isChecked }) {
+            Toast.makeText(this, "Confirm every food safety item before submitting.", Toast.LENGTH_LONG).show()
+            return
+        }
         val submitButton = findViewById<View>(R.id.btnSubmitDonation)
         submitButton.isEnabled = false
         lifecycleScope.launch {
             try {
                 surplusRepository.createDonation(
-                    authUserId,
                     com.example.pantrypal.data.model.SurplusDonationDto(
                         hubId = hubId,
                         foodName = name,
                         quantity = quantity,
                         bestBefore = expiry,
-                        pickupWindow = "Today, 4:00 PM – 6:00 PM"
+                        pickupWindow = "Today, 2:00 PM – 5:00 PM"
                     )
                 )
                 findViewById<android.widget.TextView>(R.id.tvSubmittedFood).text = "$name · $quantity"
                 findViewById<android.widget.TextView>(R.id.tvSubmittedHub).text = selectedHubName
-                findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "Your donation is listed with $selectedHubName. Pickup preference: today, 4:00 PM – 6:00 PM."
+                findViewById<android.widget.TextView>(R.id.tvSubmissionSummary).text = "Your donation is listed with $selectedHubName. Pantry courier pickup: today, 2:00 PM – 5:00 PM."
                 findViewById<android.widget.TextView>(R.id.tvLatestDonation).text = "🥕  $name · $quantity"
                 showSurplusDetail("submitted")
             } catch (error: Exception) {
@@ -497,6 +599,16 @@ class MainActivity : AppCompatActivity() {
             } finally {
                 submitButton.isEnabled = true
             }
+        }
+    }
+
+    private fun parseKilograms(quantity: String): Double? {
+        val match = Regex("([0-9]+(?:\\.[0-9]+)?)\\s*(kg|kgs|g|grams?)?", RegexOption.IGNORE_CASE).find(quantity.trim())
+            ?: return null
+        val value = match.groupValues[1].toDoubleOrNull() ?: return null
+        return when (match.groupValues[2].lowercase()) {
+            "g", "gram", "grams" -> value / 1000.0
+            else -> value
         }
     }
 

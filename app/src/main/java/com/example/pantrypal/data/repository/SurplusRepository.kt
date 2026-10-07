@@ -3,7 +3,9 @@ package com.example.pantrypal.data.repository
 import com.example.pantrypal.data.model.SurplusDonationDto
 import com.example.pantrypal.data.model.SurplusHubDto
 import com.example.pantrypal.data.remote.SupabaseProvider
+import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.InternalSerializationApi
@@ -12,6 +14,7 @@ import kotlinx.serialization.Serializable
 
 /** Data access for the surplus feature. donorId is supplied by the app's login flow. */
 class SurplusRepository {
+    fun currentDonorId(): String? = SupabaseProvider.client.auth.currentUserOrNull()?.id
     @OptIn(InternalSerializationApi::class)
     suspend fun getHubs(): List<SurplusHubDto> = withContext(Dispatchers.IO) {
         SupabaseProvider.client.from("surplus_hubs").select {
@@ -20,20 +23,23 @@ class SurplusRepository {
     }
 
     @OptIn(InternalSerializationApi::class)
-    suspend fun getDonations(donorId: String): List<DonationHistoryDto> = withContext(Dispatchers.IO) {
+    suspend fun getDonations(): List<DonationHistoryDto> = withContext(Dispatchers.IO) {
+        val donorId = currentDonorId() ?: return@withContext emptyList()
         SupabaseProvider.client.from("surplus_donations").select {
             filter { eq("donor_id", donorId) }
+            order("created_at", Order.DESCENDING)
         }.decodeList()
     }
 
     @OptIn(InternalSerializationApi::class)
-    suspend fun createDonation(donorId: String, donation: SurplusDonationDto) = withContext(Dispatchers.IO) {
+    suspend fun createDonation(donation: SurplusDonationDto) = withContext(Dispatchers.IO) {
+        val donorId = currentDonorId() ?: error("Please sign in before submitting a donation.")
         SupabaseProvider.client.from("surplus_donations").insert(donation.copy(donorId = donorId))
     }
 
     @OptIn(InternalSerializationApi::class)
-    suspend fun getImpact(donorId: String): DonationImpact = withContext(Dispatchers.IO) {
-        val donations = getDonations(donorId)
+    suspend fun getImpact(): DonationImpact = withContext(Dispatchers.IO) {
+        val donations = getDonations()
         val completed = donations.filter { it.status == "PICKED_UP" }
         val savedKg = completed.sumOf { donation ->
             Regex("[0-9]+(?:\\.[0-9]+)?").find(donation.quantity)?.value?.toDoubleOrNull() ?: 0.0
