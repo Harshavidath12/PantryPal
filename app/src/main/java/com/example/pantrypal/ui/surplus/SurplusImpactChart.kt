@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-/** Reference-styled monthly chart, populated from the signed-in donor's donation history. */
+/** Monthly chart populated from the public community donation history. */
 class SurplusImpactChart @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -69,7 +69,7 @@ class SurplusImpactChart @JvmOverloads constructor(
         paint.color = 0xFFFFFFFF.toInt()
         canvas.drawRoundRect(RectF(0f, 0f, widthPx, heightPx), 18f * density, 18f * density, paint)
 
-        paint.textSize = 9f * density
+        paint.textSize = 11f * density
         paint.textAlign = Paint.Align.LEFT
         paint.color = 0xFF9B6B13.toInt()
         canvas.drawCircle(18f * density, 18f * density, 3f * density, paint)
@@ -96,7 +96,7 @@ class SurplusImpactChart @JvmOverloads constructor(
                 paint.color = 0xFF176853.toInt()
                 if (secondHeight > 0f) canvas.drawRoundRect(RectF(center + 2f * density, bottom - secondHeight, center + 12f * density, bottom), 5f * density, 5f * density, paint)
                 paint.color = 0xFF49534E.toInt()
-                paint.textSize = 9f * density
+                paint.textSize = 11f * density
                 paint.textAlign = Paint.Align.CENTER
                 canvas.drawText(months[index], center, bottom + 14f * density, paint)
             }
@@ -105,7 +105,7 @@ class SurplusImpactChart @JvmOverloads constructor(
         paint.color = 0xFFE5F3EC.toInt()
         canvas.drawRoundRect(RectF(10f * density, heightPx - 27f * density, widthPx - 10f * density, heightPx - 5f * density), 11f * density, 11f * density, paint)
         paint.color = 0xFF285E50.toInt()
-        paint.textSize = 8f * density
+        paint.textSize = 10f * density
         paint.textAlign = Paint.Align.CENTER
         canvas.drawText(footer, widthPx / 2f, heightPx - 12f * density, paint)
     }

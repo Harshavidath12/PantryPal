@@ -507,7 +507,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 titleBlock.addView(android.widget.TextView(this@MainActivity).apply {
                     text = hub.name
-                    textSize = 13f
+                    textSize = 14f
                     maxLines = 1
                     ellipsize = android.text.TextUtils.TruncateAt.END
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
@@ -515,7 +515,7 @@ class MainActivity : AppCompatActivity() {
                 })
                 titleBlock.addView(android.widget.TextView(this@MainActivity).apply {
                     text = "Community food hub"
-                    textSize = 9f
+                    textSize = 11f
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
                 })
                 titleRow.addView(titleBlock, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
@@ -533,12 +533,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 metaRow.addView(android.widget.TextView(this@MainActivity).apply {
                     text = "⌖ ${"%.1f".format(hub.distanceKm)} km away"
-                    textSize = 9f
+                    textSize = 11f
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
                 })
                 metaRow.addView(android.widget.TextView(this@MainActivity).apply {
                     text = "  ·  Open until ${hub.openUntil}"
-                    textSize = 9f
+                    textSize = 11f
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
                 })
                 content.addView(metaRow)
@@ -549,7 +549,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 footer.addView(android.widget.TextView(this@MainActivity).apply {
                     text = "✓  ${hub.acceptedFoods}"
-                    textSize = 8f
+                    textSize = 10f
                     maxLines = 1
                     ellipsize = android.text.TextUtils.TruncateAt.END
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
@@ -558,7 +558,7 @@ class MainActivity : AppCompatActivity() {
                 }, android.widget.LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = dp(6) })
                 footer.addView(android.widget.TextView(this@MainActivity).apply {
                     text = "● Open now"
-                    textSize = 8f
+                    textSize = 10f
                     setTypeface(typeface, android.graphics.Typeface.BOLD)
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary_dark))
                     setPadding(dp(8), dp(5), dp(8), dp(5))
@@ -583,7 +583,7 @@ class MainActivity : AppCompatActivity() {
             removeAllViews()
             addView(android.widget.TextView(this@MainActivity).apply {
                 text = message
-                textSize = 13f
+                textSize = 14f
                 setPadding(10, 16, 10, 16)
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
             })
@@ -602,11 +602,13 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val history = surplusRepository.getDonations()
-                impactHubNames = try {
-                    surplusRepository.getHubs().associate { it.id to it.name }
+                val hubs = try {
+                    surplusRepository.getHubs()
                 } catch (_: Exception) {
-                    emptyMap()
+                    emptyList()
                 }
+                impactHubNames = hubs.associate { it.id to it.name }
+                renderHomeHubs(hubs)
                 val rescuedKg = history.filter { it.status.equals("PICKED_UP", true) || it.status.equals("DROPPED_OFF", true) }.sumOf { donation ->
                     parseKilograms(donation.quantity) ?: 0.0
                 }
@@ -623,7 +625,8 @@ class MainActivity : AppCompatActivity() {
                     else -> "NEW RESCUER"
                 }
                 findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "${"%.1f".format(rescuedKg)} kg"
-                findViewById<android.widget.TextView>(R.id.tvDonations).text = history.size.toString()
+                findViewById<android.widget.TextView>(R.id.tvDonations).text = completedCount.toString()
+                renderHomeRecentDonations(history)
                 val latest = history.firstOrNull()
                 val activeDonation = history.firstOrNull {
                     it.status.equals("PENDING", true) || it.status.equals("CLAIMED", true)
@@ -666,11 +669,161 @@ class MainActivity : AppCompatActivity() {
                 chart.setDonations(history)
             } catch (error: Exception) {
                 headline.text = "Could not load community donations: ${error.message ?: "check Supabase connection"}"
+                findViewById<android.widget.TextView>(R.id.tvFoodSaved).text = "0.0 kg"
+                findViewById<android.widget.TextView>(R.id.tvDonations).text = "0"
+                renderHomeRecentDonations(emptyList())
+                renderHomeHubs(emptyList())
                 activeCard.visibility = View.GONE
                 communityCard.visibility = View.GONE
                 renderDonationHistory(emptyList())
                 chart.setDonations(emptyList())
             }
+        }
+    }
+
+    private fun renderHomeHubs(hubs: List<com.example.pantrypal.data.model.SurplusHubDto>) {
+        val container = findViewById<android.widget.LinearLayout>(R.id.homeHubList)
+        container.removeAllViews()
+        if (hubs.isEmpty()) {
+            container.addView(android.widget.TextView(this).apply {
+                text = "No active community hubs are available."
+                textSize = 13f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                setPadding(dp(14), dp(14), dp(14), dp(14))
+                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+            })
+            return
+        }
+
+        hubs.take(2).forEach { hub ->
+            val card = com.google.android.material.card.MaterialCardView(this).apply {
+                radius = dp(17).toFloat()
+                cardElevation = dp(1).toFloat()
+                setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
+            }
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(dp(13), dp(11), dp(13), dp(11))
+            }
+            row.addView(android.widget.TextView(this).apply {
+                text = "⌂"
+                textSize = 21f
+                gravity = android.view.Gravity.CENTER
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+            }, android.widget.LinearLayout.LayoutParams(dp(42), dp(42)))
+            val details = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                setPadding(dp(10), 0, dp(6), 0)
+            }
+            details.addView(android.widget.TextView(this).apply {
+                text = hub.name
+                textSize = 14f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+            })
+            details.addView(android.widget.TextView(this).apply {
+                text = "Open until ${hub.openUntil} · ${"%.1f".format(hub.distanceKm)} km"
+                textSize = 12f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                setPadding(0, dp(3), 0, 0)
+            })
+            row.addView(details, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
+            row.addView(android.widget.TextView(this).apply {
+                text = "›"
+                textSize = 24f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
+            })
+            card.addView(row)
+            card.setOnClickListener {
+                selectedHubId = hub.id
+                selectedHubName = hub.name
+                showSurplusDetail("hubs")
+            }
+            container.addView(card, android.widget.LinearLayout.LayoutParams(-1, -2).apply {
+                bottomMargin = dp(7)
+            })
+        }
+    }
+
+    private fun renderHomeRecentDonations(history: List<com.example.pantrypal.data.repository.DonationHistoryDto>) {
+        val container = findViewById<android.widget.LinearLayout>(R.id.homeRecentDonationList)
+        container.removeAllViews()
+        if (history.isEmpty()) {
+            container.addView(android.widget.TextView(this).apply {
+                text = "No community donations yet. Be the first to share surplus food."
+                textSize = 13f
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                setPadding(dp(14), dp(14), dp(14), dp(14))
+                background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
+            })
+            return
+        }
+
+        history.take(3).forEach { donation ->
+            val card = com.google.android.material.card.MaterialCardView(this).apply {
+                radius = dp(17).toFloat()
+                cardElevation = dp(1).toFloat()
+                setCardBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_card_bg))
+                isClickable = true
+                isFocusable = true
+            }
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(dp(13), dp(11), dp(13), dp(11))
+            }
+            val photoFile = getSharedPreferences("surplus_donation_photos", MODE_PRIVATE)
+                .getString("photo_${donation.id}", null)?.let(::File)?.takeIf { it.isFile }
+            if (photoFile != null) {
+                row.addView(android.widget.ImageView(this).apply {
+                    setImageURI(Uri.fromFile(photoFile))
+                    scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+                    clipToOutline = true
+                    contentDescription = "Photo of ${donation.foodName}"
+                }, android.widget.LinearLayout.LayoutParams(dp(50), dp(50)))
+            }
+            val details = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                if (photoFile != null) setPadding(dp(10), 0, 0, 0)
+            }
+            details.addView(android.widget.TextView(this).apply {
+                text = "${donation.foodName} · ${donation.quantity}"
+                textSize = 14f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+            })
+            details.addView(android.widget.TextView(this).apply {
+                val hubName = impactHubNames[donation.hubId] ?: "Community hub"
+                text = "$hubName · ${donation.status.replace('_', ' ')}"
+                textSize = 12f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                setPadding(0, dp(3), 0, 0)
+            })
+            details.addView(android.widget.TextView(this).apply {
+                val date = donation.createdAt?.take(10)?.takeIf { it.isNotBlank() } ?: "Date unavailable"
+                text = "Pickup: ${donation.pickupWindow} · $date"
+                textSize = 11f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+                setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+                setPadding(0, dp(2), 0, 0)
+            })
+            row.addView(details, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
+            card.addView(row)
+            card.setOnClickListener { showSurplusDetail("impact") }
+            container.addView(card, android.widget.LinearLayout.LayoutParams(-1, -2).apply {
+                bottomMargin = dp(7)
+            })
         }
     }
 
@@ -688,7 +841,7 @@ class MainActivity : AppCompatActivity() {
             val empty = android.widget.TextView(this).apply {
                 tag = "surplus-history-item"
                 text = "No community donations yet. Add the first surplus donation to get started."
-                textSize = 12f
+                textSize = 14f
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
                 setPadding(dp(14), dp(14), dp(14), dp(14))
             }
@@ -721,7 +874,7 @@ class MainActivity : AppCompatActivity() {
                 }, android.widget.LinearLayout.LayoutParams(0, -2, 1f))
                 titleRow.addView(android.widget.TextView(this@MainActivity).apply {
                     text = donation.status.replace('_', ' ')
-                    textSize = 9f
+                    textSize = 11f
                     setTextColor(ContextCompat.getColor(this@MainActivity, if (pending) R.color.pantry_primary_dark else R.color.text_secondary))
                     setPadding(dp(8), dp(5), dp(8), dp(5))
                     background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
@@ -729,13 +882,13 @@ class MainActivity : AppCompatActivity() {
                 body.addView(titleRow)
                 body.addView(android.widget.TextView(this@MainActivity).apply {
                     text = "${impactHubNames[donation.hubId] ?: "Community hub"} · Best before ${donation.bestBefore}"
-                    textSize = 10f
+                    textSize = 12f
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
                     setPadding(0, dp(5), 0, 0)
                 })
                 body.addView(android.widget.TextView(this@MainActivity).apply {
                     text = "Pickup: ${donation.pickupWindow} · $date"
-                    textSize = 10f
+                    textSize = 12f
                     setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
                     setPadding(0, dp(3), 0, 0)
                 })
@@ -749,7 +902,7 @@ class MainActivity : AppCompatActivity() {
                         val savedPhoto = getSharedPreferences("surplus_donation_photos", MODE_PRIVATE)
                             .getString("photo_${donation.id}", null)?.let(::File)?.isFile == true
                         text = if (savedPhoto) "Change photo" else "Add photo"
-                        textSize = 10f
+                        textSize = 12f
                         setTypeface(typeface, android.graphics.Typeface.BOLD)
                         setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
                         setPadding(dp(8), dp(7), dp(8), dp(7))
@@ -761,7 +914,7 @@ class MainActivity : AppCompatActivity() {
                     })
                     actions.addView(android.widget.TextView(this@MainActivity).apply {
                         text = "Edit"
-                        textSize = 11f
+                        textSize = 13f
                         setTypeface(typeface, android.graphics.Typeface.BOLD)
                         setTextColor(ContextCompat.getColor(this@MainActivity, R.color.pantry_primary))
                         setPadding(dp(12), dp(7), dp(12), dp(7))
@@ -770,7 +923,7 @@ class MainActivity : AppCompatActivity() {
                     })
                     actions.addView(android.widget.TextView(this@MainActivity).apply {
                         text = "Delete"
-                        textSize = 11f
+                        textSize = 13f
                         setTypeface(typeface, android.graphics.Typeface.BOLD)
                         setTextColor(android.graphics.Color.rgb(174, 69, 60))
                         setPadding(dp(12), dp(7), dp(4), dp(7))
@@ -780,7 +933,7 @@ class MainActivity : AppCompatActivity() {
                     actions.addView(android.widget.TextView(this@MainActivity).apply {
                         val eligible = meetsCourierMinimum(donation.quantity)
                         text = if (eligible) "Mark claimed" else "Edit · 10 kg / 15 units min"
-                        textSize = 10f
+                        textSize = 12f
                         setTypeface(typeface, android.graphics.Typeface.BOLD)
                         setTextColor(ContextCompat.getColor(this@MainActivity, if (eligible) R.color.white else R.color.pantry_primary))
                         setPadding(dp(9), dp(7), dp(9), dp(7))
@@ -795,7 +948,7 @@ class MainActivity : AppCompatActivity() {
                     val advance = android.widget.TextView(this@MainActivity).apply {
                         val eligible = meetsCourierMinimum(donation.quantity)
                         text = if (eligible) "Mark picked up" else "Pickup minimum not met"
-                        textSize = 10f
+                        textSize = 12f
                         setTypeface(typeface, android.graphics.Typeface.BOLD)
                         setTextColor(ContextCompat.getColor(this@MainActivity, if (eligible) R.color.white else R.color.text_secondary))
                         setPadding(dp(10), dp(7), dp(10), dp(7))
@@ -1110,7 +1263,7 @@ class MainActivity : AppCompatActivity() {
         foodSafetyChecks = safetyItems.map { label ->
             android.widget.CheckBox(this).apply {
                 text = label
-                textSize = 10f
+                textSize = 12f
                 setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
                 setPadding((10 * resources.displayMetrics.density).toInt(), 0, (8 * resources.displayMetrics.density).toInt(), 0)
                 background = ContextCompat.getDrawable(this@MainActivity, R.drawable.bg_sync_card)
@@ -1121,7 +1274,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         foodSafetyChecks.forEach { checkbox ->
-            checklist.addView(checkbox, android.widget.LinearLayout.LayoutParams(-1, (42 * resources.displayMetrics.density).toInt()).apply {
+            checklist.addView(checkbox, android.widget.LinearLayout.LayoutParams(-1, (48 * resources.displayMetrics.density).toInt()).apply {
                 bottomMargin = (4 * resources.displayMetrics.density).toInt()
             })
         }
