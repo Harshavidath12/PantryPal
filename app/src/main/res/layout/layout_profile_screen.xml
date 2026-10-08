@@ -137,13 +137,15 @@
                         </FrameLayout>
 
                         <!-- Plus icon for picking image -->
-                        <FrameLayout
+                        <com.google.android.material.card.MaterialCardView
                             android:id="@+id/btnAddProfilePhoto"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:background="@drawable/bg_badge_circle"
-                            android:backgroundTint="#08704F"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="bottom|end"
+                            app:cardCornerRadius="12dp"
+                            app:cardBackgroundColor="#08704F"
+                            app:strokeWidth="2dp"
+                            app:strokeColor="#FFFFFF"
                             android:clickable="true"
                             android:focusable="true">
                             <TextView
@@ -153,8 +155,9 @@
                                 android:text="+"
                                 android:textColor="#FFFFFF"
                                 android:textSize="14sp"
-                                android:textStyle="bold"/>
-                        </FrameLayout>
+                                android:textStyle="bold"
+                                android:includeFontPadding="false" />
+                        </com.google.android.material.card.MaterialCardView>
                     </FrameLayout>
 
                     <LinearLayout
