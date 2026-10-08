@@ -25,6 +25,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pantrypal.data.model.AlertUrgency
 import com.example.pantrypal.data.model.NotificationDto
@@ -106,6 +109,28 @@ class MainActivity : AppCompatActivity() {
             }
             findViewById<View>(R.id.tvSurplusPhotoPrompt).visibility = View.GONE
             Toast.makeText(this, "Photo added", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val profilePhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            val ivProfilePicture = findViewById<android.widget.ImageView>(R.id.ivProfilePicture)
+            val tvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
+            
+            // Set image and hide initials
+            ivProfilePicture?.setImageURI(uri)
+            tvInitials?.visibility = View.GONE
+            
+            // Save to database
+            val profileRepository = com.example.pantrypal.data.repository.ProfileRepository()
+            lifecycleScope.launch {
+                val success = profileRepository.updateProfileDetails(1L, "Tharushi Malvenna", uri.toString())
+                if (success) {
+                    Toast.makeText(this@MainActivity, "Profile photo updated in Database!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to save photo to Database.", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -474,6 +499,88 @@ class MainActivity : AppCompatActivity() {
         binding.navProfile.setOnClickListener {
             selectTab(NavTab.PROFILE)
         }
+
+        findViewById<View>(R.id.btnAddProfilePhoto)?.setOnClickListener {
+            profilePhotoPicker.launch("image/*")
+        }
+
+        val profileRepository = com.example.pantrypal.data.repository.ProfileRepository()
+
+        findViewById<android.widget.TextView>(R.id.btnDeletePicture)?.setOnClickListener {
+            lifecycleScope.launch {
+                val success = profileRepository.deleteProfilePicture(1L) // Assuming user ID 1
+                if (success) {
+                    Toast.makeText(this@MainActivity, "Profile picture removed in Database!", Toast.LENGTH_SHORT).show()
+                    findViewById<android.widget.ImageView>(R.id.ivProfilePicture)?.setImageDrawable(null)
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to delete profile picture.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        findViewById<android.widget.TextView>(R.id.btnUpdateProfile)?.setOnClickListener {
+            showEditProfileDialog()
+        }
+    }
+
+    private fun showEditProfileDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_edit_profile)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setLayout(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val etEditName = dialog.findViewById<android.widget.EditText>(R.id.etEditName)
+        val btnSaveProfile = dialog.findViewById<View>(R.id.btnSaveProfile)
+        val btnCancelEdit = dialog.findViewById<View>(R.id.btnCancelEdit)
+        val ivDialogProfilePic = dialog.findViewById<android.widget.ImageView>(R.id.ivDialogProfilePic)
+        val tvDialogInitials = dialog.findViewById<android.widget.TextView>(R.id.tvDialogInitials)
+
+        val currentName = findViewById<android.widget.TextView>(R.id.tvProfileName)?.text?.toString() ?: "User"
+        etEditName.setText(currentName)
+
+        val profileRepository = com.example.pantrypal.data.repository.ProfileRepository()
+
+        // Extract initials
+        val initials = currentName.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString("").uppercase()
+        tvDialogInitials.text = initials
+
+        val mainProfilePic = findViewById<android.widget.ImageView>(R.id.ivProfilePicture)
+        if (mainProfilePic?.drawable != null) {
+            ivDialogProfilePic.setImageDrawable(mainProfilePic.drawable)
+            tvDialogInitials.visibility = View.GONE
+        }
+
+        btnCancelEdit.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSaveProfile.setOnClickListener {
+            val newName = etEditName.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                lifecycleScope.launch {
+                    val success = profileRepository.updateProfileDetails(1L, newName, null) // Keeps photo as is
+                    if (success) {
+                        val mainTvProfileName = findViewById<android.widget.TextView>(R.id.tvProfileName)
+                        val mainTvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
+                        
+                        mainTvProfileName?.text = newName
+                        mainTvInitials?.text = newName.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString("").uppercase()
+                        
+                        Toast.makeText(this@MainActivity, "Profile name updated!", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    } else {
+                        Toast.makeText(this@MainActivity, "Failed to update profile.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+        }
+        dialog.show()
     }
 
     private fun openSelectedHubDirections() {
@@ -1824,6 +1931,9 @@ class MainActivity : AppCompatActivity() {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         val composeView = ComposeView(this).apply {
+            setViewTreeLifecycleOwner(this@MainActivity)
+            setViewTreeViewModelStoreOwner(this@MainActivity)
+            setViewTreeSavedStateRegistryOwner(this@MainActivity)
             setContent {
                 ItemDetailsDialog(
                     item = item,
