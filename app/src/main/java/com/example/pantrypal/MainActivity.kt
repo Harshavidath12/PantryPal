@@ -516,19 +516,68 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<android.widget.TextView>(R.id.btnUpdateProfile)?.setOnClickListener {
-            val newName = "Tharushi Updated"
-            val newPictureUrl = "https://example.com/avatar.png"
-            
-            lifecycleScope.launch {
-                val success = profileRepository.updateProfileDetails(1L, newName, newPictureUrl)
-                if (success) {
-                    findViewById<android.widget.TextView>(R.id.tvProfileName)?.text = newName
-                    Toast.makeText(this@MainActivity, "Profile updated to $newName in Database!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this@MainActivity, "Failed to update profile.", Toast.LENGTH_SHORT).show()
+            showEditProfileDialog()
+        }
+    }
+
+    private fun showEditProfileDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_edit_profile)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setLayout(
+            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        val etEditName = dialog.findViewById<android.widget.EditText>(R.id.etEditName)
+        val btnSaveProfile = dialog.findViewById<View>(R.id.btnSaveProfile)
+        val btnCancelEdit = dialog.findViewById<View>(R.id.btnCancelEdit)
+        val ivDialogProfilePic = dialog.findViewById<android.widget.ImageView>(R.id.ivDialogProfilePic)
+        val tvDialogInitials = dialog.findViewById<android.widget.TextView>(R.id.tvDialogInitials)
+
+        val currentName = findViewById<android.widget.TextView>(R.id.tvProfileName)?.text?.toString() ?: "User"
+        etEditName.setText(currentName)
+
+        val profileRepository = com.example.pantrypal.data.repository.ProfileRepository()
+
+        // Extract initials
+        val initials = currentName.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString("").uppercase()
+        tvDialogInitials.text = initials
+
+        val mainProfilePic = findViewById<android.widget.ImageView>(R.id.ivProfilePicture)
+        if (mainProfilePic?.drawable != null) {
+            ivDialogProfilePic.setImageDrawable(mainProfilePic.drawable)
+            tvDialogInitials.visibility = View.GONE
+        }
+
+        btnCancelEdit.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSaveProfile.setOnClickListener {
+            val newName = etEditName.text.toString().trim()
+            if (newName.isNotEmpty()) {
+                lifecycleScope.launch {
+                    val success = profileRepository.updateProfileDetails(1L, newName, null) // Keeps photo as is
+                    if (success) {
+                        val mainTvProfileName = findViewById<android.widget.TextView>(R.id.tvProfileName)
+                        val mainTvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
+                        
+                        mainTvProfileName?.text = newName
+                        mainTvInitials?.text = newName.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString("").uppercase()
+                        
+                        Toast.makeText(this@MainActivity, "Profile name updated!", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    } else {
+                        Toast.makeText(this@MainActivity, "Failed to update profile.", Toast.LENGTH_SHORT).show()
+                    }
                 }
+            } else {
+                Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show()
             }
         }
+        dialog.show()
     }
 
     private fun openSelectedHubDirections() {
