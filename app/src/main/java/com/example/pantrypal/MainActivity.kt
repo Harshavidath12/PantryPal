@@ -109,6 +109,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val profilePhotoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            val ivProfilePicture = findViewById<android.widget.ImageView>(R.id.ivProfilePicture)
+            val tvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
+            
+            // Set image and hide initials
+            ivProfilePicture?.setImageURI(uri)
+            tvInitials?.visibility = View.GONE
+            
+            // Save to database
+            val profileRepository = com.example.pantrypal.data.repository.ProfileRepository()
+            lifecycleScope.launch {
+                val success = profileRepository.updateProfileDetails(1L, "Tharushi Malvenna", uri.toString())
+                if (success) {
+                    Toast.makeText(this@MainActivity, "Profile photo updated in Database!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to save photo to Database.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     private lateinit var expiringSoonAdapter: ExpiringSoonAdapter
     private lateinit var pantryOverviewAdapter: PantryOverviewAdapter
 
@@ -473,6 +495,39 @@ class MainActivity : AppCompatActivity() {
 
         binding.navProfile.setOnClickListener {
             selectTab(NavTab.PROFILE)
+        }
+
+        findViewById<View>(R.id.btnAddProfilePhoto)?.setOnClickListener {
+            profilePhotoPicker.launch("image/*")
+        }
+
+        val profileRepository = com.example.pantrypal.data.repository.ProfileRepository()
+
+        findViewById<android.widget.TextView>(R.id.btnDeletePicture)?.setOnClickListener {
+            lifecycleScope.launch {
+                val success = profileRepository.deleteProfilePicture(1L) // Assuming user ID 1
+                if (success) {
+                    Toast.makeText(this@MainActivity, "Profile picture removed in Database!", Toast.LENGTH_SHORT).show()
+                    findViewById<android.widget.ImageView>(R.id.ivProfilePicture)?.setImageDrawable(null)
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to delete profile picture.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        findViewById<android.widget.TextView>(R.id.btnUpdateProfile)?.setOnClickListener {
+            val newName = "Tharushi Updated"
+            val newPictureUrl = "https://example.com/avatar.png"
+            
+            lifecycleScope.launch {
+                val success = profileRepository.updateProfileDetails(1L, newName, newPictureUrl)
+                if (success) {
+                    findViewById<android.widget.TextView>(R.id.tvProfileName)?.text = newName
+                    Toast.makeText(this@MainActivity, "Profile updated to $newName in Database!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Failed to update profile.", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
