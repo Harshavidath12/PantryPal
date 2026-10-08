@@ -61,6 +61,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.InternalSerializationApi
 import java.io.File
 
+private val compose: Any
+
 @OptIn(InternalSerializationApi::class)
 class MainActivity : AppCompatActivity() {
 
