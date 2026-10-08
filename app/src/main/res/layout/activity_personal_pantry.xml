@@ -305,21 +305,24 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="All Items"
+                        android:id="@+id/tabAllItems"
                         android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="#FFFFFF"
                         android:background="@drawable/bg_selected_tab"/>
 
                     <TextView
+                        android:id="@+id/tabCategories"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="Categories"
                         android:textSize="11sp"
-                        android:textColor="#30483F"/>
+                        android:textColor="#30483F" />
 
                     <TextView
+                        android:id="@+id/tabExpiry"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -388,7 +391,8 @@
                                 android:text="Rice"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
-                                android:textColor="#172D26"/>
+                                android:textColor="#172D26"
+                                android:id="@+id/cardRice"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -471,7 +475,8 @@
                                 android:text="Milk"
                                 android:textSize="16sp"
                                 android:textStyle="bold"
-                                android:textColor="#172D26"/>
+                                android:textColor="#172D26"
+                                android:id="@+id/cardMilk"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -521,7 +526,8 @@
                         android:layout_marginEnd="6dp"
                         android:orientation="vertical"
                         android:padding="10dp"
-                        android:background="@drawable/bg_product_card">
+                        android:background="@drawable/bg_product_card"
+                        android:id="@+id/cardEggs">
 
                         <FrameLayout
                             android:layout_width="match_parent"
@@ -627,7 +633,8 @@
                                 android:text="Pantry"
                                 android:textSize="9sp"
                                 android:textColor="#28705A"
-                                android:background="@drawable/bg_location_tag"/>
+                                android:background="@drawable/bg_location_tag"
+                                android:id="@+id/cardTomato"/>
 
                         </FrameLayout>
 

@@ -1,0 +1,870 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#E9FFF6">
+
+    <!-- ================= TOP HEADER ================= -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="102dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="#E9FFF6">
+
+        <!-- Logo Circle -->
+
+        <TextView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="🛒"
+            android:textSize="22sp"
+            android:background="@drawable/bg_circle_light" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PANTRYPAL"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:textColor="#377E6A"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Item"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#102B24" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_bell"
+            android:contentDescription="Notifications" />
+
+        <ImageView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_person"
+            android:background="@drawable/bg_profile_circle"
+            android:contentDescription="Profile" />
+
+    </LinearLayout>
+
+
+    <!-- ================= SCROLL CONTENT ================= -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="20dp">
+
+
+            <!-- TITLE -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Groceries"
+                android:textSize="21sp"
+                android:textStyle="bold"
+                android:textColor="#102B24"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose a method to add items to your pantry"
+                android:textSize="13sp"
+                android:textColor="#4E655F"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="14dp" />
+
+
+            <!-- ================= SCAN BARCODE ================= -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:background="@drawable/bg_method_card">
+
+                <TextView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:gravity="center"
+                    android:text="▥"
+                    android:textSize="25sp"
+                    android:textColor="#17634F"
+                    android:background="@drawable/bg_icon_green" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Scan Barcode"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#102B24" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Scan product barcode using camera"
+                        android:textSize="11sp"
+                        android:textColor="#63736F" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="25dp"
+                    android:layout_height="wrap_content"
+                    android:text="›"
+                    android:textSize="27sp"
+                    android:gravity="center"
+                    android:textColor="#38534B" />
+
+            </LinearLayout>
+
+
+            <!-- ================= RECEIPT OCR ================= -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_method_card">
+
+                <TextView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:gravity="center"
+                    android:text="▣"
+                    android:textSize="23sp"
+                    android:textColor="#9A6400"
+                    android:background="@drawable/bg_icon_orange" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Receipt OCR"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#102B24" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="  SMART"
+                            android:textSize="8sp"
+                            android:textStyle="bold"
+                            android:textColor="#9A6400"
+                            android:padding="4dp"
+                            android:background="#FFF0D3"
+                            android:layout_marginStart="6dp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Take a photo of your paper receipt"
+                        android:textSize="11sp"
+                        android:textColor="#63736F" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="25dp"
+                    android:layout_height="wrap_content"
+                    android:text="›"
+                    android:textSize="27sp"
+                    android:gravity="center"
+                    android:textColor="#38534B" />
+
+            </LinearLayout>
+
+
+            <!-- ================= MANUAL ENTRY ================= -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_method_card">
+
+                <TextView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:gravity="center"
+                    android:text="≡"
+                    android:textSize="27sp"
+                    android:textColor="#17634F"
+                    android:background="@drawable/bg_icon_green" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Manual Entry"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#102B24" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add custom item details step-by-step"
+                        android:textSize="11sp"
+                        android:textColor="#63736F" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="25dp"
+                    android:layout_height="wrap_content"
+                    android:text="›"
+                    android:textSize="27sp"
+                    android:gravity="center"
+                    android:textColor="#38534B" />
+
+            </LinearLayout>
+
+
+            <!-- ================= PRE-FILLED CARD ================= -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_prefilled_card">
+
+
+                <!-- Card Header -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="9dp"
+                        android:layout_height="9dp"
+                        android:background="@drawable/bg_dot_green" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="  PRE-FILLED PANTRY ENTRY"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:textColor="#276C5A" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✦ Ready to ingest"
+                        android:textSize="9sp"
+                        android:textColor="#276C5A"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"
+                        android:background="@drawable/bg_ready" />
+
+                </LinearLayout>
+
+
+                <!-- PRODUCT DETECTED -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="76dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_detected">
+
+                    <ImageView
+                        android:layout_width="58dp"
+                        android:layout_height="58dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/product_placeholder"
+                        android:contentDescription="Product image" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DETECTED FROM QUICK-SCAN"
+                            android:textSize="8sp"
+                            android:textStyle="bold"
+                            android:textColor="#397765" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Clover Organic Whole Milk"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#102B24" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1 Gallon • Jug"
+                            android:textSize="10sp"
+                            android:textColor="#63736F" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!-- ITEM NAME -->
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ITEM NAME"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:textColor="#397765"
+                    android:layout_marginTop="14dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="43dp"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:background="@drawable/bg_input">
+
+                    <TextView
+                        android:layout_width="25dp"
+                        android:layout_height="wrap_content"
+                        android:text="▣"
+                        android:textSize="17sp"
+                        android:textColor="#26725C" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Organic Whole Milk 1 Gal"
+                        android:textSize="13sp"
+                        android:textColor="#344E47" />
+
+                </LinearLayout>
+
+
+                <!-- QUANTITY + CATEGORY -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <!-- Quantity -->
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="QUANTITY"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="#397765" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="43dp"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="5dp"
+                            android:background="@drawable/bg_input">
+
+                            <TextView
+                                android:layout_width="40dp"
+                                android:layout_height="32dp"
+                                android:gravity="center"
+                                android:text="−"
+                                android:textSize="20sp"
+                                android:textColor="#28705B"
+                                android:background="@drawable/bg_quantity_button" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:text="1"
+                                android:textSize="15sp"
+                                android:textColor="#1D302B" />
+
+                            <TextView
+                                android:layout_width="40dp"
+                                android:layout_height="32dp"
+                                android:gravity="center"
+                                android:text="+"
+                                android:textSize="20sp"
+                                android:textColor="#28705B"
+                                android:background="@drawable/bg_quantity_button" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                    <!-- Category -->
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CATEGORY"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="#397765" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="43dp"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="8dp"
+                            android:layout_marginTop="5dp"
+                            android:background="@drawable/bg_input">
+
+                            <TextView
+                                android:layout_width="25dp"
+                                android:layout_height="wrap_content"
+                                android:text="◷"
+                                android:textSize="16sp"
+                                android:textColor="#26725C" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Dairy &amp; Eggs"
+                                android:textSize="12sp"
+                                android:textColor="#344E47" />
+
+                            <TextView
+                                android:layout_width="20dp"
+                                android:layout_height="wrap_content"
+                                android:text="⌄"
+                                android:textSize="20sp"
+                                android:gravity="center"
+                                android:textColor="#26725C" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!-- EXPIRY + STORAGE -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp">
+
+                    <!-- Expiry -->
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="EXPIRY DATE"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="#397765" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="43dp"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:layout_marginTop="5dp"
+                            android:background="@drawable/bg_input">
+
+                            <TextView
+                                android:layout_width="25dp"
+                                android:layout_height="wrap_content"
+                                android:text="▣"
+                                android:textSize="16sp"
+                                android:textColor="#26725C" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="04/28/2025"
+                                android:textSize="12sp"
+                                android:textColor="#344E47" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                    <!-- Storage -->
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="STORAGE ZONE"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="#397765" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="43dp"
+                            android:gravity="center_vertical"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="8dp"
+                            android:layout_marginTop="5dp"
+                            android:background="@drawable/bg_input">
+
+                            <TextView
+                                android:layout_width="25dp"
+                                android:layout_height="wrap_content"
+                                android:text="▣"
+                                android:textSize="16sp"
+                                android:textColor="#26725C" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Fridge - Shelf 2"
+                                android:textSize="11sp"
+                                android:textColor="#344E47" />
+
+                            <TextView
+                                android:layout_width="20dp"
+                                android:layout_height="wrap_content"
+                                android:text="⌄"
+                                android:textSize="20sp"
+                                android:gravity="center"
+                                android:textColor="#26725C" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <!-- CONFIRM BUTTON -->
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="14dp"
+                    android:gravity="center"
+                    android:text="⊕  Confirm &amp; Add to Pantry"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/bg_confirm_button" />
+
+            </LinearLayout>
+
+            <!-- ================= STORAGE TIP ================= -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="88dp"
+                android:orientation="horizontal"
+                android:padding="12dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_storage_tip">
+
+                <TextView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:gravity="center"
+                    android:text="♧"
+                    android:textSize="22sp"
+                    android:textColor="#24735C" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="STORAGE TIP"
+                        android:textSize="9sp"
+                        android:textStyle="bold"
+                        android:textColor="#397765" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Store whole milk on interior fridge shelves rather than the door to maintain stable 37°F temperature and extend freshness by 3–5 days."
+                        android:textSize="10sp"
+                        android:textColor="#477067"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginTop="3dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+    <!-- ================= BOTTOM NAVIGATION ================= -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#FFFFFF"
+        android:elevation="5dp">
+
+        <!-- Pantry -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="▦"
+                android:textSize="18sp"
+                android:textColor="#64727E"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pantry"
+                android:textSize="9sp"
+                android:textColor="#64727E" />
+
+        </LinearLayout>
+
+
+        <!-- Add -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="⊞"
+                android:textSize="21sp"
+                android:textColor="#1E6854"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add"
+                android:textSize="9sp"
+                android:textColor="#1E6854" />
+
+        </LinearLayout>
+
+
+        <!-- Shopping -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="☷"
+                android:textSize="19sp"
+                android:textColor="#64727E"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shopping"
+                android:textSize="9sp"
+                android:textColor="#64727E" />
+
+        </LinearLayout>
+
+
+        <!-- Surplus -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="⇧"
+                android:textSize="19sp"
+                android:textColor="#64727E"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Surplus"
+                android:textSize="9sp"
+                android:textColor="#64727E" />
+
+        </LinearLayout>
+
+
+        <!-- Profile -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="♙"
+                android:textSize="19sp"
+                android:textColor="#64727E"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textSize="9sp"
+                android:textColor="#64727E" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

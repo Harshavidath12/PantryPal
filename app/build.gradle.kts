@@ -49,12 +49,14 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 
     // Supabase Postgrest (Database)
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.postgrest)
     implementation(libs.ktor.client.android)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt")
 
     // Android lifecycle coroutines
     implementation(libs.lifecycle.viewmodel.ktx)
