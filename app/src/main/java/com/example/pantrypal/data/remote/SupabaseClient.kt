@@ -3,7 +3,7 @@ package com.example.pantrypal.data.remote
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.gotrue.Auth
 import io.github.jan.supabase.postgrest.Postgrest
-
+import io.github.jan.supabase.gotrue.Auth
 object SupabaseProvider {
     val client = createSupabaseClient(
         supabaseUrl = "https://pkspykytswumrkjevbrg.supabase.co", // From your screen
@@ -11,5 +11,6 @@ object SupabaseProvider {
     ) {
         install(Auth)
         install(Postgrest)
+        install(Auth)
     }
 }

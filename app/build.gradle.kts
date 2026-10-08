@@ -49,6 +49,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -66,6 +67,7 @@ dependencies {
     implementation(libs.supabase.auth)
     implementation(libs.ktor.client.android)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt")
 
     // Android lifecycle coroutines
     implementation(libs.lifecycle.viewmodel.ktx)
