@@ -58,10 +58,8 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.InternalSerializationApi
 import java.io.File
 
-@OptIn(InternalSerializationApi::class)
 class MainActivity : AppCompatActivity() {
 
     private enum class NavTab {
@@ -538,7 +536,7 @@ class MainActivity : AppCompatActivity() {
                 binding.tvNavShopping.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.SURPLUS -> {
-                binding.pantryScreenContainer.visibility = View.GONE
+                binding.pantryHomeScreenContainer.root.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.root.visibility = View.VISIBLE
                 binding.surplusDetailContainer.root.visibility = View.GONE
@@ -552,7 +550,7 @@ class MainActivity : AppCompatActivity() {
                 loadDonationImpact()
             }
             NavTab.PROFILE -> {
-                binding.pantryScreenContainer.visibility = View.GONE
+                binding.pantryHomeScreenContainer.root.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
@@ -568,7 +566,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSurplusDetail(page: String) {
-        binding.pantryScreenContainer.visibility = View.GONE
+        binding.pantryHomeScreenContainer.root.visibility = View.GONE
         binding.shoppingScreenContainer.root.visibility = View.GONE
         binding.surplusScreenContainer.root.visibility = View.GONE
         binding.surplusDetailContainer.root.visibility = View.VISIBLE
@@ -614,7 +612,6 @@ class MainActivity : AppCompatActivity() {
         if (page == "impact") loadDonationImpact()
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun loadSurplusHubs() {
         lifecycleScope.launch {
             try {
@@ -766,7 +763,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun loadDonationImpact() {
         val rescuedText = findViewById<android.widget.TextView>(R.id.tvImpactFood)
         val mealsText = findViewById<android.widget.TextView>(R.id.tvImpactMeals)
@@ -1542,7 +1538,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun submitSurplusDonation() {
         val name = findViewById<android.widget.EditText>(R.id.etSurplusName).text.toString().trim()
         val rawQuantity = findViewById<android.widget.EditText>(R.id.etSurplusQuantity).text.toString().trim()
@@ -1656,7 +1651,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {

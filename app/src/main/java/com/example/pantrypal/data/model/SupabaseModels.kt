@@ -1,5 +1,3 @@
-@file:OptIn(kotlinx.serialization.InternalSerializationApi::class)
-
 package com.example.pantrypal.data.model
 
 import kotlinx.serialization.SerialName
@@ -42,7 +40,6 @@ data class NotificationDto(
     @SerialName("created_at") val createdAt: String? = null
 )
 
-@InternalSerializationApi
 @Serializable
 data class SurplusHubDto(
     val id: String,
@@ -53,7 +50,6 @@ data class SurplusHubDto(
     @SerialName("accepted_foods") val acceptedFoods: String
 )
 
-@InternalSerializationApi
 @Serializable
 data class SurplusDonationDto(
     val id: String? = null,
