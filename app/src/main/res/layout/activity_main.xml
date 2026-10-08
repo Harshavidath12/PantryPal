@@ -290,7 +290,7 @@
 
     <include
         android:id="@+id/surplusDetailContainer"
-        layout="@layout/layout_surplus_donation"
+        layout="@layout/layout_surplus_donation"/>
     <!-- Bottom Navigation Bar Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomNavCard"
