@@ -2,6 +2,8 @@
 
 package com.example.pantrypal.data.model
 
+import kotlinx.serialization.InternalSerializationApi
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

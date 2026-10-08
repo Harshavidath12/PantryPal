@@ -538,7 +538,7 @@ class MainActivity : AppCompatActivity() {
                 binding.tvNavShopping.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.SURPLUS -> {
-                binding.pantryScreenContainer.visibility = View.GONE
+                binding.pantryHomeScreenContainer.root.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.root.visibility = View.VISIBLE
                 binding.surplusDetailContainer.root.visibility = View.GONE
@@ -552,7 +552,7 @@ class MainActivity : AppCompatActivity() {
                 loadDonationImpact()
             }
             NavTab.PROFILE -> {
-                binding.pantryScreenContainer.visibility = View.GONE
+                binding.pantryHomeScreenContainer.root.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
@@ -568,7 +568,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSurplusDetail(page: String) {
-        binding.pantryScreenContainer.visibility = View.GONE
+        binding.pantryHomeScreenContainer.root.visibility = View.GONE
         binding.shoppingScreenContainer.root.visibility = View.GONE
         binding.surplusScreenContainer.root.visibility = View.GONE
         binding.surplusDetailContainer.root.visibility = View.VISIBLE
