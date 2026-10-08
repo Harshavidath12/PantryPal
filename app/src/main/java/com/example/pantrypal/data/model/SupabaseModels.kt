@@ -1,10 +1,10 @@
+@file:OptIn(kotlinx.serialization.InternalSerializationApi::class)
+
 package com.example.pantrypal.data.model
 
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@InternalSerializationApi
 @Serializable
 data class PantryItemDto(
     val id: String? = null,
@@ -15,7 +15,6 @@ data class PantryItemDto(
     val status: String = "ACTIVE"
 )
 
-@InternalSerializationApi
 @Serializable
 data class ShoppingItemDto(
     val id: String? = null,
@@ -24,7 +23,6 @@ data class ShoppingItemDto(
     @SerialName("is_bought") val isBought: Boolean = false
 )
 
-@InternalSerializationApi
 @Serializable
 data class SharedUpdateDto(
     val id: String? = null,
@@ -33,7 +31,6 @@ data class SharedUpdateDto(
     @SerialName("details_text") val detailsText: String? = null
 )
 
-@InternalSerializationApi
 @Serializable
 data class NotificationDto(
     val id: Long? = null,

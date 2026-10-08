@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Filter Shopping Items"
+            android:text="@string/filter_dialog_title"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -34,7 +34,8 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:paddingStart="8dp"
-                android:text="All Items"
+                android:paddingEnd="8dp"
+                android:text="@string/filter_all_items"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
@@ -43,7 +44,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
-                android:text="Auto-queued"
+                android:paddingEnd="8dp"
+                android:text="@string/filter_auto_queued"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
@@ -52,7 +54,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
-                android:text="Manual Entry"
+                android:paddingEnd="8dp"
+                android:text="@string/filter_manual_entry"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
@@ -61,7 +64,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
-                android:text="Low Stock"
+                android:paddingEnd="8dp"
+                android:text="@string/filter_low_stock"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
@@ -70,7 +74,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
-                android:text="Expired in Pantry"
+                android:paddingEnd="8dp"
+                android:text="@string/filter_expired_pantry"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp" />
 
@@ -79,8 +84,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="end"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical|end"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -88,18 +93,29 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel"
+                android:layout_marginEnd="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/btn_cancel"
                 android:textColor="@color/text_secondary" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnApplyFilter"
-                style="@style/Widget.Material3.Button"
+                style="@style/PantryActionButtonStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_height="40dp"
+                android:minWidth="100dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
                 android:backgroundTint="@color/pantry_primary"
-                android:text="Apply"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:text="@string/btn_apply"
                 android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
                 app:cornerRadius="20dp" />
 
         </LinearLayout>

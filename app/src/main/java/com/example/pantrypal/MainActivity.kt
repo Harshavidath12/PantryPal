@@ -7,6 +7,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.Window
 import android.view.inputmethod.EditorInfo
@@ -15,6 +17,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,18 +29,27 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pantrypal.data.model.AlertUrgency
 import com.example.pantrypal.data.model.NotificationDto
 import com.example.pantrypal.data.model.NotificationItem
+import com.example.pantrypal.data.model.PantryItem
 import com.example.pantrypal.data.model.PrimaryButtonType
 import com.example.pantrypal.data.model.ShoppingFilter
 import com.example.pantrypal.data.repository.NotificationRepository
+import com.example.pantrypal.data.repository.PantryRepository
 import com.example.pantrypal.data.repository.ShoppingRepository
 import com.example.pantrypal.data.repository.SurplusRepository
 import com.example.pantrypal.databinding.ActivityMainBinding
 import com.example.pantrypal.databinding.DialogAddAlertBinding
 import com.example.pantrypal.databinding.DialogRecipeIdeasBinding
 import com.example.pantrypal.databinding.DialogShoppingFilterBinding
+import com.example.pantrypal.ui.components.ItemDetailsDialog
 import com.example.pantrypal.ui.notifications.NotificationAdapter
 import com.example.pantrypal.ui.notifications.NotificationViewModel
 import com.example.pantrypal.ui.notifications.NotificationViewModelFactory
+import com.example.pantrypal.ui.pantry.CategoryChipHorizontalAdapter
+import com.example.pantrypal.ui.pantry.ExpiringSoonAdapter
+import com.example.pantrypal.ui.pantry.ExpiringSoonFullAdapter
+import com.example.pantrypal.ui.pantry.PantryOverviewAdapter
+import com.example.pantrypal.ui.pantry.PantryViewModel
+import com.example.pantrypal.ui.pantry.PantryViewModelFactory
 import com.example.pantrypal.ui.shopping.RecentlyPurchasedAdapter
 import com.example.pantrypal.ui.shopping.ShoppingAdapter
 import com.example.pantrypal.ui.shopping.ShoppingViewModel
@@ -59,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: NotificationViewModel
     private lateinit var shoppingViewModel: ShoppingViewModel
+    private lateinit var pantryViewModel: PantryViewModel
 
     private lateinit var adapter: NotificationAdapter
     private lateinit var shoppingAdapter: ShoppingAdapter
@@ -98,6 +111,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var expiringSoonAdapter: ExpiringSoonAdapter
+    private lateinit var pantryOverviewAdapter: PantryOverviewAdapter
+
+    private lateinit var fullExpiringSoonAdapter: ExpiringSoonFullAdapter
+    private lateinit var categoryChipHorizontalAdapter: CategoryChipHorizontalAdapter
+    private lateinit var fullPantryOverviewAdapter: PantryOverviewAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -112,6 +132,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupArchitecture()
+        setupPantryHomeUI()
+        setupFullPantryItemsUI()
         setupRecyclerView()
         setupShoppingUI()
         setupClickListeners()
@@ -121,16 +143,169 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupArchitecture() {
-        val repository = NotificationRepository()
-        val factory = NotificationViewModelFactory(repository)
-        viewModel = ViewModelProvider(this, factory)[NotificationViewModel::class.java]
+        val notificationRepository = NotificationRepository()
+        val notificationFactory = NotificationViewModelFactory(notificationRepository)
+        viewModel = ViewModelProvider(this, notificationFactory)[NotificationViewModel::class.java]
 
         val shoppingRepository = ShoppingRepository()
         val shoppingFactory = ShoppingViewModelFactory(shoppingRepository)
         shoppingViewModel = ViewModelProvider(this, shoppingFactory)[ShoppingViewModel::class.java]
+
+        val pantryRepository = PantryRepository()
+        val pantryFactory = PantryViewModelFactory(pantryRepository)
+        pantryViewModel = ViewModelProvider(this, pantryFactory)[PantryViewModel::class.java]
     }
 
-    @OptIn(InternalSerializationApi::class)
+    private fun setupPantryHomeUI() {
+        // Expiring Soon Adapter
+        expiringSoonAdapter = ExpiringSoonAdapter { item ->
+            showItemDetailsDialog(item)
+        }
+        binding.pantryHomeScreenContainer.rvExpiringSoon.layoutManager = LinearLayoutManager(this)
+        binding.pantryHomeScreenContainer.rvExpiringSoon.adapter = expiringSoonAdapter
+
+        // Pantry Overview Adapter
+        pantryOverviewAdapter = PantryOverviewAdapter { item ->
+            showItemDetailsDialog(item)
+        }
+        binding.pantryHomeScreenContainer.rvAllPantryItems.layoutManager = LinearLayoutManager(this)
+        binding.pantryHomeScreenContainer.rvAllPantryItems.adapter = pantryOverviewAdapter
+
+        // Search bar text watcher
+        binding.pantryHomeScreenContainer.etSearchPantry.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                pantryViewModel.setSearchQuery(s?.toString() ?: "")
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Quick Action Buttons
+        binding.pantryHomeScreenContainer.btnAddItemQuick.setOnClickListener {
+            showAddAlertDialog()
+        }
+
+        binding.pantryHomeScreenContainer.btnShoppingListQuick.setOnClickListener {
+            selectTab(NavTab.SHOPPING)
+        }
+
+        binding.pantryHomeScreenContainer.btnSurplusHubQuick.setOnClickListener {
+            selectTab(NavTab.SURPLUS)
+        }
+
+        // View All Expiring -> navigate to Full Pantry Items Screen
+        binding.pantryHomeScreenContainer.tvViewAllExpiring.setOnClickListener {
+            showFullPantryItemsScreen()
+        }
+
+        // View All Pantry Button -> navigate to Full Pantry Items Screen
+        binding.pantryHomeScreenContainer.btnViewAllPantry.setOnClickListener {
+            showFullPantryItemsScreen()
+        }
+
+        // Bell Icon on Home Dashboard Header
+        binding.pantryHomeScreenContainer.btnHomeBell.setOnClickListener {
+            binding.notificationsScreenContainer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setupFullPantryItemsUI() {
+        // Expiring Soon Full Adapter
+        fullExpiringSoonAdapter = ExpiringSoonFullAdapter(
+            onItemClick = { item -> showItemDetailsDialog(item) },
+            onUsedClick = { item ->
+                pantryViewModel.deleteItem(item.id)
+                Toast.makeText(this, "Marked ${item.title} as used", Toast.LENGTH_SHORT).show()
+            }
+        )
+        binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.layoutManager = LinearLayoutManager(this)
+        binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.adapter = fullExpiringSoonAdapter
+
+        // Horizontal Category Chips Adapter
+        categoryChipHorizontalAdapter = CategoryChipHorizontalAdapter { category ->
+            pantryViewModel.selectCategory(category.name)
+        }
+        binding.fullPantryItemsScreenContainer.rvCategoriesChipsHorizontal.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.fullPantryItemsScreenContainer.rvCategoriesChipsHorizontal.adapter = categoryChipHorizontalAdapter
+
+        // Full Pantry Overview Adapter
+        fullPantryOverviewAdapter = PantryOverviewAdapter { item ->
+            showItemDetailsDialog(item)
+        }
+        binding.fullPantryItemsScreenContainer.rvFullPantryItems.layoutManager = LinearLayoutManager(this)
+        binding.fullPantryItemsScreenContainer.rvFullPantryItems.adapter = fullPantryOverviewAdapter
+
+        // Full Search Bar Text Watcher
+        binding.fullPantryItemsScreenContainer.etSearchFullPantry.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                pantryViewModel.setSearchQuery(s?.toString() ?: "")
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Barcode Scan Button
+        binding.fullPantryItemsScreenContainer.btnScanBarcode.setOnClickListener {
+            Toast.makeText(this, "Barcode Scanner (Ready for Integration)", Toast.LENGTH_SHORT).show()
+        }
+
+        // Quick Action Buttons
+        binding.fullPantryItemsScreenContainer.btnAddItemFull.setOnClickListener {
+            showAddAlertDialog()
+        }
+
+        binding.fullPantryItemsScreenContainer.btnShoppingListFull.setOnClickListener {
+            selectTab(NavTab.SHOPPING)
+        }
+
+        binding.fullPantryItemsScreenContainer.btnSurplusHubFull.setOnClickListener {
+            selectTab(NavTab.SURPLUS)
+        }
+
+        // View All Expiring
+        binding.fullPantryItemsScreenContainer.tvViewAllExpiringFull.setOnClickListener {
+            pantryViewModel.selectCategory(null)
+            pantryViewModel.setSearchQuery("")
+            Toast.makeText(this, "Showing expiring items", Toast.LENGTH_SHORT).show()
+        }
+
+        // Filter / Sort Button
+        binding.fullPantryItemsScreenContainer.btnFilterSortPantry.setOnClickListener {
+            showPantryFilterSortDialog()
+        }
+
+        // Bell Icon on Full Pantry Header
+        binding.fullPantryItemsScreenContainer.btnFullBell.setOnClickListener {
+            binding.notificationsScreenContainer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showFullPantryItemsScreen() {
+        binding.pantryHomeScreenContainer.root.visibility = View.GONE
+        binding.shoppingScreenContainer.root.visibility = View.GONE
+        binding.notificationsScreenContainer.visibility = View.GONE
+        binding.fullPantryItemsScreenContainer.root.visibility = View.VISIBLE
+        selectTab(NavTab.PANTRY)
+    }
+
+    private fun hideFullPantryItemsScreen() {
+        binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
+        binding.pantryHomeScreenContainer.root.visibility = View.VISIBLE
+        selectTab(NavTab.PANTRY)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (binding.notificationsScreenContainer.visibility == View.VISIBLE) {
+            binding.notificationsScreenContainer.visibility = View.GONE
+        } else if (binding.fullPantryItemsScreenContainer.root.visibility == View.VISIBLE) {
+            hideFullPantryItemsScreen()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     private fun setupRecyclerView() {
         adapter = NotificationAdapter(
             onPrimaryActionClicked = { alert ->
@@ -165,8 +340,8 @@ class MainActivity : AppCompatActivity() {
             }
         )
 
-        binding.pantryScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).layoutManager = LinearLayoutManager(this)
-        binding.pantryScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).adapter = adapter
+        binding.notificationsScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).layoutManager = LinearLayoutManager(this)
+        binding.notificationsScreenContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvNotifications).adapter = adapter
     }
 
     private fun setupShoppingUI() {
@@ -241,24 +416,14 @@ class MainActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         viewModel.fetchAlerts()
 
-        val btnSync = binding.pantryScreenContainer.findViewById<View>(R.id.btnSync)
+        val btnSync = binding.notificationsScreenContainer.findViewById<View>(R.id.btnSync)
         btnSync?.setOnClickListener {
             viewModel.fetchAlerts()
         }
 
-        val btnBack = binding.pantryScreenContainer.findViewById<View>(R.id.btnBack)
+        val btnBack = binding.notificationsScreenContainer.findViewById<View>(R.id.btnBack)
         btnBack?.setOnClickListener {
-            Toast.makeText(this, "Back pressed", Toast.LENGTH_SHORT).show()
-        }
-
-        val btnBell = binding.pantryScreenContainer.findViewById<View>(R.id.btnBell)
-        btnBell?.setOnClickListener {
-            Toast.makeText(this, "Notifications menu", Toast.LENGTH_SHORT).show()
-        }
-
-        val btnProfileAvatar = binding.pantryScreenContainer.findViewById<View>(R.id.btnProfileAvatar)
-        btnProfileAvatar?.setOnClickListener {
-            Toast.makeText(this, "Opening Profile", Toast.LENGTH_SHORT).show()
+            binding.notificationsScreenContainer.visibility = View.GONE
         }
 
         binding.fabAddAlert.setOnClickListener {
@@ -348,21 +513,26 @@ class MainActivity : AppCompatActivity() {
 
         when (tab) {
             NavTab.PANTRY -> {
-                binding.pantryScreenContainer.visibility = View.VISIBLE
+                if (binding.fullPantryItemsScreenContainer.root.visibility != View.VISIBLE) {
+                    binding.pantryHomeScreenContainer.root.visibility = View.VISIBLE
+                }
                 binding.shoppingScreenContainer.root.visibility = View.GONE
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
                 binding.tvNavPantry.setTextColor(primaryColor)
                 binding.tvNavPantry.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.SHOPPING -> {
-                binding.pantryScreenContainer.visibility = View.GONE
+                binding.pantryHomeScreenContainer.root.visibility = View.GONE
+                binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
                 binding.shoppingScreenContainer.root.visibility = View.VISIBLE
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
                 binding.tvNavShopping.setTextColor(primaryColor)
                 binding.tvNavShopping.typeface = Typeface.DEFAULT_BOLD
@@ -373,6 +543,9 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.VISIBLE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
+                Toast.makeText(this, "Surplus tab selected", Toast.LENGTH_SHORT).show()
+                binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavSurplus.setColorFilter(primaryColor)
                 binding.tvNavSurplus.setTextColor(primaryColor)
                 binding.tvNavSurplus.typeface = Typeface.DEFAULT_BOLD
@@ -384,6 +557,9 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.VISIBLE
+                Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
+                binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
+                binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavProfile.setColorFilter(primaryColor)
                 binding.tvNavProfile.setTextColor(primaryColor)
                 binding.tvNavProfile.typeface = Typeface.DEFAULT_BOLD
@@ -1484,6 +1660,80 @@ class MainActivity : AppCompatActivity() {
     private fun observeUiState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Home Dashboard Observations
+                launch {
+                    pantryViewModel.allItems.collect { items ->
+                        binding.pantryHomeScreenContainer.btnViewAllPantry.text = getString(R.string.btn_view_all_items)
+                        binding.fullPantryItemsScreenContainer.tvFullTotalItemsCount.text = items.size.toString()
+                        binding.fullPantryItemsScreenContainer.btnViewAllFullPantry.text =
+                            getString(R.string.btn_view_all_pantry_format, items.size)
+
+                        val restockCount = items.count { it.stockPercent <= 25 }
+                        binding.fullPantryItemsScreenContainer.tvFullToRestockCount.text = restockCount.toString()
+                    }
+                }
+
+                launch {
+                    pantryViewModel.expiringSoonItems.collect { items ->
+                        expiringSoonAdapter.submitList(items)
+                        fullExpiringSoonAdapter.submitList(items)
+
+                        binding.fullPantryItemsScreenContainer.tvFullExpiringSoonCount.text = items.size.toString()
+
+                        if (items.isEmpty()) {
+                            binding.pantryHomeScreenContainer.tvNoExpiringItems.visibility = View.VISIBLE
+                            binding.pantryHomeScreenContainer.rvExpiringSoon.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.tvNoFullExpiringItems.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.visibility = View.GONE
+                        } else {
+                            binding.pantryHomeScreenContainer.tvNoExpiringItems.visibility = View.GONE
+                            binding.pantryHomeScreenContainer.rvExpiringSoon.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.tvNoFullExpiringItems.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.rvExpiringSoonFull.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+                launch {
+                    pantryViewModel.categories.collect { cats ->
+                        categoryChipHorizontalAdapter.submitList(cats)
+                        binding.fullPantryItemsScreenContainer.tvFullCategoriesCount.text =
+                            getString(R.string.categories_count_format, cats.size)
+                    }
+                }
+
+                launch {
+                    pantryViewModel.selectedCategory.collect { selCat ->
+                        categoryChipHorizontalAdapter.setSelectedCategory(selCat)
+                    }
+                }
+
+                launch {
+                    pantryViewModel.filteredPantryItems.collect { items ->
+                        pantryOverviewAdapter.submitList(items.take(4))
+                        fullPantryOverviewAdapter.submitList(items)
+
+                        if (items.isEmpty()) {
+                            binding.pantryHomeScreenContainer.tvNoItemsFound.visibility = View.VISIBLE
+                            binding.pantryHomeScreenContainer.rvAllPantryItems.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.tvNoFullPantryItems.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.rvFullPantryItems.visibility = View.GONE
+                        } else {
+                            binding.pantryHomeScreenContainer.tvNoItemsFound.visibility = View.GONE
+                            binding.pantryHomeScreenContainer.rvAllPantryItems.visibility = View.VISIBLE
+                            binding.fullPantryItemsScreenContainer.tvNoFullPantryItems.visibility = View.GONE
+                            binding.fullPantryItemsScreenContainer.rvFullPantryItems.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+                launch {
+                    pantryViewModel.uiMessage.collect { msg ->
+                        Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+
+                // Notifications Observations
                 launch {
                     viewModel.alerts.collect { alertsDto ->
                         val items = mutableListOf<NotificationItem>()
@@ -1507,9 +1757,12 @@ class MainActivity : AppCompatActivity() {
                         // Submit items to adapter
                         adapter.submitList(items)
 
-                        // Update Chip Counts
-                        val tvChipAllCount = binding.pantryScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipAllCount)
-                        val tvChipExpiryCount = binding.pantryScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipExpiryCount)
+                        // Update Chip Counts & Bell Badge
+                        binding.pantryHomeScreenContainer.tvBellBadgeCount.text = alertsDto.size.toString()
+                        binding.fullPantryItemsScreenContainer.tvFullBellBadgeCount.text = alertsDto.size.toString()
+
+                        val tvChipAllCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipAllCount)
+                        val tvChipExpiryCount = binding.notificationsScreenContainer.findViewById<android.widget.TextView>(R.id.tvChipExpiryCount)
                         tvChipAllCount?.text = alertsDto.size.toString()
                         tvChipExpiryCount?.text = alertsDto.size.toString()
                     }
@@ -1573,6 +1826,93 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun showItemDetailsDialog(item: PantryItem) {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val composeView = ComposeView(this).apply {
+            setContent {
+                ItemDetailsDialog(
+                    item = item,
+                    onDismiss = { dialog.dismiss() },
+                    onMarkConsumed = { id ->
+                        pantryViewModel.deleteItem(id)
+                        Toast.makeText(this@MainActivity, "Marked as consumed", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onAddToRestock = { _ ->
+                        shoppingViewModel.addItem(item.title)
+                        Toast.makeText(this@MainActivity, "Added to Restock List", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onDonate = { _ ->
+                        Toast.makeText(this@MainActivity, "Item marked for donation", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onEdit = { _ ->
+                        Toast.makeText(this@MainActivity, "Editing item details", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    },
+                    onDelete = { id ->
+                        pantryViewModel.deleteItem(id)
+                        Toast.makeText(this@MainActivity, "Item deleted", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    }
+                )
+            }
+        }
+        dialog.setContentView(composeView)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.show()
+    }
+
+    private fun showPantryFilterSortDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val dialogBinding = DialogShoppingFilterBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        dialogBinding.rbFilterAll.text = "All Items"
+        dialogBinding.rbFilterAutoQueued.text = "Low Stock (<= 25%)"
+        dialogBinding.rbFilterManual.text = "Expiring Soon (<= 3 days)"
+        dialogBinding.rbFilterLowStock.text = "Full Stock (100%)"
+        dialogBinding.rbFilterExpired.visibility = View.GONE
+
+        dialogBinding.btnCancelFilter.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnApplyFilter.setOnClickListener {
+            when (dialogBinding.rgFilterOptions.checkedRadioButtonId) {
+                R.id.rbFilterAutoQueued -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    val lowStockItems = pantryViewModel.allItems.value.filter { it.stockPercent <= 25 }
+                    fullPantryOverviewAdapter.submitList(lowStockItems)
+                }
+                R.id.rbFilterManual -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    fullPantryOverviewAdapter.submitList(pantryViewModel.expiringSoonItems.value)
+                }
+                R.id.rbFilterLowStock -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    val fullStockItems = pantryViewModel.allItems.value.filter { it.stockPercent == 100 }
+                    fullPantryOverviewAdapter.submitList(fullStockItems)
+                }
+                else -> {
+                    pantryViewModel.selectCategory(null)
+                    pantryViewModel.setSearchQuery("")
+                    fullPantryOverviewAdapter.submitList(pantryViewModel.allItems.value)
+                }
+            }
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun showAddAlertDialog() {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -1586,18 +1926,9 @@ class MainActivity : AppCompatActivity() {
 
         dialogBinding.btnAdd.setOnClickListener {
             val title = dialogBinding.etItemTitle.text.toString().trim()
-            val category = dialogBinding.etCategoryLocation.text.toString().trim()
-            val expiry = dialogBinding.etExpiryText.text.toString().trim()
-
             if (title.isEmpty()) {
                 dialogBinding.etItemTitle.error = "Please enter item name"
                 return@setOnClickListener
-            }
-
-            val urgency = if (dialogBinding.rbExpiringToday.isChecked) {
-                AlertUrgency.EXPIRING_TODAY
-            } else {
-                AlertUrgency.EXPIRING_SOON
             }
 
             Toast.makeText(this, "Alert added locally. (Mocked)", Toast.LENGTH_SHORT).show()

@@ -54,4 +54,66 @@
     <!-- Standard Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Create Account Screen -->
+    <color name="create_account_background">#E5FFF3</color>
+    <color name="create_account_text">#183C34</color>
+    <color name="create_account_secondary_text">#5F6865</color>
+    <color name="create_account_border">#B8C9C3</color>
+    <color name="create_account_white">#FFFFFF</color>
+    <color name="create_account_icon">#71807B</color>
+    <color name="create_account_primary">#155F4B</color>
+
+    <color name="pantry_background">#EFFFF7</color>
+
+    <!-- Primary Greens -->
+    <color name="pantry_light_green">#D7E8E0</color>
+    <color name="pantry_soft_green">#D6EEE3</color>
+    <color name="pantry_location_green">#E7F4ED</color>
+
+    <!-- Text -->
+    <color name="pantry_text_primary">#102820</color>
+    <color name="pantry_text_secondary">#657A73</color>
+    <color name="pantry_text_muted">#82908B</color>
+    <color name="pantry_text_white">#FFFFFF</color>
+
+    <!-- Cards -->
+    <color name="pantry_card_white">#FFFFFF</color>
+    <color name="pantry_card_border">#D9E7E1</color>
+
+    <!-- Total Items -->
+    <color name="pantry_total_background">#D7F3E6</color>
+    <color name="pantry_total_border">#B8E5D2</color>
+    <color name="pantry_total_text">#22604C</color>
+
+    <!-- Expiring Soon -->
+    <color name="pantry_expiring_background">#FFF3D5</color>
+    <color name="pantry_expiring_border">#F4DB9A</color>
+    <color name="pantry_expiring_text">#A86100</color>
+
+    <!-- Low Stock -->
+    <color name="pantry_lowstock_background">#FFE0E0</color>
+    <color name="pantry_lowstock_border">#F4BABA</color>
+    <color name="pantry_lowstock_text">#C33D3D</color>
+
+    <!-- Expiry Badges -->
+    <color name="pantry_expiry_green">#DDF2E9</color>
+    <color name="pantry_expiry_green_text">#24715A</color>
+
+    <color name="pantry_expiry_yellow">#FFF0CC</color>
+    <color name="pantry_expiry_yellow_text">#C57900</color>
+
+    <color name="pantry_expiry_red">#FFE0E0</color>
+    <color name="pantry_expiry_red_text">#D84444</color>
+
+    <!-- Chef Card -->
+    <color name="pantry_chef_background">#23634F</color>
+    <color name="pantry_chef_icon">#43806D</color>
+    <color name="pantry_chef_label">#B7E3D0</color>
+    <color name="pantry_chef_description">#D2E8DF</color>
+
+    <!-- Search -->
+    <color name="pantry_search_border">#DCE5E1</color>
+    <color name="pantry_search_hint">#78847F</color>
+
 </resources>

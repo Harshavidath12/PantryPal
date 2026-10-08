@@ -10,16 +10,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.InternalSerializationApi
 
 class NotificationViewModel(
     private val repository: NotificationRepository = NotificationRepository()
 ) : ViewModel() {
 
-    @OptIn(InternalSerializationApi::class)
     private val _alerts = MutableStateFlow<List<NotificationDto>>(emptyList())
-    
-    @OptIn(InternalSerializationApi::class)
     val alerts = _alerts.asStateFlow()
 
     private val _message = MutableSharedFlow<String>()
@@ -28,7 +24,6 @@ class NotificationViewModel(
     // Assuming user ID 1 for now
     private val currentUserId = 1L
 
-    @OptIn(InternalSerializationApi::class)
     fun fetchAlerts() {
         viewModelScope.launch {
             try {
@@ -40,7 +35,6 @@ class NotificationViewModel(
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     fun onDismissAlertClicked(notificationId: Long?) {
         if (notificationId == null) return
         viewModelScope.launch {
@@ -54,7 +48,6 @@ class NotificationViewModel(
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     fun onMarkConsumedClicked(item: NotificationDto) {
         val notificationId = item.id ?: return
         
@@ -79,7 +72,6 @@ class NotificationViewModel(
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     fun onAddToRestockClicked(item: NotificationDto) {
         viewModelScope.launch {
             try {
