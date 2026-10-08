@@ -268,16 +268,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- SHOPPING SCREEN CONTAINER -->
-    <include
-        android:id="@+id/shoppingScreenContainer"
-        layout="@layout/layout_shopping_screen"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <!-- SURPLUS HUB -->
     <include
         android:id="@+id/surplusScreenContainer"
@@ -290,11 +280,7 @@
 
     <include
         android:id="@+id/surplusDetailContainer"
-        layout="@layout/layout_surplus_donation"/>
-    <!-- Bottom Navigation Bar Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bottomNavCard"
-        style="@style/PantryCardStyle"
+        layout="@layout/layout_surplus_donation"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
