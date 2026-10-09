@@ -1,10 +1,31 @@
 package com.example.pantrypal.data.repository
 
 import com.example.pantrypal.R
+import com.example.pantrypal.data.model.AddGroceryItemDto
 import com.example.pantrypal.data.model.PantryCategory
 import com.example.pantrypal.data.model.PantryItem
+import com.example.pantrypal.data.remote.SupabaseProvider
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.jsonPrimitive
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.UUID
 
 class PantryRepository {
+
+    companion object {
+        // Dynamic list shared across repository instances for newly added or fetched items
+        private val dynamicItems = mutableListOf<PantryItem>()
+
+        fun addDynamicItem(item: PantryItem) {
+            synchronized(dynamicItems) {
+                dynamicItems.removeAll { it.id == item.id || it.title.equals(item.title, ignoreCase = true) }
+                dynamicItems.add(0, item)
+            }
+        }
+    }
 
     private val initialItems = mutableListOf(
         PantryItem(
@@ -114,16 +135,96 @@ class PantryRepository {
         }
     }
 
+    suspend fun fetchSupabaseItems(): List<PantryItem> = withContext(Dispatchers.IO) {
+        try {
+            val dtoList = SupabaseProvider.client
+                .from("add_groceries_items")
+                .select()
+                .decodeList<AddGroceryItemDto>()
+
+            val converted = dtoList.map { dto ->
+                val idStr = runCatching { dto.id?.jsonPrimitive?.content }.getOrNull() ?: UUID.randomUUID().toString()
+                val daysUntilExpiry: Int = if (!dto.expiryDate.isNullOrBlank()) {
+                    try {
+                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply { isLenient = false }
+                        val expiry = sdf.parse(dto.expiryDate)
+                        if (expiry != null) {
+                            val diff = expiry.time - System.currentTimeMillis()
+                            (diff / (1000 * 60 * 60 * 24)).toInt().coerceAtLeast(0)
+                        } else {
+                            30
+                        }
+                    } catch (e: Exception) {
+                        30
+                    }
+                } else {
+                    30
+                }
+
+                val expiryText = when {
+                    daysUntilExpiry == 0 -> "Expires: Today"
+                    daysUntilExpiry == 1 -> "Expires: Tomorrow"
+                    daysUntilExpiry <= 3 -> "Expires: In $daysUntilExpiry days"
+                    else -> "Expires in $daysUntilExpiry days"
+                }
+
+                val cat = dto.category?.trim().orEmpty().ifBlank { "Snacks" }
+                val iconResId = when (cat.lowercase()) {
+                    "dairy" -> R.drawable.ic_dairy
+                    "vegetables" -> R.drawable.ic_vegetable
+                    "fruits" -> R.drawable.ic_fruit
+                    "grains" -> R.drawable.ic_food_bread
+                    "canned goods" -> R.drawable.ic_canned
+                    "snacks" -> R.drawable.ic_snack
+                    else -> R.drawable.ic_pantry
+                }
+
+                val qtyInt = dto.quantity?.toInt() ?: 1
+                PantryItem(
+                    id = idStr,
+                    title = dto.itemName.ifBlank { "Unknown Item" },
+                    category = cat,
+                    location = "Zone: ${dto.storageZone ?: "Pantry"} · Qty: $qtyInt",
+                    quantityText = "$qtyInt",
+                    expiryText = expiryText,
+                    daysUntilExpiry = daysUntilExpiry,
+                    ownerName = "You",
+                    iconResId = iconResId,
+                    stockPercent = 100,
+                    stockText = "100% (Full)",
+                    isExpiringSoon = daysUntilExpiry <= 3,
+                    progress = 1.0f
+                )
+            }
+
+            for (item in converted) {
+                addDynamicItem(item)
+            }
+            getAllPantryItems()
+        } catch (e: Exception) {
+            android.util.Log.e("PantryRepository", "Failed to fetch from Supabase", e)
+            getAllPantryItems()
+        }
+    }
+
     fun getAllPantryItems(): List<PantryItem> {
-        return initialItems.toList()
+        val all = mutableListOf<PantryItem>()
+        synchronized(dynamicItems) {
+            all.addAll(dynamicItems)
+        }
+        all.addAll(initialItems)
+        return all
     }
 
     fun deletePantryItem(id: String) {
+        synchronized(dynamicItems) {
+            dynamicItems.removeAll { it.id == id }
+        }
         initialItems.removeAll { it.id == id }
     }
 
     fun addPantryItem(item: PantryItem) {
-        initialItems.add(0, item)
+        addDynamicItem(item)
     }
 
     fun getCategories(): List<PantryCategory> {

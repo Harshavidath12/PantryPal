@@ -96,6 +96,35 @@ class MainActivity : AppCompatActivity() {
         setupShoppingUI()
         setupClickListeners()
         observeUiState()
+
+        // Handle deep-link back from AddGroceriesActivity
+        handleNavigateToExtra(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNavigateToExtra(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::pantryViewModel.isInitialized) {
+            pantryViewModel.loadData()
+        }
+    }
+
+    private fun handleNavigateToExtra(intent: Intent?) {
+        when (intent?.getStringExtra("navigate_to")) {
+            "pantry"   -> {
+                selectTab(NavTab.PANTRY)
+                if (::pantryViewModel.isInitialized) {
+                    pantryViewModel.loadData()
+                }
+            }
+            "shopping" -> selectTab(NavTab.SHOPPING)
+            "surplus"  -> selectTab(NavTab.SURPLUS)
+            "profile"  -> selectTab(NavTab.PROFILE)
+        }
     }
 
     private fun setupArchitecture() {
@@ -137,8 +166,12 @@ class MainActivity : AppCompatActivity() {
         })
 
         // Quick Action Buttons
+
+        // Quick Action Buttons
         binding.pantryHomeScreenContainer.btnAddItemQuick.setOnClickListener {
-            showAddAlertDialog()
+            startActivity(
+                Intent(this, com.example.pantrypal.ui.AddGroceries.AddGroceriesActivity::class.java)
+            )
         }
 
         binding.pantryHomeScreenContainer.btnShoppingListQuick.setOnClickListener {
@@ -208,7 +241,9 @@ class MainActivity : AppCompatActivity() {
 
         // Quick Action Buttons
         binding.fullPantryItemsScreenContainer.btnAddItemFull.setOnClickListener {
-            showAddAlertDialog()
+            startActivity(
+                Intent(this, com.example.pantrypal.ui.AddGroceries.AddGroceriesActivity::class.java)
+            )
         }
 
         binding.fullPantryItemsScreenContainer.btnShoppingListFull.setOnClickListener {
@@ -383,7 +418,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.fabAddAlert.setOnClickListener {
-            showAddAlertDialog()
+            startActivity(
+                Intent(this, com.example.pantrypal.ui.AddGroceries.AddGroceriesActivity::class.java)
+            )
         }
 
         // Navigation Tabs

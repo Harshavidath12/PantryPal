@@ -67,6 +67,16 @@ class PantryViewModel(
         val items = repository.getAllPantryItems()
         _allItems.value = items
         _categories.value = repository.getCategories()
+
+        viewModelScope.launch {
+            try {
+                repository.fetchSupabaseItems()
+                _allItems.value = repository.getAllPantryItems()
+                _categories.value = repository.getCategories()
+            } catch (e: Exception) {
+                android.util.Log.e("PantryViewModel", "Error fetching pantry items", e)
+            }
+        }
     }
 
     fun setSearchQuery(query: String) {

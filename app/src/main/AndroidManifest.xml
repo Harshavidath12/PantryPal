@@ -42,6 +42,20 @@
             android:name=".MainActivity"
             android:exported="true" />
 
+        <activity
+            android:name=".ui.AddGroceries.BarcodeScannerActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.AddGroceries.ReceiptScannerActivity"
+            android:exported="false" />
+
+        <!-- Add Groceries Screen -->
+        <activity
+            android:name=".ui.AddGroceries.AddGroceriesActivity"
+            android:exported="false" />
+
+
     </application>
 
 </manifest>
