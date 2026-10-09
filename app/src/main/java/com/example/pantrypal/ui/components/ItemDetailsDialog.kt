@@ -86,7 +86,7 @@ fun ItemDetailsDialog(
                 // Image with Badge
                 Box(modifier = Modifier.size(140.dp)) {
                     AsyncImage(
-                        model = item.imageUrl ?: R.drawable.ic_food_yogurt,
+                        model = item.imageUrl ?: item.iconResId ?: R.drawable.ic_food_yogurt,
                         contentDescription = item.title,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

@@ -312,98 +312,7 @@
 
             </LinearLayout>
 
-            <!-- 4. QUICK ACTION BUTTONS -->
-            <LinearLayout
-                android:id="@+id/llFullQuickActions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
 
-                <!-- + Add Item -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddItemFull"
-                    style="@style/PantryActionButtonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/pantry_primary"
-                    android:insetLeft="0dp"
-                    android:insetTop="0dp"
-                    android:insetRight="0dp"
-                    android:insetBottom="0dp"
-                    android:maxLines="1"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:singleLine="true"
-                    android:text="@string/quick_add_item"
-                    android:textColor="@color/white"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="20dp" />
-
-                <!-- Shopping List -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnShoppingListFull"
-                    style="@style/PantryActionButtonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="3dp"
-                    android:layout_marginEnd="3dp"
-                    android:layout_weight="1.15"
-                    android:backgroundTint="#F4F9F6"
-                    android:insetLeft="0dp"
-                    android:insetTop="0dp"
-                    android:insetRight="0dp"
-                    android:insetBottom="0dp"
-                    android:maxLines="1"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:singleLine="true"
-                    android:text="@string/quick_shopping_list"
-                    android:textColor="@color/pantry_primary"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="20dp"
-                    app:icon="@drawable/ic_shopping"
-                    app:iconPadding="2dp"
-                    app:iconSize="14dp"
-                    app:iconTint="@color/pantry_primary"
-                    app:strokeColor="#D1E7DD"
-                    app:strokeWidth="1dp" />
-
-                <!-- Surplus Hub -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSurplusHubFull"
-                    style="@style/PantryActionButtonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="3dp"
-                    android:layout_weight="1"
-                    android:backgroundTint="#FFF8F0"
-                    android:insetLeft="0dp"
-                    android:insetTop="0dp"
-                    android:insetRight="0dp"
-                    android:insetBottom="0dp"
-                    android:maxLines="1"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
-                    android:singleLine="true"
-                    android:text="@string/quick_surplus_hub"
-                    android:textColor="#B45309"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="20dp"
-                    app:icon="@drawable/ic_leaf"
-                    app:iconPadding="2dp"
-                    app:iconSize="14dp"
-                    app:iconTint="#B45309"
-                    app:strokeColor="#FED7AA"
-                    app:strokeWidth="1dp" />
-
-            </LinearLayout>
 
             <!-- 5. EXPIRING SOON SECTION -->
             <LinearLayout
@@ -576,22 +485,7 @@
                 android:textSize="13sp"
                 android:visibility="gone" />
 
-            <!-- 8. VIEW ALL PANTRY ITEMS BUTTON -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewAllFullPantry"
-                style="@style/PantryActionButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="18dp"
-                android:layout_marginBottom="12dp"
-                android:backgroundTint="#F4F9F6"
-                android:text="View All 48 Items in Pantry →"
-                android:textColor="@color/pantry_primary"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                app:cornerRadius="24dp"
-                app:strokeColor="#0B664B"
-                app:strokeWidth="1dp" />
+
 
         </LinearLayout>
 

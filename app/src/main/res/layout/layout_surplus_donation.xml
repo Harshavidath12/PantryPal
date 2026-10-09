@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/surplusDetailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" tools:layout_height="match_parent"
+        android:background="@color/pantry_bg"
+        android:visibility="gone" tools:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
+        app:layout_constraintTop_toTopOf="parent">
+        <ScrollView android:id="@+id/surplusDetailScroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                <LinearLayout android:id="@+id/surplusDetailHeader" android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical" android:paddingHorizontal="4dp"><TextView android:id="@+id/btnSurplusBack" android:layout_width="38dp" android:layout_height="44dp" android:gravity="center" android:text="‹" android:textColor="@color/text_primary" android:textSize="30sp"/><TextView android:id="@+id/tvDetailTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="Surplus" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold"/><TextView android:id="@+id/btnSurplusHeaderAction" android:layout_width="38dp" android:layout_height="44dp" android:gravity="center" android:text="♙" android:textColor="@color/pantry_primary" android:textSize="18sp"/></LinearLayout>
+                <LinearLayout android:id="@+id/surplusDetailTabs" android:layout_width="match_parent" android:layout_height="38dp" android:layout_marginTop="5dp" android:background="@drawable/bg_sync_card" android:gravity="center" android:orientation="horizontal" android:padding="3dp" android:visibility="gone"><com.google.android.material.button.MaterialButton android:id="@+id/btnFlagTab" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:insetTop="0dp" android:insetBottom="0dp" android:minHeight="0dp" android:text="▧  Flag Surplus" android:textAllCaps="false" android:textSize="12sp" app:backgroundTint="@color/pantry_primary" app:cornerRadius="12dp"/><com.google.android.material.button.MaterialButton android:id="@+id/btnFindHubTab" android:layout_width="0dp" android:layout_height="32dp" android:layout_weight="1" android:insetTop="0dp" android:insetBottom="0dp" android:minHeight="0dp" android:text="⌖  Find a Hub" android:textAllCaps="false" android:textColor="@color/text_primary" android:textSize="12sp" app:backgroundTint="@android:color/transparent" app:cornerRadius="12dp"/></LinearLayout>
+
+                <include layout="@layout/layout_surplus_impact" android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+                <include layout="@layout/layout_surplus_hub_finder" android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+                <include layout="@layout/layout_surplus_submission" android:layout_width="match_parent" android:layout_height="wrap_content" />
+
+                <include layout="@layout/layout_surplus_donation_form" android:layout_width="match_parent" android:layout_height="wrap_content" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
