@@ -1,6 +1,6 @@
-@file:OptIn(kotlinx.serialization.InternalSerializationApi::class)
-
 package com.example.pantrypal.data.model
+
+import kotlinx.serialization.InternalSerializationApi
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -39,5 +39,28 @@ data class NotificationDto(
     @SerialName("reference_id") val referenceId: String? = null,
     val type: String,
     @SerialName("is_read") val isRead: Boolean = false,
+    @SerialName("created_at") val createdAt: String? = null
+)
+
+@Serializable
+data class SurplusHubDto(
+    val id: String,
+    val name: String,
+    val address: String,
+    @SerialName("distance_km") val distanceKm: Double,
+    @SerialName("open_until") val openUntil: String,
+    @SerialName("accepted_foods") val acceptedFoods: String
+)
+
+@Serializable
+data class SurplusDonationDto(
+    val id: String? = null,
+    @SerialName("donor_id") val donorId: String? = null,
+    @SerialName("hub_id") val hubId: String,
+    @SerialName("food_name") val foodName: String,
+    val quantity: String,
+    @SerialName("best_before") val bestBefore: String,
+    @SerialName("pickup_window") val pickupWindow: String,
+    val status: String = "PENDING",
     @SerialName("created_at") val createdAt: String? = null
 )
