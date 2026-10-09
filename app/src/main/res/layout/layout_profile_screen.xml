@@ -292,34 +292,22 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- HOUSEHOLD MEMBERS -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- PANTRY PREFERENCES -->
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="HOUSEHOLD MEMBERS"
-                android:textColor="#8295A2"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="3 of 6 seats"
-                android:textColor="#526477"
-                android:textSize="11sp" />
-        </LinearLayout>
+            android:text="PANTRY PREFERENCES"
+            android:textColor="#74897B"
+            android:textSize="11sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            app:cardElevation="0dp"
             app:strokeWidth="1dp"
             app:strokeColor="#E0EFE6"
             app:cardBackgroundColor="#FFFFFF">
@@ -329,202 +317,118 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Member 1 -->
+                <!-- Item 1 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="16dp">
-                    <FrameLayout
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/bg_circle_icon">
-                        <TextView
-                            android:id="@+id/tvMemberYouInitials"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text="TM"
-                            android:textColor="#08704F"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:layout_marginEnd="16dp">
                         <TextView
-                            android:id="@+id/tvMemberYouName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tharushi (You)"
+                            android:text="Expiry Alert Timing"
                             android:textColor="#17243A"
-                            android:textSize="14sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Household Creator"
-                            android:textColor="#526477"
-                            android:textSize="12sp" />
+                            android:layout_marginTop="2dp"
+                            android:text="Threshold before sending badge warnings"
+                            android:textColor="#8295A2"
+                            android:textSize="13sp" />
                     </LinearLayout>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_badge_circle"
-                        android:backgroundTint="#0B4037"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="Admin"
-                        android:textColor="#FFFFFF"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:text="2 Days Before >"
+                        android:textColor="#17243A"
+                        android:textSize="14sp" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0EFE6" android:layout_marginHorizontal="16dp"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0EFE6" />
 
-                <!-- Member 2 -->
+                <!-- Item 2 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="16dp">
-                    <FrameLayout
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/bg_circle_icon">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text="AK"
-                            android:textColor="#17243A"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:layout_marginEnd="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Alex"
+                            android:text="Default Storage Zones"
                             android:textColor="#17243A"
-                            android:textSize="14sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Joined 3mo ago"
-                            android:textColor="#526477"
-                            android:textSize="12sp" />
+                            android:layout_marginTop="2dp"
+                            android:text="Configured sub-locations in flat"
+                            android:textColor="#8295A2"
+                            android:textSize="13sp" />
                     </LinearLayout>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_badge_circle"
-                        android:backgroundTint="#E0EFE6"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="Member"
-                        android:textColor="#526477"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:text="Fridge, Pantry, Freezer >"
+                        android:textColor="#17243A"
+                        android:textSize="14sp" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0EFE6" android:layout_marginHorizontal="16dp"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0EFE6" />
 
-                <!-- Member 3 -->
+                <!-- Item 3 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:padding="16dp">
-                    <FrameLayout
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/bg_circle_icon">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text="VM"
-                            android:textColor="#17243A"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </FrameLayout>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:layout_marginEnd="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Vidath"
+                            android:text="Community Donation Hub"
                             android:textColor="#17243A"
-                            android:textSize="14sp"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Joined 3mo ago"
-                            android:textColor="#526477"
-                            android:textSize="12sp" />
+                            android:layout_marginTop="2dp"
+                            android:text="Automated surplus redirection partner"
+                            android:textColor="#8295A2"
+                            android:textSize="13sp" />
                     </LinearLayout>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_badge_circle"
-                        android:backgroundTint="#E0EFE6"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="Member"
-                        android:textColor="#526477"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:text="Colombo Food Bank >"
+                        android:textColor="#17243A"
+                        android:textSize="14sp" />
                 </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Invite Button -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="#E0EFE6"
-            app:cardBackgroundColor="#FFFFFF">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:padding="16dp">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_people"
-                    app:tint="#08704F" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Invite New Flatmate / Member"
-                    android:textColor="#17243A"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
