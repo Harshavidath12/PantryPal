@@ -66,7 +66,7 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
 
     private enum class NavTab {
-        PANTRY, SHOPPING, SURPLUS, PROFILE
+        PANTRY, ADD, SHOPPING, SURPLUS, PROFILE
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -439,7 +439,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.fabAddAlert.setOnClickListener {
-            showAddAlertDialog()
+            selectTab(NavTab.ADD)
         }
 
         // Navigation Tabs
@@ -536,9 +536,6 @@ class MainActivity : AppCompatActivity() {
 
         val tvProfileName = findViewById<android.widget.TextView>(R.id.tvProfileName)
         val tvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
-        val tvMemberYouName = findViewById<android.widget.TextView>(R.id.tvMemberYouName)
-        val tvMemberYouInitials = findViewById<android.widget.TextView>(R.id.tvMemberYouInitials)
-
         tvProfileName?.text = displayName
 
         val initials = displayName.trim().split(" ")
@@ -549,10 +546,6 @@ class MainActivity : AppCompatActivity() {
             .ifEmpty { "U" }
 
         tvInitials?.text = initials
-        tvMemberYouInitials?.text = initials
-
-        val firstName = displayName.split(" ").firstOrNull() ?: displayName
-        tvMemberYouName?.text = "$firstName (You)"
     }
 
     private fun showEditProfileDialog() {
@@ -641,6 +634,10 @@ class MainActivity : AppCompatActivity() {
         binding.tvNavProfile.setTextColor(secondaryColor)
         binding.tvNavProfile.typeface = Typeface.DEFAULT
 
+        binding.ivNavAdd.setColorFilter(secondaryColor)
+        binding.tvNavAdd.setTextColor(secondaryColor)
+        binding.tvNavAdd.typeface = Typeface.DEFAULT
+
         when (tab) {
             NavTab.PANTRY -> {
                 if (binding.fullPantryItemsScreenContainer.root.visibility != View.VISIBLE) {
@@ -650,10 +647,24 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
+                findViewById<View>(R.id.addScreenContainer).visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavPantry.setColorFilter(primaryColor)
                 binding.tvNavPantry.setTextColor(primaryColor)
                 binding.tvNavPantry.typeface = Typeface.DEFAULT_BOLD
+            }
+                        NavTab.ADD -> {
+                binding.pantryHomeScreenContainer.root.visibility = View.GONE
+                binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
+                binding.shoppingScreenContainer.root.visibility = View.GONE
+                binding.surplusScreenContainer.root.visibility = View.GONE
+                binding.surplusDetailContainer.root.visibility = View.GONE
+                findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
+                binding.notificationsScreenContainer.visibility = View.GONE
+                findViewById<View>(R.id.addScreenContainer).visibility = View.VISIBLE
+                binding.ivNavAdd.setColorFilter(primaryColor)
+                binding.tvNavAdd.setTextColor(primaryColor)
+                binding.tvNavAdd.typeface = Typeface.DEFAULT_BOLD
             }
             NavTab.SHOPPING -> {
                 binding.pantryHomeScreenContainer.root.visibility = View.GONE
@@ -662,6 +673,7 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
+                findViewById<View>(R.id.addScreenContainer).visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavShopping.setColorFilter(primaryColor)
                 binding.tvNavShopping.setTextColor(primaryColor)
@@ -673,6 +685,7 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.VISIBLE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.GONE
+                findViewById<View>(R.id.addScreenContainer).visibility = View.GONE
                 Toast.makeText(this, "Surplus tab selected", Toast.LENGTH_SHORT).show()
                 binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
@@ -687,6 +700,7 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.VISIBLE
+                findViewById<View>(R.id.addScreenContainer).visibility = View.GONE
                 loadUserProfile()
                 binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
