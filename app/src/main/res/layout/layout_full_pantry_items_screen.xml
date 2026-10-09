@@ -576,22 +576,7 @@
                 android:textSize="13sp"
                 android:visibility="gone" />
 
-            <!-- 8. VIEW ALL PANTRY ITEMS BUTTON -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewAllFullPantry"
-                style="@style/PantryActionButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="18dp"
-                android:layout_marginBottom="12dp"
-                android:backgroundTint="#F4F9F6"
-                android:text="View All 48 Items in Pantry →"
-                android:textColor="@color/pantry_primary"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                app:cornerRadius="24dp"
-                app:strokeColor="#0B664B"
-                app:strokeWidth="1dp" />
+
 
         </LinearLayout>
 

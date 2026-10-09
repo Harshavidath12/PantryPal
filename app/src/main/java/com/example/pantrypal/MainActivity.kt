@@ -1766,8 +1766,6 @@ class MainActivity : AppCompatActivity() {
                     pantryViewModel.allItems.collect { items ->
                         binding.pantryHomeScreenContainer.btnViewAllPantry.text = getString(R.string.btn_view_all_items)
                         binding.fullPantryItemsScreenContainer.tvFullTotalItemsCount.text = items.size.toString()
-                        binding.fullPantryItemsScreenContainer.btnViewAllFullPantry.text =
-                            getString(R.string.btn_view_all_pantry_format, items.size)
 
                         val restockCount = items.count { it.stockPercent <= 25 }
                         binding.fullPantryItemsScreenContainer.tvFullToRestockCount.text = restockCount.toString()
