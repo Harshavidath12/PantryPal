@@ -341,6 +341,7 @@
                         android:layout_height="40dp"
                         android:background="@drawable/bg_circle_icon">
                         <TextView
+                            android:id="@+id/tvMemberYouInitials"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
@@ -356,6 +357,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
                         <TextView
+                            android:id="@+id/tvMemberYouName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tharushi (You)"

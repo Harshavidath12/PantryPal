@@ -273,18 +273,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Barcode Scanner (Ready for Integration)", Toast.LENGTH_SHORT).show()
         }
 
-        // Quick Action Buttons
-        binding.fullPantryItemsScreenContainer.btnAddItemFull.setOnClickListener {
-            showAddAlertDialog()
-        }
 
-        binding.fullPantryItemsScreenContainer.btnShoppingListFull.setOnClickListener {
-            selectTab(NavTab.SHOPPING)
-        }
-
-        binding.fullPantryItemsScreenContainer.btnSurplusHubFull.setOnClickListener {
-            selectTab(NavTab.SURPLUS)
-        }
 
         // View All Expiring
         binding.fullPantryItemsScreenContainer.tvViewAllExpiringFull.setOnClickListener {
@@ -521,6 +510,49 @@ class MainActivity : AppCompatActivity() {
         findViewById<android.widget.TextView>(R.id.btnUpdateProfile)?.setOnClickListener {
             showEditProfileDialog()
         }
+
+        findViewById<android.widget.TextView>(R.id.btnLogOut)?.setOnClickListener {
+            val prefs = getSharedPreferences("pantry_pal_prefs", MODE_PRIVATE)
+            prefs.edit().clear().apply()
+            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        loadUserProfile()
+    }
+
+    private fun loadUserProfile() {
+        val prefs = getSharedPreferences("pantry_pal_prefs", MODE_PRIVATE)
+        val userName = prefs.getString("user_name", null)
+        val userEmail = prefs.getString("user_email", null)
+
+        val displayName = when {
+            !userName.isNullOrEmpty() -> userName
+            !userEmail.isNullOrEmpty() -> userEmail.substringBefore("@")
+            else -> "User"
+        }
+
+        val tvProfileName = findViewById<android.widget.TextView>(R.id.tvProfileName)
+        val tvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
+        val tvMemberYouName = findViewById<android.widget.TextView>(R.id.tvMemberYouName)
+        val tvMemberYouInitials = findViewById<android.widget.TextView>(R.id.tvMemberYouInitials)
+
+        tvProfileName?.text = displayName
+
+        val initials = displayName.trim().split(" ")
+            .mapNotNull { it.firstOrNull()?.toString() }
+            .take(2)
+            .joinToString("")
+            .uppercase()
+            .ifEmpty { "U" }
+
+        tvInitials?.text = initials
+        tvMemberYouInitials?.text = initials
+
+        val firstName = displayName.split(" ").firstOrNull() ?: displayName
+        tvMemberYouName?.text = "$firstName (You)"
     }
 
     private fun showEditProfileDialog() {
@@ -562,19 +594,12 @@ class MainActivity : AppCompatActivity() {
             val newName = etEditName.text.toString().trim()
             if (newName.isNotEmpty()) {
                 lifecycleScope.launch {
-                    val success = profileRepository.updateProfileDetails(1L, newName, null) // Keeps photo as is
-                    if (success) {
-                        val mainTvProfileName = findViewById<android.widget.TextView>(R.id.tvProfileName)
-                        val mainTvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
-                        
-                        mainTvProfileName?.text = newName
-                        mainTvInitials?.text = newName.split(" ").mapNotNull { it.firstOrNull()?.toString() }.take(2).joinToString("").uppercase()
-                        
-                        Toast.makeText(this@MainActivity, "Profile name updated!", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    } else {
-                        Toast.makeText(this@MainActivity, "Failed to update profile.", Toast.LENGTH_SHORT).show()
-                    }
+                    val prefs = getSharedPreferences("pantry_pal_prefs", MODE_PRIVATE)
+                    prefs.edit().putString("user_name", newName).apply()
+                    profileRepository.updateProfileDetails(1L, newName, null)
+                    loadUserProfile()
+                    Toast.makeText(this@MainActivity, "Profile name updated!", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
                 }
             } else {
                 Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show()
@@ -662,7 +687,7 @@ class MainActivity : AppCompatActivity() {
                 binding.surplusScreenContainer.root.visibility = View.GONE
                 binding.surplusDetailContainer.root.visibility = View.GONE
                 findViewById<View>(R.id.profileScreenContainer).visibility = View.VISIBLE
-                Toast.makeText(this, "Profile tab selected", Toast.LENGTH_SHORT).show()
+                loadUserProfile()
                 binding.fullPantryItemsScreenContainer.root.visibility = View.GONE
                 binding.notificationsScreenContainer.visibility = View.GONE
                 binding.ivNavProfile.setColorFilter(primaryColor)
