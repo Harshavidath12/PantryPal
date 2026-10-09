@@ -50,11 +50,14 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 
-    // Supabase Postgrest (Database)
+    // Supabase Postgrest & Auth (Database & Authentication)
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.postgrest)
+    implementation("io.github.jan-tennert.supabase:gotrue-kt")
     implementation(libs.ktor.client.android)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("org.mindrot:jbcrypt:0.4")
+
 
     // Android lifecycle coroutines
     implementation(libs.lifecycle.viewmodel.ktx)
