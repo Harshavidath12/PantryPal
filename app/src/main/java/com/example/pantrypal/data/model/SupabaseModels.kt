@@ -43,6 +43,18 @@ data class NotificationDto(
 )
 
 @Serializable
+data class AddGroceryItemDto(
+    val id: kotlinx.serialization.json.JsonElement? = null,
+    @SerialName("item_name") val itemName: String = "",
+    val quantity: Double? = 1.0,
+    val category: String? = "Snacks",
+    @SerialName("storage_zone") val storageZone: String? = "Pantry",
+    val barcode: String? = null,
+    @SerialName("expiry_date") val expiryDate: String? = null,
+    @SerialName("created_at") val createdAt: String? = null
+)
+
+@Serializable
 data class SurplusHubDto(
     val id: String,
     val name: String,

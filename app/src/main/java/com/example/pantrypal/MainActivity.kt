@@ -116,11 +116,11 @@ class MainActivity : AppCompatActivity() {
         if (uri != null) {
             val ivProfilePicture = findViewById<android.widget.ImageView>(R.id.ivProfilePicture)
             val tvInitials = findViewById<android.widget.TextView>(R.id.tvInitials)
-            
+
             // Set image and hide initials
             ivProfilePicture?.setImageURI(uri)
             tvInitials?.visibility = View.GONE
-            
+
             // Save to database
             val profileRepository = com.example.pantrypal.data.repository.ProfileRepository()
             lifecycleScope.launch {
@@ -163,6 +163,35 @@ class MainActivity : AppCompatActivity() {
         setupSurplusSafetyChecklist()
         setupSurplusDatePicker()
         observeUiState()
+
+        // Handle deep-link back from AddGroceriesActivity
+        handleNavigateToExtra(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNavigateToExtra(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::pantryViewModel.isInitialized) {
+            pantryViewModel.loadData()
+        }
+    }
+
+    private fun handleNavigateToExtra(intent: Intent?) {
+        when (intent?.getStringExtra("navigate_to")) {
+            "pantry"   -> {
+                selectTab(NavTab.PANTRY)
+                if (::pantryViewModel.isInitialized) {
+                    pantryViewModel.loadData()
+                }
+            }
+            "shopping" -> selectTab(NavTab.SHOPPING)
+            "surplus"  -> selectTab(NavTab.SURPLUS)
+            "profile"  -> selectTab(NavTab.PROFILE)
+        }
     }
 
     private fun setupArchitecture() {
@@ -204,8 +233,12 @@ class MainActivity : AppCompatActivity() {
         })
 
         // Quick Action Buttons
+
+        // Quick Action Buttons
         binding.pantryHomeScreenContainer.btnAddItemQuick.setOnClickListener {
-            showAddAlertDialog()
+            startActivity(
+                Intent(this, com.example.pantrypal.ui.AddGroceries.AddGroceriesActivity::class.java)
+            )
         }
 
         binding.pantryHomeScreenContainer.btnShoppingListQuick.setOnClickListener {
@@ -273,6 +306,12 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Barcode Scanner (Ready for Integration)", Toast.LENGTH_SHORT).show()
         }
 
+        // Quick Action Buttons
+        binding.fullPantryItemsScreenContainer.btnAddItemFull.setOnClickListener {
+            startActivity(
+                Intent(this, com.example.pantrypal.ui.AddGroceries.AddGroceriesActivity::class.java)
+            )
+        }
 
 
         // View All Expiring
@@ -439,6 +478,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.fabAddAlert.setOnClickListener {
+            startActivity(
+                    Intent(
+                       this,
+                          com.example.pantrypal.ui.AddGroceries.AddGroceriesActivity::class.java
+                     )
+             )
             selectTab(NavTab.ADD)
         }
 
