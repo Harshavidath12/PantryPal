@@ -287,6 +287,16 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Add Screen Container -->
+    <include
+        android:id="@+id/addScreenContainer"
+        layout="@layout/layout_add_screen"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavCard"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Profile Screen Container -->
     <include
         android:id="@+id/profileScreenContainer"

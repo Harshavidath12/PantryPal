@@ -2,6 +2,11 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.PantryPal" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/pantry_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/pantry_primary_container</item>
+        <item name="android:windowBackground">@color/pantry_bg</item>
+        <item name="android:statusBarColor">@color/pantry_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>
