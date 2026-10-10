@@ -76,3 +76,14 @@ data class SurplusDonationDto(
     val status: String = "PENDING",
     @SerialName("created_at") val createdAt: String? = null
 )
+
+/** Insert payload deliberately omits server-generated id and created_at columns. */
+@Serializable
+data class SurplusDonationInsertDto(
+    @SerialName("hub_id") val hubId: String,
+    @SerialName("food_name") val foodName: String,
+    val quantity: String,
+    @SerialName("best_before") val bestBefore: String,
+    @SerialName("pickup_window") val pickupWindow: String,
+    val status: String = "PENDING"
+)
