@@ -312,7 +312,37 @@
 
             </LinearLayout>
 
+            <!-- 4. QUICK ACTION BUTTONS -->
+            <LinearLayout
+                android:id="@+id/llQuickActionsFull"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
+                <!-- + Add Item -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddItemFull"
+                    style="@style/PantryActionButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:backgroundTint="@color/pantry_primary"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:singleLine="true"
+                    android:text="@string/quick_add_item"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="20dp" />
+
+            </LinearLayout>
 
             <!-- 5. EXPIRING SOON SECTION -->
             <LinearLayout
