@@ -1,6 +1,7 @@
 package com.example.pantrypal.data.repository
 
 import com.example.pantrypal.data.model.SurplusDonationDto
+import com.example.pantrypal.data.model.SurplusDonationInsertDto
 import com.example.pantrypal.data.model.SurplusHubDto
 import com.example.pantrypal.data.remote.SupabaseProvider
 import io.github.jan.supabase.postgrest.from
@@ -29,7 +30,15 @@ class SurplusRepository {
 
     @OptIn(InternalSerializationApi::class)
     suspend fun createDonation(donation: SurplusDonationDto): String = withContext(Dispatchers.IO) {
-        SupabaseProvider.client.from("surplus_donations").insert(donation.copy(donorId = null)) {
+        val insertPayload = SurplusDonationInsertDto(
+            hubId = donation.hubId,
+            foodName = donation.foodName,
+            quantity = donation.quantity,
+            bestBefore = donation.bestBefore,
+            pickupWindow = donation.pickupWindow,
+            status = donation.status
+        )
+        SupabaseProvider.client.from("surplus_donations").insert(insertPayload) {
             select()
         }.decodeSingle<SurplusDonationDto>().id ?: error("Donation was saved, but its ID was not returned.")
     }
